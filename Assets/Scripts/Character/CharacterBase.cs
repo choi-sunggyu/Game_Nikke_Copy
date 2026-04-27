@@ -1,3 +1,5 @@
+using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public abstract class CharacterBase : MonoBehaviour
@@ -22,8 +24,10 @@ public abstract class CharacterBase : MonoBehaviour
     public bool IsAlive => survive;
     public float HpRatio => hp / maxHp;
     public float MaxBulletCount => maxBulletCount;
+    public int CurrentBulletCount => bulletCount;
     public float ShieldRatio => shield / maxShield;
 
+    public bool isForceReloading { get; private set; }
 
     public abstract void Initialize();
     public abstract void UseSkill();
@@ -65,7 +69,6 @@ public abstract class CharacterBase : MonoBehaviour
                 hp -= damage;
             }
             
-            
             //사망 여부   
             if(hp <= 0)
             {
@@ -73,6 +76,49 @@ public abstract class CharacterBase : MonoBehaviour
             }
         }
     }    
+
+    public void TryFire()
+    {
+        // 사격 조건 체크
+        if (survive)
+        {
+            if (!isForceReloading && bulletCount > 0) //강제 리로딩 중이 아니고 탄창이 남아 있는 경우에만 사격
+            {
+                bulletCount--;
+                // 사격 로직 (예: 총알 발사, 애니메이션 재생 등)
+                Debug.Log("사격");
+                if(bulletCount == 0) //탄창이 다 떨어졌으면 강제 리로딩 상태로 전환
+                {
+                    isForceReloading = true;
+                    Debug.Log("탄창이 다 떨어졌습니다. 강제 리로딩 상태로 전환합니다.");
+                    TryReload();
+                }
+            }
+            else // 강제 리로딩 중이거나 탄창이 없는 경우 사격 불가
+            {
+                Debug.Log("사격 불가");
+                // bulletCount가 0인 경우는 여기서 TryReload를 하지 않고 다른 곳에서 처리 중일 것임
+            }
+        }
+    }
+
+    public void TryReload()
+    {
+        // 호출 전 survive 체크가 보장되므로 중복 체크 생략
+        // 리로딩 조건 체크
+        if(bulletCount == maxBulletCount) return;
+        StartCoroutine(ReloadDelay());
+        // 이후 리로딩 애니메이션 재생 추가할 예정
+    }
+
+    private IEnumerator ReloadDelay()
+    {
+        // 리로딩 시간 대기
+        yield return new WaitForSeconds(reloadTime);
+        bulletCount = maxBulletCount;
+        isForceReloading = false;
+        Debug.Log("리로딩 완료. 사격 가능");
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()

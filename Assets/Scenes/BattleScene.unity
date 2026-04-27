@@ -350,7 +350,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1820671842}
   - component: {fileID: 1820671841}
-  - component: {fileID: 1820671840}
+  - component: {fileID: 1820671843}
   m_Layer: 0
   m_Name: Titan
   m_TagString: Untagged
@@ -358,33 +358,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1820671840
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1820671839}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 897267cc735ca8f42b43859cd8685d75, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Viper
-  hp: 0
-  maxHp: 0
-  maxBulletCount: 0
-  bulletCount: 0
-  shield: 0
-  maxShield: 0
-  buff: 0
-  debuff: 0
-  crunch: 0
-  skillCoolTime: 0
-  burstCoolTime: 0
-  reloadTime: 0
-  survive: 0
-  chargingBurstGauge: 0
-  attackDamage: 0
 --- !u!212 &1820671841
 SpriteRenderer:
   serializedVersion: 2
@@ -455,6 +428,81 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.09100004, y: -1.95, z: 0}
   m_LocalScale: {x: 0.3884, y: 0.3884, z: 0.3884}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1820671843
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1820671839}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 949b6f4a1554b994fa243e8fb9856d35, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Titan
+  hp: 0
+  maxHp: 0
+  maxBulletCount: 0
+  bulletCount: 0
+  shield: 0
+  maxShield: 0
+  buff: 0
+  debuff: 0
+  crunch: 0
+  skillCoolTime: 0
+  burstCoolTime: 0
+  reloadTime: 0
+  survive: 0
+  chargingBurstGauge: 0
+  attackDamage: 0
+--- !u!1 &1850117850
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1850117852}
+  - component: {fileID: 1850117851}
+  m_Layer: 0
+  m_Name: CharacterManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1850117851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1850117850}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cec64908193e3694098a0f5c7afadf0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterManager
+  currentCharacter: {fileID: 1989108160}
+  characters:
+  - {fileID: 2094593711}
+  - {fileID: 1820671843}
+--- !u!4 &1850117852
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1850117850}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.18513, y: -0.62645, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -588,7 +636,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2094593710}
   - component: {fileID: 2094593709}
-  - component: {fileID: 2094593708}
+  - component: {fileID: 2094593711}
   m_Layer: 0
   m_Name: Ghost
   m_TagString: Untagged
@@ -596,33 +644,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2094593708
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2094593707}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 897267cc735ca8f42b43859cd8685d75, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Viper
-  hp: 0
-  maxHp: 0
-  maxBulletCount: 0
-  bulletCount: 0
-  shield: 0
-  maxShield: 0
-  buff: 0
-  debuff: 0
-  crunch: 0
-  skillCoolTime: 0
-  burstCoolTime: 0
-  reloadTime: 0
-  survive: 0
-  chargingBurstGauge: 0
-  attackDamage: 0
 --- !u!212 &2094593709
 SpriteRenderer:
   serializedVersion: 2
@@ -697,6 +718,33 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2094593711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2094593707}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ef2eccc91d77cf48930b21cb388d9c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Ghost
+  hp: 0
+  maxHp: 0
+  maxBulletCount: 0
+  bulletCount: 0
+  shield: 0
+  maxShield: 0
+  buff: 0
+  debuff: 0
+  crunch: 0
+  skillCoolTime: 0
+  burstCoolTime: 0
+  reloadTime: 0
+  survive: 0
+  chargingBurstGauge: 0
+  attackDamage: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -706,3 +754,4 @@ SceneRoots:
   - {fileID: 1989108159}
   - {fileID: 2094593710}
   - {fileID: 1820671842}
+  - {fileID: 1850117852}

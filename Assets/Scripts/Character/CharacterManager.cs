@@ -4,8 +4,8 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class CharacterManager : MonoBehaviour
-{
-    [SerializeField] private CharacterBase currentCharacter; // - 현재 조작 중인 캐릭터를 추적하는 변수
+{//이벤트 구독, 현재 활성 캐릭터에게 전달
+    private CharacterBase currentCharacter;
     [SerializeField] private List<CharacterBase> characters; // - 게임 내 모든 캐릭터를 관리하는 리스트
     private bool changing; // - 전환 중인지 아닌지
     private float delayTime; // - 전환 딜레이 시간
@@ -18,6 +18,23 @@ public class CharacterManager : MonoBehaviour
         {
             Debug.LogError("캐릭터가 연결되지 않았습니다");
         }
+    }
+
+    void OnEnable()
+    {
+        //이벤트 구독
+        InputManager.OnFire += HandleFire;
+        InputManager.OnIdle += HandleIdle;
+    }
+
+    void HandleFire()
+    {
+        currentCharacter.TryFire();
+    }
+
+    void HandleIdle()
+    {
+        currentCharacter.TryReload();
     }
 
     public void SwitchCharacter(int index)
@@ -57,6 +74,11 @@ public class CharacterManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+    
+    }
+    
+    void OnDisable() {
+        InputManager.OnFire -= HandleFire;
+        InputManager.OnIdle -= HandleIdle;
     }
 }
