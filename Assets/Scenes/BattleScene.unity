@@ -459,6 +459,8 @@ MonoBehaviour:
   survive: 0
   chargingBurstGauge: 0
   attackDamage: 0
+  idleSprite: {fileID: 21300000, guid: 6c46695d820de6b42aa2a52bd9602b7c, type: 3}
+  shootSprite: {fileID: 0}
 --- !u!1 &1850117850
 GameObject:
   m_ObjectHideFlags: 0
@@ -488,7 +490,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cec64908193e3694098a0f5c7afadf0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterManager
-  currentCharacter: {fileID: 1989108160}
   characters:
   - {fileID: 2094593711}
   - {fileID: 1820671843}
@@ -626,6 +627,8 @@ MonoBehaviour:
   survive: 0
   chargingBurstGauge: 0
   attackDamage: 0
+  idleSprite: {fileID: 21300000, guid: 67a37994acbf2714490b9b9f7c7dde16, type: 3}
+  shootSprite: {fileID: 21300000, guid: b44b49e3d6a4d4048814028b3c7c7315, type: 3}
 --- !u!1 &2094593707
 GameObject:
   m_ObjectHideFlags: 0
@@ -745,6 +748,8 @@ MonoBehaviour:
   survive: 0
   chargingBurstGauge: 0
   attackDamage: 0
+  idleSprite: {fileID: 21300000, guid: 4584805a15f230a428c88c6c13175a80, type: 3}
+  shootSprite: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
