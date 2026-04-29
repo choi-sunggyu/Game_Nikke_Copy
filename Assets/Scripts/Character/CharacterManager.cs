@@ -28,6 +28,7 @@ public class CharacterManager : MonoBehaviour
         //이벤트 구독
         InputManager.OnFire += HandleFire;
         InputManager.OnIdle += HandleIdle;
+        InputManager.OnSwitchCharacter += SwitchCharacter;
     }
 
     void HandleFire()
@@ -84,5 +85,6 @@ public class CharacterManager : MonoBehaviour
     void OnDisable() {
         InputManager.OnFire -= HandleFire;
         InputManager.OnIdle -= HandleIdle;
+        InputManager.OnSwitchCharacter -= SwitchCharacter;
     }
 }

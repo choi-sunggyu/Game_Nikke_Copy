@@ -7,6 +7,7 @@ public class InputManager : MonoBehaviour
     public static event Action OnFire;
     public static event Action OnIdle;
     public static event Action OnFireRelease;
+    public static event Action<int> OnSwitchCharacter;  // int: 캐릭터 인덱스
 
     void Start()
     {
@@ -29,5 +30,12 @@ public class InputManager : MonoBehaviour
         {
             OnIdle?.Invoke();
         }
+
+        if(Input.GetKeyDown(KeyCode.Alpha1))
+            OnSwitchCharacter?.Invoke(0);  // Ghost
+        if(Input.GetKeyDown(KeyCode.Alpha2))
+            OnSwitchCharacter?.Invoke(1);  // Titan
+        if(Input.GetKeyDown(KeyCode.Alpha3))
+            OnSwitchCharacter?.Invoke(2);  // Viper
     }
 }
