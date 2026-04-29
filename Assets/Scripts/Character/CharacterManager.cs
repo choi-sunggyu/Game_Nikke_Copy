@@ -10,14 +10,17 @@ public class CharacterManager : MonoBehaviour
     private bool changing; // - 전환 중인지 아닌지
     private float delayTime; // - 전환 딜레이 시간
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void Awake()
     {
-        currentCharacter = characters[0];
+        currentCharacter = characters[0];  // Awake로 이동
         if(currentCharacter == null)
         {
             Debug.LogError("캐릭터가 연결되지 않았습니다");
         }
+    }
+
+    void Start()
+    {
     }
 
     void OnEnable()
@@ -29,6 +32,7 @@ public class CharacterManager : MonoBehaviour
 
     void HandleFire()
     {
+        Debug.Log("HandleFire 호출됨");
         currentCharacter.TryFire();
     }
 

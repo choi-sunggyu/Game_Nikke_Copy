@@ -17,12 +17,12 @@ public abstract class CharacterBase : MonoBehaviour
     [SerializeField] protected float skillCoolTime;
     [SerializeField] protected float burstCoolTime;
     [SerializeField] protected float reloadTime;
-    [SerializeField] private bool survive;
+    [SerializeField] protected bool survive;
     [SerializeField] protected float chargingBurstGauge;
     [SerializeField] protected float attackDamage;
-    [SerializeField] private Sprite idleSprite;   // 대기 이미지
-    [SerializeField] private Sprite shootSprite;  // 사격 이미지
-    [SerializeField] private Sprite reloadSprite; // 리로딩 이미지
+    [SerializeField] protected Sprite idleSprite;   // 대기 이미지
+    [SerializeField] protected Sprite shootSprite;  // 사격 이미지
+    [SerializeField] protected Sprite reloadSprite; // 리로딩 이미지
     private CharacterState currentState { get; set; }
     private SpriteRenderer spriteRenderer;
 
@@ -31,6 +31,8 @@ public abstract class CharacterBase : MonoBehaviour
     public float MaxBulletCount => maxBulletCount;
     public int CurrentBulletCount => bulletCount;
     public float ShieldRatio => shield / maxShield;
+    public CharacterState CurrentState => currentState;
+    private Coroutine reloadCoroutine;
 
     public abstract void Initialize();
     public abstract void UseSkill();
@@ -87,13 +89,15 @@ public abstract class CharacterBase : MonoBehaviour
         }
     }    
 
-    public void TryFire()
+    public virtual void TryFire()
     {
+        Debug.Log($"TryFire 호출 / survive: {survive} / state: {currentState} / bullet: {bulletCount}");
         // 사격 조건 체크
         if (survive)
         {
-            if (currentState != CharacterState.Reload && bulletCount > 0) //강제 리로딩 중이 아니고 탄창이 남아 있는 경우에만 사격
+            if (bulletCount > 0) //강제 리로딩 중이 아니고 탄창이 남아 있는 경우에만 사격
             {
+                StopReload();
                 spriteRenderer.sprite = shootSprite;
                 currentState = CharacterState.Fire;
                 bulletCount--;
@@ -113,6 +117,14 @@ public abstract class CharacterBase : MonoBehaviour
         }
     }
 
+    protected void StopReload()
+    {
+        if(reloadCoroutine != null)
+        {
+            StopCoroutine(reloadCoroutine);
+            reloadCoroutine = null;
+        }
+    }
     public void TryReload()
     {
         // 호출 전 survive 체크가 보장되므로 중복 체크 생략
@@ -124,7 +136,8 @@ public abstract class CharacterBase : MonoBehaviour
             return;
         }
         if(currentState == CharacterState.Reload) return;
-        StartCoroutine(ReloadDelay());
+        //StartCoroutine(ReloadDelay());
+        reloadCoroutine = StartCoroutine(ReloadDelay());
         // 이후 리로딩 애니메이션 재생 추가할 예정
     }
 
@@ -134,10 +147,28 @@ public abstract class CharacterBase : MonoBehaviour
         spriteRenderer.sprite = reloadSprite;
         // 리로딩 시간 대기
         yield return new WaitForSeconds(reloadTime);
+        
         bulletCount = maxBulletCount;
         currentState = CharacterState.Idle;
         spriteRenderer.sprite = idleSprite;
-        Debug.Log("리로딩 완료. 사격 가능");
+        Debug.Log($"리로딩 완료/ survive: {survive} / state: {currentState} / bullet: {bulletCount}");
+    }
+
+    protected void ChangeState(CharacterState newState)
+    {
+        currentState = newState;
+        switch(newState)
+        {
+            case CharacterState.Idle:
+                spriteRenderer.sprite = idleSprite;
+                break;
+            case CharacterState.Fire:
+                spriteRenderer.sprite = shootSprite;
+                break;
+            case CharacterState.Reload:
+                spriteRenderer.sprite = reloadSprite;
+                break;
+        }
     }
 
     void Awake()

@@ -21,16 +21,17 @@ public class Ghost : CharacterBase
         burstCoolTime = 15.0f;
         skillCoolTime = 10.0f;
         attackDamage = 20;
+        survive = true;
     }
 
     public override void UseSkill()
     {
-        // Viper의 스킬 사용 로직
+        // Ghost 스킬 사용 로직
     }
 
     public override void UseBurst()
     {
-        // Viper의 버스트 사용 로직
+        // Ghost 버스트 사용 로직
     }
 
     // Update is called once per frame

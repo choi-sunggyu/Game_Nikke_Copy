@@ -21,6 +21,7 @@ public class Titan : CharacterBase
         burstCoolTime = 20.0f;
         skillCoolTime = 10.0f;
         attackDamage = 10;
+        survive = true;
     }
 
     public override void UseSkill()

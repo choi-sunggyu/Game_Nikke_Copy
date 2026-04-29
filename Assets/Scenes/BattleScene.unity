@@ -452,7 +452,6 @@ MonoBehaviour:
   maxShield: 0
   buff: 0
   debuff: 0
-  crunch: 0
   skillCoolTime: 0
   burstCoolTime: 0
   reloadTime: 0
@@ -461,6 +460,7 @@ MonoBehaviour:
   attackDamage: 0
   idleSprite: {fileID: 21300000, guid: 6c46695d820de6b42aa2a52bd9602b7c, type: 3}
   shootSprite: {fileID: 0}
+  reloadSprite: {fileID: 0}
 --- !u!1 &1850117850
 GameObject:
   m_ObjectHideFlags: 0
@@ -491,8 +491,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterManager
   characters:
-  - {fileID: 2094593711}
+  - {fileID: 1989108160}
   - {fileID: 1820671843}
+  - {fileID: 1989108160}
 --- !u!4 &1850117852
 Transform:
   m_ObjectHideFlags: 0
@@ -620,7 +621,6 @@ MonoBehaviour:
   maxShield: 0
   buff: 0
   debuff: 0
-  crunch: 0
   skillCoolTime: 0
   burstCoolTime: 0
   reloadTime: 0
@@ -629,6 +629,7 @@ MonoBehaviour:
   attackDamage: 0
   idleSprite: {fileID: 21300000, guid: 67a37994acbf2714490b9b9f7c7dde16, type: 3}
   shootSprite: {fileID: 21300000, guid: b44b49e3d6a4d4048814028b3c7c7315, type: 3}
+  reloadSprite: {fileID: 21300000, guid: f972d0036028a214bb53fbe188906830, type: 3}
 --- !u!1 &2094593707
 GameObject:
   m_ObjectHideFlags: 0
@@ -741,7 +742,6 @@ MonoBehaviour:
   maxShield: 0
   buff: 0
   debuff: 0
-  crunch: 0
   skillCoolTime: 0
   burstCoolTime: 0
   reloadTime: 0
@@ -750,6 +750,51 @@ MonoBehaviour:
   attackDamage: 0
   idleSprite: {fileID: 21300000, guid: 4584805a15f230a428c88c6c13175a80, type: 3}
   shootSprite: {fileID: 0}
+  reloadSprite: {fileID: 0}
+--- !u!1 &2119429276
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2119429278}
+  - component: {fileID: 2119429277}
+  m_Layer: 0
+  m_Name: InputManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2119429277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2119429276}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e92da5367724e7748a42062456e981c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InputManager
+--- !u!4 &2119429278
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2119429276}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.18513, y: -0.62645, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -760,3 +805,4 @@ SceneRoots:
   - {fileID: 2094593710}
   - {fileID: 1820671842}
   - {fileID: 1850117852}
+  - {fileID: 2119429278}
