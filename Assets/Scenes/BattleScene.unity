@@ -459,8 +459,9 @@ MonoBehaviour:
   chargingBurstGauge: 0
   attackDamage: 0
   idleSprite: {fileID: 21300000, guid: 6c46695d820de6b42aa2a52bd9602b7c, type: 3}
-  shootSprite: {fileID: 0}
-  reloadSprite: {fileID: 0}
+  shootSprite: {fileID: 21300000, guid: d3f50942f7871044d897269e0902abef, type: 3}
+  reloadSprite: {fileID: 21300000, guid: 62802689f7d37fd4f8e9d38d2f346832, type: 3}
+  fireRate: 0
 --- !u!1 &1850117850
 GameObject:
   m_ObjectHideFlags: 0
@@ -491,8 +492,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterManager
   characters:
-  - {fileID: 1989108160}
   - {fileID: 1820671843}
+  - {fileID: 2094593711}
   - {fileID: 1989108160}
 --- !u!4 &1850117852
 Transform:
@@ -630,6 +631,7 @@ MonoBehaviour:
   idleSprite: {fileID: 21300000, guid: 67a37994acbf2714490b9b9f7c7dde16, type: 3}
   shootSprite: {fileID: 21300000, guid: b44b49e3d6a4d4048814028b3c7c7315, type: 3}
   reloadSprite: {fileID: 21300000, guid: f972d0036028a214bb53fbe188906830, type: 3}
+  fireRate: 0
 --- !u!1 &2094593707
 GameObject:
   m_ObjectHideFlags: 0
@@ -749,8 +751,9 @@ MonoBehaviour:
   chargingBurstGauge: 0
   attackDamage: 0
   idleSprite: {fileID: 21300000, guid: 4584805a15f230a428c88c6c13175a80, type: 3}
-  shootSprite: {fileID: 0}
-  reloadSprite: {fileID: 0}
+  shootSprite: {fileID: 21300000, guid: 9b85a13912b7bbc419f0fee86f6388b7, type: 3}
+  reloadSprite: {fileID: 21300000, guid: 64c2d76a077525f4db5ad5c052a68be0, type: 3}
+  fireRate: 0
 --- !u!1 &2119429276
 GameObject:
   m_ObjectHideFlags: 0

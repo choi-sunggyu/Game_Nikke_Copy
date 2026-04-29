@@ -23,6 +23,8 @@ public abstract class CharacterBase : MonoBehaviour
     [SerializeField] protected Sprite idleSprite;   // 대기 이미지
     [SerializeField] protected Sprite shootSprite;  // 사격 이미지
     [SerializeField] protected Sprite reloadSprite; // 리로딩 이미지
+    [SerializeField] protected float fireRate; // 발사 딜레이
+    private float nextFireTime;                 // 다음 발사 가능 시간
     private CharacterState currentState { get; set; }
     private SpriteRenderer spriteRenderer;
 
@@ -31,6 +33,7 @@ public abstract class CharacterBase : MonoBehaviour
     public float MaxBulletCount => maxBulletCount;
     public int CurrentBulletCount => bulletCount;
     public float ShieldRatio => shield / maxShield;
+    public float NextFireTime => nextFireTime;
     public CharacterState CurrentState => currentState;
     private Coroutine reloadCoroutine;
 
@@ -95,12 +98,15 @@ public abstract class CharacterBase : MonoBehaviour
         // 사격 조건 체크
         if (survive)
         {
-            if (bulletCount > 0) //강제 리로딩 중이 아니고 탄창이 남아 있는 경우에만 사격
+            if (bulletCount > 0 && Time.time >= nextFireTime) //강제 리로딩 중이 아니고 탄창이 남아 있는 경우에만 사격
             {
                 StopReload();
                 spriteRenderer.sprite = shootSprite;
                 currentState = CharacterState.Fire;
+
                 bulletCount--;
+                nextFireTime = Time.time + fireRate;
+
                 // 사격 로직 (예: 총알 발사, 애니메이션 재생 등)
                 Debug.Log("사격");
                 if(bulletCount == 0) //탄창이 다 떨어졌으면 강제 리로딩 상태로 전환
