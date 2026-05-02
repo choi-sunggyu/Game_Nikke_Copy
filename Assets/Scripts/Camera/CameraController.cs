@@ -8,6 +8,10 @@ public class CameraController : MonoBehaviour
     private Vector3 targetPosition; // 카메라가 따라갈 목표 위치
     [SerializeField] private float moveSpeed; // 카메라 이동 속도
     [SerializeField] private List<CharacterBase> characters; // 게임 내 모든 캐릭터를 관리하는 리스트
+
+    [SerializeField] private Camera cam;
+    [SerializeField] private float targetZoom = 5f;
+    [SerializeField] private float zoomSpeed = 5f;
     
     void Start()
     {
@@ -48,6 +52,13 @@ public class CameraController : MonoBehaviour
             transform.position, 
             targetPosition, 
             moveSpeed * Time.deltaTime
+        );
+
+        // 확대/축소
+        cam.orthographicSize = Mathf.Lerp(
+            cam.orthographicSize,
+            targetZoom,
+            zoomSpeed * Time.deltaTime
         );
     }
 }

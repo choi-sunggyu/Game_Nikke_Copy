@@ -7,5 +7,6 @@ public enum CharacterState
 {
     Idle,
     Fire,
-    Reload
+    Reload,
+    Dead
 }

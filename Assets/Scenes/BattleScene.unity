@@ -274,6 +274,9 @@ MonoBehaviour:
   - {fileID: 2094593711}
   - {fileID: 1820671843}
   - {fileID: 1989108160}
+  cam: {fileID: 519420031}
+  targetZoom: 5
+  zoomSpeed: 5
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
