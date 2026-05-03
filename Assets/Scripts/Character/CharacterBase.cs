@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -40,6 +41,8 @@ public abstract class CharacterBase : MonoBehaviour
     public abstract void Initialize();
     public abstract void UseSkill();
     public abstract void UseBurst();
+    public static event Action OnReloadStart;
+    public static event Action OnReloadEnd;
 
     public void TakeDamage(float damage)
     {
@@ -151,12 +154,14 @@ public abstract class CharacterBase : MonoBehaviour
     {
         currentState = CharacterState.Reload;
         spriteRenderer.sprite = reloadSprite;
+        OnReloadStart?.Invoke(); // 리로딩 시작 이벤트 발생
         // 리로딩 시간 대기
         yield return new WaitForSeconds(reloadTime);
         
         bulletCount = maxBulletCount;
         currentState = CharacterState.Idle;
         spriteRenderer.sprite = idleSprite;
+        OnReloadEnd?.Invoke(); // 리로딩 완료 이벤트 발생
         Debug.Log($"리로딩 완료/ survive: {survive} / state: {currentState} / bullet: {bulletCount}");
     }
 
