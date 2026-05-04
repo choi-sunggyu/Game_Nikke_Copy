@@ -41,8 +41,8 @@ public abstract class CharacterBase : MonoBehaviour
     public abstract void Initialize();
     public abstract void UseSkill();
     public abstract void UseBurst();
-    public static event Action OnReloadStart;
-    public static event Action OnReloadEnd;
+    public static event Action OnForcedReloadStart;
+    public static event Action OnForcedReloadEnd;
 
     public void TakeDamage(float damage)
     {
@@ -134,7 +134,7 @@ public abstract class CharacterBase : MonoBehaviour
             reloadCoroutine = null;
         }
     }
-    public void TryReload()
+    public virtual void TryReload()
     {
         // 호출 전 survive 체크가 보장되므로 중복 체크 생략
         // 리로딩 조건 체크
@@ -145,23 +145,28 @@ public abstract class CharacterBase : MonoBehaviour
             return;
         }
         if(currentState == CharacterState.Reload) return;
-        //StartCoroutine(ReloadDelay());
+
+        bool isForced = (bulletCount == 0);
         reloadCoroutine = StartCoroutine(ReloadDelay());
         // 이후 리로딩 애니메이션 재생 추가할 예정
     }
 
-    private IEnumerator ReloadDelay()
+    private IEnumerator ReloadDelay(bool isForced = false)
     {
         currentState = CharacterState.Reload;
         spriteRenderer.sprite = reloadSprite;
-        OnReloadStart?.Invoke(); // 리로딩 시작 이벤트 발생
+
+        if(isForced) OnForcedReloadStart?.Invoke();
+        
         // 리로딩 시간 대기
         yield return new WaitForSeconds(reloadTime);
         
         bulletCount = maxBulletCount;
         currentState = CharacterState.Idle;
         spriteRenderer.sprite = idleSprite;
-        OnReloadEnd?.Invoke(); // 리로딩 완료 이벤트 발생
+
+        if(isForced) OnForcedReloadEnd?.Invoke();
+        
         Debug.Log($"리로딩 완료/ survive: {survive} / state: {currentState} / bullet: {bulletCount}");
     }
 

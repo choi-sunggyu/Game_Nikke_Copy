@@ -1,6 +1,7 @@
 using Microsoft.Unity.VisualStudio.Editor;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SniperScopeUI : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class SniperScopeUI : MonoBehaviour
     public GameObject scopeOverlay; // 조준경 전체 패널
     private CanvasGroup canvasGroup; //뭔데 이거
     private RectTransform scopeRectTransform;
+    public UnityEngine.UI.Image donutImage;
     private bool isAiming = false;
     private bool isViperActive = false;
     private bool isReloading = false;
@@ -24,6 +26,15 @@ public class SniperScopeUI : MonoBehaviour
         // 시작 시 숨김
         canvasGroup.alpha = 0f;
         scopeOverlay.SetActive(false);
+
+        Texture2D donut = CreateDonutTexture(3072, 200f); // 3072x3072 텍스처, 중앙에 반지름 200의 구멍
+        Sprite donutSprite = Sprite.Create(
+            donut,
+            new Rect(0, 0, 3072, 3072),
+            new Vector2(0.5f, 0.5f)
+        );
+
+        donutImage.sprite = donutSprite;
     }
 
     void OnEnable()
@@ -31,8 +42,8 @@ public class SniperScopeUI : MonoBehaviour
         InputManager.OnFirePress   += ShowScope;
         InputManager.OnFireRelease += HideScope;
         InputManager.OnSwitchCharacter += OnCharacterSwitch;
-        CharacterBase.OnReloadStart   += HandleReloadStart;
-        CharacterBase.OnReloadEnd     += HandleReloadEnd;
+        CharacterBase.OnForcedReloadStart    += HandleReloadStart;
+        CharacterBase.OnForcedReloadEnd     += HandleReloadEnd;
     }
 
     void OnDisable()
@@ -40,8 +51,8 @@ public class SniperScopeUI : MonoBehaviour
         InputManager.OnFirePress   -= ShowScope;
         InputManager.OnFireRelease -= HideScope;
         InputManager.OnSwitchCharacter -= OnCharacterSwitch;
-        CharacterBase.OnReloadStart -= HandleReloadStart;
-        CharacterBase.OnReloadEnd -= HandleReloadEnd;
+        CharacterBase.OnForcedReloadStart -= HandleReloadStart;
+        CharacterBase.OnForcedReloadEnd -= HandleReloadEnd;
     }
 
     void OnCharacterSwitch(int index)
@@ -84,6 +95,29 @@ public class SniperScopeUI : MonoBehaviour
     {
         isAiming = false;
         canvasGroup.alpha = 0f;
+    }
+
+    Texture2D CreateDonutTexture(int texSize, float holeRadius)
+    {
+        Texture2D tex = new Texture2D(texSize, texSize);
+        Vector2 center = new Vector2(texSize / 2f, texSize / 2f);
+
+        for (int x = 0; x < texSize; x++)
+        {
+            for (int y = 0; y < texSize; y++)
+            {
+                float dist = Vector2.Distance(new Vector2(x, y), center);
+
+                // 원 안 = 투명, 원 밖 = 검은색
+                if (dist < holeRadius)
+                    tex.SetPixel(x, y, Color.clear);
+                else
+                    tex.SetPixel(x, y, new Color(0, 0, 0, 0.9f));
+            }
+        }
+
+        tex.Apply();
+        return tex;
     }
 
     void Update()
