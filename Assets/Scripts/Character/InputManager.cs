@@ -14,6 +14,11 @@ public class InputManager : MonoBehaviour
     {
         
     }
+    
+    public static void InvokeSwitchCharacter(int index)
+    {
+        OnSwitchCharacter?.Invoke(index);
+    }
 
     void Update()
     {

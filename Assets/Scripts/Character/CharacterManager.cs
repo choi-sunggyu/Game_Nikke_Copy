@@ -24,6 +24,9 @@ public class CharacterManager : MonoBehaviour
     {
         int startIndex = characters.Count / 2;
         currentCharacter = characters[startIndex];
+
+        InputManager.InvokeSwitchCharacter(startIndex);
+        CharacterBase.InvokeBulletCountChanged(currentCharacter.CurrentBulletCount);
     }
 
     void OnEnable()
@@ -75,6 +78,10 @@ public class CharacterManager : MonoBehaviour
         changing = true;
         // currentCharacter 변경
         currentCharacter = characters[index];
+
+        // 전환 시 새 캐릭터 BulletCount 이벤트 발생
+        CharacterBase.InvokeBulletCountChanged(currentCharacter.CurrentBulletCount);
+
         yield return new WaitForSeconds(delayTime);
         changing = false;
     }
