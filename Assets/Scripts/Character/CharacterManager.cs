@@ -12,7 +12,8 @@ public class CharacterManager : MonoBehaviour
 
     void Awake()
     {
-        currentCharacter = characters[0];  // Awake로 이동
+        int startIndex = characters.Count / 2;
+        currentCharacter = characters[startIndex];  // Awake로 이동
         if(currentCharacter == null)
         {
             Debug.LogError("캐릭터가 연결되지 않았습니다");
@@ -21,6 +22,8 @@ public class CharacterManager : MonoBehaviour
 
     void Start()
     {
+        int startIndex = characters.Count / 2;
+        currentCharacter = characters[startIndex];
     }
 
     void OnEnable()

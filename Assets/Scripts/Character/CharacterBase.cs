@@ -147,7 +147,7 @@ public abstract class CharacterBase : MonoBehaviour
         if(currentState == CharacterState.Reload) return;
 
         bool isForced = (bulletCount == 0);
-        reloadCoroutine = StartCoroutine(ReloadDelay());
+        reloadCoroutine = StartCoroutine(ReloadDelay(isForced));
         // 이후 리로딩 애니메이션 재생 추가할 예정
     }
 
