@@ -2,9 +2,15 @@ using UnityEngine;
 
 public class EnemyA : EnemyBase // 원거리 적
 {
+    private float nextEnemyAFireTime = 7f; // EnemyA 전용 변수
     public override void Attack()
     {
-        throw new System.NotImplementedException();
+        if (Time.time < nextEnemyAFireTime) return;
+        ChangeState(EnemyState.Attack);
+        nextEnemyAFireTime = Time.time + attackDelay;
+        // 공격 로직 (예: 플레이어에게 데미지 주기)
+        // 가장 가까운 캐릭터 찾기 or 랜덤으로 캐릭터 선택하기 or 엄폐물에서 나온 캐릭터 공격하기
+        
     }
 
     public override void Initialize()
@@ -19,21 +25,11 @@ public class EnemyA : EnemyBase // 원거리 적
     }
 
     public override void Jump()
-    {
-        // EnemyA는 점프하지 않음
-        throw new System.NotImplementedException();
-    }
+    {}
 
     public override void Move()
-    {
-        // EnemyA는 이동하지 않음
-        throw new System.NotImplementedException();
-    }
+    {}
 
-    void Start()
-    {
-        Initialize();
-    }
     void Update()
     {
         

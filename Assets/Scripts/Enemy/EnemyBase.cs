@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class EnemyBase : MonoBehaviour
@@ -12,6 +13,8 @@ public abstract class EnemyBase : MonoBehaviour
     [SerializeField] protected int currentLayer;
     private EnemyState currentState { get; set; }
     private SpriteRenderer spriteRenderer;
+    protected ITargetStrategy targetStrategy;
+    protected List<CharacterBase> characters;
 
     //프로퍼티
     public bool IsAlive => survive;
@@ -46,6 +49,10 @@ public abstract class EnemyBase : MonoBehaviour
         // 나중에 애니메이션 연동 추가
     }
     
+    protected CharacterBase GetTarget()
+    {
+        return targetStrategy.GetTarget();
+    }
 
     void Start()
     {
@@ -56,4 +63,9 @@ public abstract class EnemyBase : MonoBehaviour
     {
         
     }
+}
+
+public interface ITargetStrategy
+{
+    CharacterBase GetTarget();
 }
