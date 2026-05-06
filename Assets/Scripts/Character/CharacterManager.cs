@@ -78,6 +78,7 @@ public class CharacterManager : MonoBehaviour
         changing = true;
         // currentCharacter 변경
         currentCharacter = characters[index];
+        // 이전 캐릭터 강제 초기화 (추후에 구현)
 
         // 전환 시 새 캐릭터 BulletCount 이벤트 발생
         CharacterBase.InvokeBulletCountChanged(currentCharacter.CurrentBulletCount);

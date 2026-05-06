@@ -24,7 +24,7 @@ public class ScopeCrossHair : CrossHairBase
         canvasGroup.alpha = 0f;
         scopeOverlay.SetActive(false);
 
-        Texture2D donut = CreateDonutTexture(3072, 200f);
+        Texture2D donut = CreateDonutTexture(3072, 150f);
         donutImage.sprite = Sprite.Create(
             donut, new Rect(0, 0, 3072, 3072), new Vector2(0.5f, 0.5f)
         );
@@ -126,15 +126,14 @@ public class ScopeCrossHair : CrossHairBase
         {
             Vector2 touchDelta = (Vector2)Input.mousePosition - currentPosition;
 
-            Vector3 crossHairPos = rectTransform.position + (Vector3)touchDelta;
-            crossHairPos.x = Mathf.Clamp(crossHairPos.x, 0f, Screen.width);
-            crossHairPos.y = Mathf.Clamp(crossHairPos.y, 0f, Screen.height);
-            rectTransform.position = crossHairPos;
+            // CrossHair 이동
+            Vector3 newPos = rectTransform.position + (Vector3)touchDelta;
+            newPos.x = Mathf.Clamp(newPos.x, 0f, Screen.width);
+            newPos.y = Mathf.Clamp(newPos.y, 0f, Screen.height);
+            rectTransform.position = newPos;
 
-            Vector3 scopePos = scopeRectTransform.position + (Vector3)touchDelta;
-            scopePos.x = Mathf.Clamp(scopePos.x, 0f, Screen.width);
-            scopePos.y = Mathf.Clamp(scopePos.y, 0f, Screen.height);
-            scopeRectTransform.position = scopePos;
+            // 조준경은 CrossHair 위치를 그대로 따라감
+            scopeRectTransform.position = rectTransform.position;
 
             currentPosition = Input.mousePosition;
         }
