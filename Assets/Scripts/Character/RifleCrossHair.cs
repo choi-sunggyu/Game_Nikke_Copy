@@ -1,10 +1,12 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class RifleCrossHair : CrossHairBase
 {
     [SerializeField] private GameObject crossHairObject;
     [SerializeField] private Sprite crossHairSprite;
+    [SerializeField] private TextMeshProUGUI bulletText;
     protected override void OnSwitchCharacter(int index)
     {
         isActive = (index == 0);

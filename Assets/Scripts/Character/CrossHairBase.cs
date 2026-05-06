@@ -1,4 +1,5 @@
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,7 +7,7 @@ public abstract class CrossHairBase : MonoBehaviour
 {
     // 변수
     protected RectTransform rectTransform;
-    protected Text bulletCountText; // 현재 조작하는 캐릭터의 bulletCount 표시용 텍스트
+    protected TextMeshProUGUI bulletCountText; // 현재 조작하는 캐릭터의 bulletCount 표시용 텍스트
     protected Vector2 currentPosition;
     protected bool isDragging;  // 터치 중인지
     protected bool isActive;
@@ -21,7 +22,7 @@ public abstract class CrossHairBase : MonoBehaviour
         rectTransform = GetComponent<RectTransform>();
     }
 
-    void Start()
+    protected virtual void Start()
     {
         // 시작 시 화면 중앙으로 설정
         currentPosition = new Vector2(Screen.width / 2f, Screen.height / 2f);
@@ -48,15 +49,24 @@ public abstract class CrossHairBase : MonoBehaviour
 
     protected virtual void Update()
     {
-        // 터치 중이면 마우스 위치 따라 이동
         if(isDragging)
         {
+            Vector2 touchDelta = (Vector2)Input.mousePosition - currentPosition;
+            Vector3 newPosition = rectTransform.position + (Vector3)touchDelta;
+
+            // 화면 경계 클램핑
+            newPosition.x = Mathf.Clamp(newPosition.x, 0f, Screen.width);
+            newPosition.y = Mathf.Clamp(newPosition.y, 0f, Screen.height);
+
+            rectTransform.position = newPosition;
             currentPosition = Input.mousePosition;
-            rectTransform.position = currentPosition;
         }
     }
 
-    protected virtual void OnFirePress() { isDragging = true; }
+    protected virtual void OnFirePress() { 
+        isDragging = true; 
+        currentPosition = Input.mousePosition;  // 시작점 초기화
+    }
     protected virtual void OnFireRelease() { isDragging = false; }  // 위치 고정
 
     abstract protected void OnSwitchCharacter(int index);  // 활성화/비활성화
