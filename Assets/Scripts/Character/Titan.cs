@@ -39,8 +39,6 @@ public class Titan : CharacterBase
         InputManager.OnFireRelease += ResetFireRate;
     }
 
-
-
     public override void TryFire()
     {
         if (!survive) return;
@@ -65,10 +63,10 @@ public class Titan : CharacterBase
         nextTitanFireTime = Time.time + currentFireRate;
         Debug.Log($"TryFire / bullet: {bulletCount} / shots: {shotsFired} / rate: {1f / currentFireRate:F1}발/초");
 
-        if (bulletCount == 0)
-        {
-            TryReload();
-        }
+        InvokeBulletCountChanged(bulletCount);
+        FireBullet();
+
+        if (bulletCount == 0) TryReload();
     }
 
     public override void UseSkill()

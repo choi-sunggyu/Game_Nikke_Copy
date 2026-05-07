@@ -3,18 +3,20 @@ using UnityEngine;
 public class BulletBase : MonoBehaviour
 {
     // 변수
-    [SerializeField] private ObjectPool ownerPool;
+    private ObjectPool ownerPool;  // 이 총알을 관리하는 풀
     private float damage;        // 데미지
-    private float speed = 10f;         // 이동 속도
-    private Vector2 direction;   // 이동 방향
+    private float speed = 100f;         // 이동 속도
+    private Vector3 direction;   // 이동 방향
+    private float lifetime = 5f;
+    private float spawnTime;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void OnEnable()
     {
-        
+        spawnTime = Time.time;
+        ownerPool = GetComponent<PoolObject>().OwnerPool; // 풀 오브젝트에서 풀 참조 가져오기
     }
 
-    public void Init(float damage, float speed, Vector2 direction)
+    public void Init(float damage, float speed, Vector3 direction)
     {
         this.damage = damage;
         this.speed = speed;
@@ -40,7 +42,12 @@ public class BulletBase : MonoBehaviour
 
     void Update()
     {
-        //이동 로직
-        transform.Translate(direction * speed * Time.deltaTime);
+        transform.Translate(direction * speed * Time.deltaTime, Space.World);
+    
+        // 수명 초과 시 반환
+        if(Time.time - spawnTime > lifetime)
+        {
+            ownerPool.Return(gameObject);
+        }
     }
 }

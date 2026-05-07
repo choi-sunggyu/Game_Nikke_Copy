@@ -12,6 +12,8 @@ public abstract class CrossHairBase : MonoBehaviour
     protected bool isDragging;  // 터치 중인지
     protected bool isActive;
 
+    public Vector2 CrossHairPosition => rectTransform.position;
+
     protected virtual void UpdateBulletCount(int count)
     {
         if(bulletCountText != null)

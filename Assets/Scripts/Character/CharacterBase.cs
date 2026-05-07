@@ -14,6 +14,8 @@ public abstract class CharacterBase : MonoBehaviour
     [SerializeField] protected float maxShield;
     [SerializeField] protected bool buff;
     [SerializeField] protected bool debuff;
+    [SerializeField] protected Transform muzzlePoint;  // 총구 위치
+    [SerializeField] protected ObjectPool bulletPool;   // 총알 풀
     
     [SerializeField] protected float skillCoolTime;
     [SerializeField] protected float burstCoolTime;
@@ -25,6 +27,7 @@ public abstract class CharacterBase : MonoBehaviour
     [SerializeField] protected Sprite shootSprite;  // 사격 이미지
     [SerializeField] protected Sprite reloadSprite; // 리로딩 이미지
     [SerializeField] protected float fireRate; // 발사 딜레이
+    [SerializeField] protected CrossHairBase crossHair;
     private float nextFireTime;                 // 다음 발사 가능 시간
     private CharacterState currentState { get; set; }
     private SpriteRenderer spriteRenderer;
@@ -119,6 +122,7 @@ public abstract class CharacterBase : MonoBehaviour
                 nextFireTime = Time.time + fireRate;
 
                 OnBulletCountChanged?.Invoke(bulletCount);
+                FireBullet();
 
                 // 사격 로직 (예: 총알 발사, 애니메이션 재생 등)
                 Debug.Log("사격");
@@ -134,6 +138,28 @@ public abstract class CharacterBase : MonoBehaviour
                 // bulletCount가 0인 경우는 여기서 TryReload를 하지 않고 다른 곳에서 처리 중일 것임
             }
         }
+    }
+
+    protected virtual void FireBullet()
+    {
+        if(bulletPool == null || muzzlePoint == null) return;
+
+        // CrossHair 위치에서 Ray 생성
+        Ray ray = Camera.main.ScreenPointToRay(crossHair.CrossHairPosition);
+
+        // 적이 있는 Z평면 (Z=5, Z=10, Z=20 중 현재 타겟 레이어)
+        float targetZ = 10f;  // 기본값, 나중에 적 레이어에 따라 변경
+        
+        // Ray와 Z평면 교차점 계산
+        float t = (targetZ - ray.origin.z) / ray.direction.z;
+        Vector3 targetPoint = ray.origin + ray.direction * t;
+
+        // 총알 방향 계산
+        Vector3 direction3D = (targetPoint - muzzlePoint.position).normalized;
+
+        GameObject bullet = bulletPool.Get(muzzlePoint.position, Quaternion.identity);
+        BulletBase bulletBase = bullet.GetComponent<BulletBase>();
+        bulletBase.Init(attackDamage, 10f, direction3D);
     }
 
     protected void StopReload()
