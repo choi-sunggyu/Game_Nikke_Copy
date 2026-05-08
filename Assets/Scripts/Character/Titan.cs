@@ -34,8 +34,9 @@ public class Titan : CharacterBase
         nextTitanFireTime = 0;
     }
 
-    public void OnEnable()
+    protected override void OnEnable()
     {
+        base.OnEnable();
         InputManager.OnFireRelease += ResetFireRate;
     }
 
@@ -86,8 +87,9 @@ public class Titan : CharacterBase
         nextTitanFireTime = 0f;
     }
 
-    void OnDisable()
+    protected override void OnDisable()
     {
+        base.OnDisable();
         InputManager.OnFireRelease -= ResetFireRate;
     }
 }

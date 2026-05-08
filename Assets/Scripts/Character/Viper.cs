@@ -24,8 +24,9 @@ public class Viper : CharacterBase
         survive = true;
     }
 
-    public void OnEnable()
+    protected override void OnEnable()
     {
+        base.OnEnable();
         InputManager.OnFireRelease += HandleFireRelease;
     }
 
@@ -79,8 +80,9 @@ public class Viper : CharacterBase
         
     }
 
-    void OnDisable()
+    protected override void OnDisable()
     {
+        base.OnDisable();
         // OnFireRelease 해제
         InputManager.OnFireRelease -= HandleFireRelease;
     }

@@ -27,7 +27,7 @@ public abstract class EnemyBase : MonoBehaviour
     public abstract void Jump();
 
     // 공통 메서드
-    public void TakeDamage(float damage)
+    public virtual void TakeDamage(float damage)
     {
         if(survive){ //살아 있는 상태인지 확인 (데미지를 주기 전에 파악할건지는 미정)
             hp -= damage;
@@ -36,7 +36,7 @@ public abstract class EnemyBase : MonoBehaviour
         }
     }
 
-    public void Die()
+    public virtual void Die()
     {
         survive = false;
         currentState = EnemyState.Dead;

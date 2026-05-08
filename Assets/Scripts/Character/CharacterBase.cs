@@ -142,6 +142,7 @@ public abstract class CharacterBase : MonoBehaviour
 
     protected virtual void FireBullet()
     {
+        Debug.Log($"[FireBullet] 호출 / damage: {attackDamage}");
         if(bulletPool == null || muzzlePoint == null) return;
 
         // CrossHair 위치에서 Ray 생성
@@ -235,10 +236,9 @@ public abstract class CharacterBase : MonoBehaviour
         Initialize();
     }
 
-    void OnEnable()
-    {
-        
-    }
+    protected virtual void OnEnable() {}
+
+    protected virtual void OnDisable() {}
 
     // Update is called once per frame
     void Update()

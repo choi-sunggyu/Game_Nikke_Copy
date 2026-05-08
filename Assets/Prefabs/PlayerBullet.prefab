@@ -49,7 +49,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06a39d3aae7c3d84b8e44a978a5efe11, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BulletBase
-  ownerPool: {fileID: 0}
 --- !u!212 &4781789492979939510
 SpriteRenderer:
   serializedVersion: 2
@@ -148,7 +147,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06a39d3aae7c3d84b8e44a978a5efe11, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BulletBase
-  ownerPool: {fileID: 0}
 --- !u!58 &7097412930560951370
 CircleCollider2D:
   m_ObjectHideFlags: 0
