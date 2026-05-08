@@ -9,6 +9,7 @@ public class InputManager : MonoBehaviour
     public static event Action OnFirePress; // Viper 조준 시작 이벤트 전용
     public static event Action OnFireRelease; // Viper 조준 해제 이벤트 전용
     public static event Action<int> OnSwitchCharacter;  // int: 캐릭터 인덱스
+    private bool wasFiring = false;
 
     void Start()
     {
@@ -22,30 +23,27 @@ public class InputManager : MonoBehaviour
 
     void Update()
     {
-        if(Input.GetMouseButtonDown(0)) // 클릭할 때
-        {
-            OnFirePress?.Invoke(); // Viper 조준 시작 이벤트 전용
-        }
+        bool isFiring = Input.GetMouseButton(0);
 
-        if(Input.GetMouseButtonUp(0)) // 클릭에서 땔 때
-        {
-            OnFireRelease?.Invoke(); // Viper 조준 해제 이벤트 전용
-        }
+        if(Input.GetMouseButtonDown(0))
+            OnFirePress?.Invoke();
 
-        if(Input.GetMouseButton(0)) // 클릭 중일 때
-        {
-            OnFire?.Invoke(); // 모든 캐릭터 공통 공격 이벤트
-        }
-        else
-        {
-            OnIdle?.Invoke(); // 클릭 안 하고 있을 때 (Idle 상태) 이벤트
-        }
+        if(Input.GetMouseButtonUp(0))
+            OnFireRelease?.Invoke();
+
+        if(isFiring)
+            OnFire?.Invoke();
+        
+        if(!isFiring && wasFiring)  // 뗀 순간 1번만
+            OnIdle?.Invoke();
+
+        wasFiring = isFiring;
 
         if(Input.GetKeyDown(KeyCode.Alpha1))
-            OnSwitchCharacter?.Invoke(0);  // Ghost
+            OnSwitchCharacter?.Invoke(0);
         if(Input.GetKeyDown(KeyCode.Alpha2))
-            OnSwitchCharacter?.Invoke(1);  // Titan
+            OnSwitchCharacter?.Invoke(1);
         if(Input.GetKeyDown(KeyCode.Alpha3))
-            OnSwitchCharacter?.Invoke(2);  // Viper
+            OnSwitchCharacter?.Invoke(2);
     }
 }
