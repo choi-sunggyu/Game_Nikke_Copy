@@ -1,37 +1,46 @@
 using UnityEngine;
 
-public class EnemyA : EnemyBase // 원거리 적
+public class EnemyA : EnemyBase
 {
-    private float nextEnemyAFireTime = 7f; // EnemyA 전용 변수
-    public override void Attack()
-    {
-        if (Time.time < nextEnemyAFireTime) return;
-        ChangeState(EnemyState.Attack);
-        nextEnemyAFireTime = Time.time + attackDelay;
-        // 공격 로직 (예: 플레이어에게 데미지 주기)
-        // 가장 가까운 캐릭터 찾기 or 랜덤으로 캐릭터 선택하기 or 엄폐물에서 나온 캐릭터 공격하기
-        
-    }
+    [SerializeField] private ObjectPool bulletPool;
+    [SerializeField] private Transform muzzlePoint;
+    private float nextAttackTime;
 
     public override void Initialize()
     {
         hp = 100f;
         maxHp = 100f;
         attackDamage = 10f;
-        speed = 0f; // 원거리 적이므로 이동하지 않음
+        attackDelay = 2f;  // 2초마다 1발
         survive = true;
-        attackDelay = 5f;
-        currentLayer = 20;
+        nextAttackTime = 0f;
     }
-
-    public override void Jump()
-    {}
-
-    public override void Move()
-    {}
 
     void Update()
     {
-        
+        if (!IsAlive) return;
+        if (Time.time >= nextAttackTime)
+        {
+            Attack();
+            nextAttackTime = Time.time + attackDelay;
+        }
     }
+
+    public override void Attack()
+    {
+        CharacterBase target = GetTarget();
+        if (target == null || !target.IsAlive) return;
+
+        GameObject bullet = bulletPool.Get(muzzlePoint.position, Quaternion.identity);
+        if (bullet == null) return;
+
+        EnemyBulletBase bulletBase = bullet.GetComponent<EnemyBulletBase>();
+        
+        // Z 포함해서 방향 계산
+        Vector3 direction = (target.transform.position - muzzlePoint.position).normalized;
+        bulletBase.Init(attackDamage, 15f, direction);
+    }
+
+    public override void Move() { }
+    public override void Jump() { }
 }

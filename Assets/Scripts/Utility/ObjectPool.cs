@@ -78,11 +78,12 @@ public class ObjectPool : MonoBehaviour
     {
         GameObject obj = Get();
 
-        if (obj == null)
-            return null;
+        if (obj == null) return null;
 
         obj.transform.position = position;
         obj.transform.rotation = rotation;
+
+        Debug.Log($"[Pool] 발사 위치: {obj.transform.position}");
 
         return obj;
     }

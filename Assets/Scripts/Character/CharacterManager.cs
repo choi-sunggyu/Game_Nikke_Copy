@@ -9,6 +9,7 @@ public class CharacterManager : MonoBehaviour
     [SerializeField] private List<CharacterBase> characters; // - 게임 내 모든 캐릭터를 관리하는 리스트
     private bool changing; // - 전환 중인지 아닌지
     private float delayTime; // - 전환 딜레이 시간
+    public List<CharacterBase> Characters => characters;
 
     void Awake()
     {

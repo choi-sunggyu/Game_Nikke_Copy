@@ -56,12 +56,31 @@ public abstract class EnemyBase : MonoBehaviour
 
     void Start()
     {
+        InitBase(); 
         Initialize();
     }
 
     void Update()
     {
         
+    }
+
+    private void InitBase()
+    {
+        survive = true;
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        
+        // characters 연결 추가
+        CharacterManager characterManager = FindObjectOfType<CharacterManager>();
+        if(characterManager != null)
+        {
+            characters = characterManager.Characters;
+            targetStrategy = new RandomTargetStrategy(characters);
+        }
+        else
+        {
+            Debug.LogError("[EnemyBase] CharacterManager를 찾을 수 없습니다.");
+        }
     }
 }
 

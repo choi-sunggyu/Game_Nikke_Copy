@@ -12,11 +12,11 @@ GameObject:
   - component: {fileID: 3644237155225432314}
   - component: {fileID: 4781789492979939510}
   - component: {fileID: 5910879758700804424}
-  - component: {fileID: 7436956376868938292}
   - component: {fileID: 7097412930560951370}
   - component: {fileID: 3072491707689673039}
-  m_Layer: 3
-  m_Name: PlayerBullet
+  - component: {fileID: 6518733987638833844}
+  m_Layer: 6
+  m_Name: EnemyBullet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -99,7 +99,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0, g: 0.50669, b: 1, a: 1}
+  m_Color: {r: 0.9716981, g: 0.09625311, b: 0.09625311, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -135,18 +135,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &7436956376868938292
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3672905531725973477}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 06a39d3aae7c3d84b8e44a978a5efe11, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BulletBase
 --- !u!58 &7097412930560951370
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -195,3 +183,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af004944cd3366f41beef898cc9df466, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PoolObject
+--- !u!114 &6518733987638833844
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3672905531725973477}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b7d76577a2e684ca1927f22a49c4e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyBulletBase
