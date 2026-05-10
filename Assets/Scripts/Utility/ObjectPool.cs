@@ -53,10 +53,7 @@ public class ObjectPool : MonoBehaviour
     {
         if (pool.Count == 0)
         {
-            if (canExpand)
-            {
-                CreateObject();
-            }
+            if (canExpand) CreateObject();
             else
             {
                 Debug.LogWarning("Pool is empty.");
@@ -65,26 +62,50 @@ public class ObjectPool : MonoBehaviour
         }
 
         GameObject obj = pool.Dequeue();
-
         activeObjects.Add(obj);
 
-        obj.SetActive(true);
+        // IPoolable OnGet 호출
+        if (obj.TryGetComponent<IPoolable>(out IPoolable poolable))
+            poolable.OnGet();
 
+        obj.SetActive(true);
         return obj;
     }
 
     // 위치/회전 지정 Get
     public GameObject Get(Vector3 position, Quaternion rotation)
     {
-        GameObject obj = Get();
+        if (pool.Count == 0)
+        {
+            if (canExpand) CreateObject();
+            else return null;
+        }
 
-        if (obj == null) return null;
+        GameObject obj = pool.Dequeue();
+        activeObjects.Add(obj);
 
         obj.transform.position = position;
         obj.transform.rotation = rotation;
 
-        Debug.Log($"[Pool] 발사 위치: {obj.transform.position}");
+        // IPoolable OnGet 호출
+        if (obj.TryGetComponent<IPoolable>(out IPoolable poolable))
+            poolable.OnGet();
 
+        obj.SetActive(true);
+        return obj;
+    }
+
+    public GameObject GetInactive()
+    {
+        if (pool.Count == 0)
+        {
+            if (canExpand) CreateObject();
+            else return null;
+        }
+
+        GameObject obj = pool.Dequeue();
+        activeObjects.Add(obj);
+        // SetActive 호출 안 함
         return obj;
     }
 
@@ -97,12 +118,13 @@ public class ObjectPool : MonoBehaviour
             return;
         }
 
+        // IPoolable OnReturn 호출
+        if (obj.TryGetComponent<IPoolable>(out IPoolable poolable))
+            poolable.OnReturn();
+
         activeObjects.Remove(obj);
-
         obj.SetActive(false);
-
         obj.transform.SetParent(poolParent);
-
         pool.Enqueue(obj);
     }
 }

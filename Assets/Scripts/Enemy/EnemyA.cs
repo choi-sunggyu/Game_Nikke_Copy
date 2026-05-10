@@ -31,13 +31,12 @@ public class EnemyA : EnemyBase
         CharacterBase target = GetTarget();
         if (target == null || !target.IsAlive) return;
 
+        Vector3 direction = (target.transform.position - muzzlePoint.position).normalized;
+
         GameObject bullet = bulletPool.Get(muzzlePoint.position, Quaternion.identity);
         if (bullet == null) return;
 
         EnemyBulletBase bulletBase = bullet.GetComponent<EnemyBulletBase>();
-        
-        // Z 포함해서 방향 계산
-        Vector3 direction = (target.transform.position - muzzlePoint.position).normalized;
         bulletBase.Init(attackDamage, 15f, direction);
     }
 

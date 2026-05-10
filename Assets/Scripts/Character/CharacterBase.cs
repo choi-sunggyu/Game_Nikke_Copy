@@ -103,6 +103,8 @@ public abstract class CharacterBase : MonoBehaviour
             {
                 survive = false;
             }
+            // hp 잔량 debug
+            Debug.Log($"TakeDamage 호출 / damage: {damage} / survive: {survive} / state: {currentState} / hp: {hp} / shield: {shield}");
         }
     }    
 
