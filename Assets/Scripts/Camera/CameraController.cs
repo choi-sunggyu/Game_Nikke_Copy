@@ -12,7 +12,7 @@ public class CameraController : MonoBehaviour
     [SerializeField] private List<CharacterBase> characters; // 게임 내 모든 캐릭터를 관리하는 리스트
 
     [SerializeField] private Camera cam;
-    [SerializeField] private float targetZoom = 40f;
+    [SerializeField] private float targetZoom = 80f;
     [SerializeField] private float zoomSpeed = 5f;
     
     void Start()

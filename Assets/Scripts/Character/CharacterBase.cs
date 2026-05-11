@@ -28,6 +28,7 @@ public abstract class CharacterBase : MonoBehaviour
     [SerializeField] protected Sprite reloadSprite; // 리로딩 이미지
     [SerializeField] protected float fireRate; // 발사 딜레이
     [SerializeField] protected CrossHairBase crossHair;
+    [SerializeField] private LayerMask enemyLayer;
     private float nextFireTime;                 // 다음 발사 가능 시간
     private CharacterState currentState { get; set; }
     private SpriteRenderer spriteRenderer;
@@ -144,25 +145,29 @@ public abstract class CharacterBase : MonoBehaviour
 
     protected virtual void FireBullet()
     {
-        Debug.Log($"[FireBullet] 호출 / damage: {attackDamage}");
-        if(bulletPool == null || muzzlePoint == null) return;
+        if (bulletPool == null || muzzlePoint == null) return;
 
-        // CrossHair 위치에서 Ray 생성
-        Ray ray = Camera.main.ScreenPointToRay(crossHair.CrossHairPosition);
+        // Step 1: 카메라 → 크로스헤어 방향으로 worldTarget 결정
+        Ray camRay = Camera.main.ScreenPointToRay(crossHair.CrossHairPosition);
+        Vector3 worldTarget;
 
-        // 적이 있는 Z평면 (Z=5, Z=10, Z=20 중 현재 타겟 레이어)
-        float targetZ = 10f;  // 기본값, 나중에 적 레이어에 따라 변경
-        
-        // Ray와 Z평면 교차점 계산
-        float t = (targetZ - ray.origin.z) / ray.direction.z;
-        Vector3 targetPoint = ray.origin + ray.direction * t;
+        if (Physics.Raycast(camRay, out RaycastHit camHit, 1000f, enemyLayer))
+        {
+            worldTarget = camHit.point; // 적에 맞으면 그 지점
+        }
+        else
+        {
+            worldTarget = camRay.GetPoint(1000f); // 허공이면 최대 사거리 지점
+        }
 
-        // 총알 방향 계산
-        Vector3 direction3D = (targetPoint - muzzlePoint.position).normalized;
+        // Step 2: muzzlePoint → worldTarget 방향으로 총알 발사
+        Vector3 fireDir = (worldTarget - muzzlePoint.position).normalized;
 
         GameObject bullet = bulletPool.Get(muzzlePoint.position, Quaternion.identity);
+        if (bullet == null) return;
+
         BulletBase bulletBase = bullet.GetComponent<BulletBase>();
-        bulletBase.Init(attackDamage, 10f, direction3D);
+        bulletBase.Init(attackDamage, 10f, fireDir);
     }
 
     protected void StopReload()

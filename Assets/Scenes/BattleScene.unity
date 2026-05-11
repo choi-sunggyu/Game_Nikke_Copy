@@ -1898,6 +1898,9 @@ MonoBehaviour:
   reloadSprite: {fileID: 21300000, guid: 62802689f7d37fd4f8e9d38d2f346832, type: 3}
   fireRate: 0
   crossHair: {fileID: 1881039033}
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 256
 --- !u!70 &1820671844
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -2278,6 +2281,9 @@ MonoBehaviour:
   reloadSprite: {fileID: 21300000, guid: f972d0036028a214bb53fbe188906830, type: 3}
   fireRate: 0
   crossHair: {fileID: 2100329494}
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 256
 --- !u!70 &1989108161
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -2618,6 +2624,9 @@ MonoBehaviour:
   reloadSprite: {fileID: 21300000, guid: 64c2d76a077525f4db5ad5c052a68be0, type: 3}
   fireRate: 0
   crossHair: {fileID: 1223029944}
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 256
 --- !u!70 &2094593712
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

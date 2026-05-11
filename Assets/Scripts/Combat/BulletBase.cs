@@ -5,7 +5,7 @@ public class BulletBase : MonoBehaviour, IPoolable
     // 변수
     private ObjectPool ownerPool;   // 이 총알을 관리하는 풀
     private float damage;           // 데미지
-    private float speed = 1000f;     // 이동 속도
+    private float speed = 1000000000f;     // 이동 속도
     private Vector3 direction;      // 이동 방향
     private float lifetime = 3f;    // 총알 수명 (초)
     private float spawnTime;        // 총알이 생성된 시간
