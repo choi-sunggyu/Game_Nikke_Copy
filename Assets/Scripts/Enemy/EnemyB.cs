@@ -86,6 +86,17 @@ public class EnemyB : EnemyBase
             moveSpeed * Time.deltaTime
         );
 
+        // 도착 전 기울기 적용
+        tilt = Mathf.Lerp(tilt, 0f, Time.deltaTime * 5f); // 도착할수록 기울기 복원
+        if (Vector3.Distance(transform.position, currentTarget) > 0.3f)
+        {
+            transform.rotation = Quaternion.Lerp(
+                transform.rotation,
+                Quaternion.Euler(0f, 0f, tilt),
+                Time.deltaTime * 10f
+            );
+        }
+
         // 도착 체크
         if (Vector3.Distance(transform.position, currentTarget) < 0.05f)
         {
