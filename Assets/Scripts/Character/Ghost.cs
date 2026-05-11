@@ -4,12 +4,6 @@ public class Ghost : CharacterBase
 {
     public override void Initialize()
     {
-        // GDD 기준:
-        // - 돌격 소총 : 탄창 120발
-        // - 강제 리로드 시간: 2.0초
-        // - 버스트 차징량: 낮음
-        // - HP: 100
-        // - attackDamage : 20
         maxHp = 100;
         hp = maxHp;
         maxBulletCount = 120;
@@ -23,6 +17,7 @@ public class Ghost : CharacterBase
         attackDamage = 20;
         survive = true;
         fireRate = 1f / 12f;  // 초당 12발
+        bulletSpeed = 500f;
     }
 
     public override void UseSkill()

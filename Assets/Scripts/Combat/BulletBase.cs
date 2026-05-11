@@ -5,7 +5,7 @@ public class BulletBase : MonoBehaviour, IPoolable
     // 변수
     private ObjectPool ownerPool;   // 이 총알을 관리하는 풀
     private float damage;           // 데미지
-    private float speed = 1000000000f;     // 이동 속도
+    private float speed;     // 이동 속도
     private Vector3 direction;      // 이동 방향
     private float lifetime = 3f;    // 총알 수명 (초)
     private float spawnTime;        // 총알이 생성된 시간
@@ -37,7 +37,10 @@ public class BulletBase : MonoBehaviour, IPoolable
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        Debug.Log($"[BulletBase] 충돌 감지: {other.gameObject.name}");
         if (!isInitialized) return;
+
+        Debug.Log($"[BulletBase] 충돌: {other.gameObject.name} / Layer: {other.gameObject.layer}");
 
         if (other.TryGetComponent<EnemyBase>(out EnemyBase enemy))
         {

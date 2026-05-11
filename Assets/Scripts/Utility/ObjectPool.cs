@@ -9,14 +9,12 @@ public class ObjectPool : MonoBehaviour
     [SerializeField] private bool canExpand = true;
     [SerializeField] private Transform poolParent;
 
-    public static ObjectPool Instance { get; private set; } // 싱글톤 인스턴스, BulletBase에서 접근하기 위해 public으로 설정
 
     private Queue<GameObject> pool = new Queue<GameObject>();
     private HashSet<GameObject> activeObjects = new HashSet<GameObject>();
 
     private void Awake()
     {
-        Instance = this;
         InitializePool();
     }
 

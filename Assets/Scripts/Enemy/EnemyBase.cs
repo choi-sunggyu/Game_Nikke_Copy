@@ -29,6 +29,7 @@ public abstract class EnemyBase : MonoBehaviour
     // 공통 메서드
     public virtual void TakeDamage(float damage)
     {
+        Debug.Log($"{gameObject.name}이(가) {damage}의 피해를 입었습니다.");
         if(survive){ //살아 있는 상태인지 확인 (데미지를 주기 전에 파악할건지는 미정)
             hp -= damage;
             if (hp <= 0)
@@ -71,7 +72,7 @@ public abstract class EnemyBase : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         
         // characters 연결 추가
-        CharacterManager characterManager = FindObjectOfType<CharacterManager>();
+        CharacterManager characterManager = Object.FindAnyObjectByType<CharacterManager>();
         if(characterManager != null)
         {
             characters = characterManager.Characters;

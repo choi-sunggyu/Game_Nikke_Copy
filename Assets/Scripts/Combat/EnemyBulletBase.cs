@@ -34,11 +34,11 @@ public class EnemyBulletBase : MonoBehaviour, IPoolable
     void OnTriggerEnter2D(Collider2D other)
     {
         if (!isInitialized) return;
-        Debug.Log("Bullet hit: " + other.name);
+        //Debug.Log("Bullet hit: " + other.name);
         CharacterBase character = other.GetComponentInParent<CharacterBase>();
         if (character != null)
         {
-            Debug.Log("Bullet hit character: " + character.name);
+            //Debug.Log("Bullet hit character: " + character.name);
             character.TakeDamage(damage);
             ownerPool.Return(gameObject);
         }

@@ -22,6 +22,7 @@ public class Viper : CharacterBase
         skillCoolTime = 10.0f;
         attackDamage = 50;
         survive = true;
+        bulletSpeed = 800f;
     }
 
     protected override void OnEnable()
@@ -51,7 +52,7 @@ public class Viper : CharacterBase
         }
         else if(bulletCount == 0)
         {
-            Debug.Log("탄창이 없습니다. 리로딩 중입니다.");
+            //Debug.Log("탄창이 없습니다. 리로딩 중입니다.");
         }
     }
 
@@ -71,7 +72,7 @@ public class Viper : CharacterBase
                 ChangeState(CharacterState.Idle);
             }
         }
-        Debug.Log($"터치 해제로 저격 소총 사격 / survive: {survive} / state: {CurrentState} / bullet: {bulletCount}");
+        //Debug.Log($"터치 해제로 저격 소총 사격 / survive: {survive} / state: {CurrentState} / bullet: {bulletCount}");
     }
 
     // Update is called once per frame

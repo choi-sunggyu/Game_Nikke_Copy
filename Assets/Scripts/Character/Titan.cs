@@ -9,12 +9,6 @@ public class Titan : CharacterBase
     private float nextTitanFireTime; // Titan 전용 변수
     public override void Initialize()
     {
-        // GDD 기준:
-        // - 미니건 : 탄창 400발
-        // - 강제 리로드 시간: 5.0초
-        // - 버스트 차징량: 중간
-        // - HP: 200
-        // - attackDamage : 10
         maxHp = 200;
         hp = maxHp;
         maxBulletCount = 400;
@@ -32,6 +26,7 @@ public class Titan : CharacterBase
         currentFireRate = maxFireRate;
         shotsFired = 0;
         nextTitanFireTime = 0;
+        bulletSpeed = 400f;
     }
 
     protected override void OnEnable()
@@ -45,7 +40,7 @@ public class Titan : CharacterBase
         if (!survive) return;
         if (bulletCount == 0)
         {
-            Debug.Log("탄창이 없습니다. 리로딩 중입니다.");
+            //Debug.Log("탄창이 없습니다. 리로딩 중입니다.");
             return;
         } 
 
@@ -62,7 +57,7 @@ public class Titan : CharacterBase
                         Mathf.Clamp01(shotsFired / 20f));
 
         nextTitanFireTime = Time.time + currentFireRate;
-        Debug.Log($"TryFire / bullet: {bulletCount} / shots: {shotsFired} / rate: {1f / currentFireRate:F1}발/초");
+        //Debug.Log($"TryFire / bullet: {bulletCount} / shots: {shotsFired} / rate: {1f / currentFireRate:F1}발/초");
 
         InvokeBulletCountChanged(bulletCount);
         FireBullet();

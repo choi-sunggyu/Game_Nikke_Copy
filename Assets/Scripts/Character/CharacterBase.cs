@@ -29,6 +29,7 @@ public abstract class CharacterBase : MonoBehaviour
     [SerializeField] protected float fireRate; // 발사 딜레이
     [SerializeField] protected CrossHairBase crossHair;
     [SerializeField] private LayerMask enemyLayer;
+    [SerializeField] protected float bulletSpeed;
     private float nextFireTime;                 // 다음 발사 가능 시간
     private CharacterState currentState { get; set; }
     private SpriteRenderer spriteRenderer;
@@ -105,13 +106,13 @@ public abstract class CharacterBase : MonoBehaviour
                 survive = false;
             }
             // hp 잔량 debug
-            Debug.Log($"TakeDamage 호출 / damage: {damage} / survive: {survive} / state: {currentState} / hp: {hp} / shield: {shield}");
+            //Debug.Log($"TakeDamage 호출 / damage: {damage} / survive: {survive} / state: {currentState} / hp: {hp} / shield: {shield}");
         }
     }    
 
     public virtual void TryFire()
     {
-        Debug.Log($"TryFire 호출 / survive: {survive} / state: {currentState} / bullet: {bulletCount}");
+        //Debug.Log($"TryFire 호출 / survive: {survive} / state: {currentState} / bullet: {bulletCount}");
         // 사격 조건 체크
         if (survive)
         {
@@ -128,16 +129,16 @@ public abstract class CharacterBase : MonoBehaviour
                 FireBullet();
 
                 // 사격 로직 (예: 총알 발사, 애니메이션 재생 등)
-                Debug.Log("사격");
+                //Debug.Log("사격");
                 if(bulletCount == 0) //탄창이 다 떨어졌으면 강제 리로딩 상태로 전환
                 {
-                    Debug.Log("탄창이 다 떨어졌습니다. 강제 리로딩 상태로 전환합니다.");
+                    //Debug.Log("탄창이 다 떨어졌습니다. 강제 리로딩 상태로 전환합니다.");
                     TryReload();
                 }
             }
             else // 강제 리로딩 중이거나 탄창이 없는 경우 사격 불가
             {
-                Debug.Log("사격 불가");
+                //Debug.Log("사격 불가");
                 // bulletCount가 0인 경우는 여기서 TryReload를 하지 않고 다른 곳에서 처리 중일 것임
             }
         }
@@ -167,7 +168,7 @@ public abstract class CharacterBase : MonoBehaviour
         if (bullet == null) return;
 
         BulletBase bulletBase = bullet.GetComponent<BulletBase>();
-        bulletBase.Init(attackDamage, 10f, fireDir);
+        bulletBase.Init(attackDamage, bulletSpeed, fireDir);
     }
 
     protected void StopReload()
@@ -213,7 +214,7 @@ public abstract class CharacterBase : MonoBehaviour
 
         if(isForced) OnForcedReloadEnd?.Invoke();
         
-        Debug.Log($"리로딩 완료/ survive: {survive} / state: {currentState} / bullet: {bulletCount}");
+        //Debug.Log($"리로딩 완료/ survive: {survive} / state: {currentState} / bullet: {bulletCount}");
     }
 
     protected void ChangeState(CharacterState newState)
