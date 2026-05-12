@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class EnemyB : EnemyBase
 {
-    [SerializeField] private ObjectPool bulletPool;
     [SerializeField] private Transform muzzlePoint;
 
     private float nextAttackTime;

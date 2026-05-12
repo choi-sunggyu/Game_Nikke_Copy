@@ -11,6 +11,7 @@ public abstract class EnemyBase : MonoBehaviour
     [SerializeField] protected bool survive;
     [SerializeField] protected float attackDelay;
     [SerializeField] protected int currentLayer;
+    [SerializeField] protected ObjectPool bulletPool;
     private EnemyState currentState { get; set; }
     private SpriteRenderer spriteRenderer;
     protected ITargetStrategy targetStrategy;
@@ -66,6 +67,11 @@ public abstract class EnemyBase : MonoBehaviour
         
     }
 
+    public void SetBulletPool(ObjectPool pool)
+    {
+        bulletPool = pool;
+    }
+
     private void InitBase()
     {
         survive = true;
@@ -77,6 +83,7 @@ public abstract class EnemyBase : MonoBehaviour
         {
             characters = characterManager.Characters;
             targetStrategy = new RandomTargetStrategy(characters);
+            Debug.Log("[EnemyBase] CharacterManager 연결 성공");
         }
         else
         {

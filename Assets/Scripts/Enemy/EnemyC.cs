@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class EnemyC : EnemyBase
 {
-    [SerializeField] private ObjectPool bulletPool;
     [SerializeField] private Transform muzzlePoint;
 
     private float attackDelaySelf = 1.5f;

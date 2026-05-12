@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class EnemyA : EnemyBase
 {
-    [SerializeField] private ObjectPool bulletPool;
     [SerializeField] private Transform muzzlePoint;
     private float nextAttackTime;
 
@@ -32,7 +31,7 @@ public class EnemyA : EnemyBase
         if (target == null || !target.IsAlive) return;
 
         Vector3 direction = (target.transform.position - muzzlePoint.position).normalized;
-
+        Debug.Log($"[EnemyA] bulletPool: {bulletPool} / muzzlePoint: {muzzlePoint}");
         GameObject bullet = bulletPool.Get(muzzlePoint.position, Quaternion.identity);
         if (bullet == null) return;
 
