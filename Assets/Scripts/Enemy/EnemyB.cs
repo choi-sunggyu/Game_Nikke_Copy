@@ -1,8 +1,12 @@
+using System.Collections;
 using UnityEngine;
 
 public class EnemyB : EnemyBase
 {
     [SerializeField] private Transform muzzlePoint;
+
+    [Header("Spawn Animation")]
+    [SerializeField] private float slideDuration = 1.0f; // 슬라이드 등장 소요 시간
 
     private float nextAttackTime;
     private float nextMoveTime;
@@ -12,10 +16,10 @@ public class EnemyB : EnemyBase
     private Vector3 waypointB;
     private Vector3 currentTarget;
 
-    private float moveRange = 5f;   // 좌우 이동 범위
-    private float moveSpeed = 2f;   // 이동 속도
-    private float moveTilt = 30f;   // 이동 시 기울기 (도)
-    private float moveInterval = 10f; // 이동 간격 (초)
+    private float moveRange = 5f;
+    private float moveSpeed = 2f;
+    private float moveTilt = 30f;
+    private float moveInterval = 10f;
 
     public override void Initialize()
     {
@@ -27,15 +31,51 @@ public class EnemyB : EnemyBase
         nextAttackTime = 0f;
         nextMoveTime = moveInterval;
 
-        // Waypoint 자동 생성 (좌우)
-        waypointA = transform.position + Vector3.left * moveRange;
-        waypointB = transform.position + Vector3.right * moveRange;
-        currentTarget = waypointB; // 첫 이동 목표
+        // 출현 연출 시작
+        isSpawning = true;
+        StartCoroutine(SpawnSlideRoutine());
+    }
+
+    IEnumerator SpawnSlideRoutine()
+    {
+        Vector3 startPos = transform.position; // 화면 밖 (WaveManager가 설정)
+        Vector3 endPos = targetPosition;        // 목표 위치
+
+        // EaseOut 슬라이드 (감속하며 진입)
+        float elapsed = 0f;
+        while (elapsed < slideDuration)
+        {
+            float t = elapsed / slideDuration;
+            float easeT = 1f - (1f - t) * (1f - t); // EaseOut 커브
+            transform.position = Vector3.Lerp(startPos, endPos, easeT);
+
+            // 진입 방향으로 기울기 적용
+            float dirX = endPos.x - startPos.x;
+            float tiltAngle = dirX > 0 ? -moveTilt : moveTilt;
+            float tiltFade = 1f - t; // 도착할수록 기울기 감소
+            transform.rotation = Quaternion.Euler(0f, 0f, tiltAngle * tiltFade);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        transform.position = endPos;
+        transform.rotation = Quaternion.identity;
+
+        // Waypoint를 목표 위치 기준으로 설정
+        waypointA = endPos + Vector3.left * moveRange;
+        waypointB = endPos + Vector3.right * moveRange;
+        currentTarget = waypointB;
+
+        // 출현 완료
+        isSpawning = false;
+        nextAttackTime = Time.time + attackDelay;
+        nextMoveTime = Time.time + moveInterval;
+        Debug.Log($"[EnemyB] 등장 완료: {endPos}");
     }
 
     void Update()
     {
-        if (!IsAlive) return;
+        if (!IsAlive || isSpawning) return;
 
         // 이동 타이머
         if (Time.time >= nextMoveTime && !isMoving)
@@ -49,7 +89,6 @@ public class EnemyB : EnemyBase
         }
         else
         {
-            // 이동 중이 아닐 때만 공격
             if (Time.time >= nextAttackTime)
             {
                 Attack();
@@ -122,4 +161,10 @@ public class EnemyB : EnemyBase
 
     public override void Move() { }
     public override void Jump() { }
+
+    public override void Die()
+    {
+        StopAllCoroutines();
+        base.Die();
+    }
 }

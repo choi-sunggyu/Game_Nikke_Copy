@@ -17,9 +17,15 @@ public abstract class EnemyBase : MonoBehaviour
     protected ITargetStrategy targetStrategy;
     protected List<CharacterBase> characters;
 
+    // 출현 연출 관련
+    protected Vector3 targetPosition;
+    protected bool isSpawning = true; // 출현 연출 중 여부
+
     //프로퍼티
     public bool IsAlive => survive;
     public EnemyState CurrentState => currentState;
+    public Vector3 TargetPosition => targetPosition;
+    public bool IsSpawning => isSpawning;
 
     // abstract 메서드
     public abstract void Initialize();
@@ -42,7 +48,13 @@ public abstract class EnemyBase : MonoBehaviour
     {
         survive = false;
         currentState = EnemyState.Dead;
-        // 사망 처리 (예: 애니메이션 재생, 콜라이더 비활성화 등)
+        // 사망 처리: 콜라이더 비활성화 후 오브젝트 제거
+        Collider2D col2D = GetComponent<Collider2D>();
+        if (col2D != null) col2D.enabled = false;
+        Collider col3D = GetComponent<Collider>();
+        if (col3D != null) col3D.enabled = false;
+
+        Destroy(gameObject, 0.3f); // 약간의 딜레이 후 삭제 (사망 이펙트 여유)
     }
 
     protected void ChangeState(EnemyState newState)
@@ -53,6 +65,7 @@ public abstract class EnemyBase : MonoBehaviour
     
     protected CharacterBase GetTarget()
     {
+        if (targetStrategy == null) return null;
         return targetStrategy.GetTarget();
     }
 
@@ -70,6 +83,11 @@ public abstract class EnemyBase : MonoBehaviour
     public void SetBulletPool(ObjectPool pool)
     {
         bulletPool = pool;
+    }
+
+    public void SetTargetPosition(Vector3 pos)
+    {
+        targetPosition = pos;
     }
 
     private void InitBase()

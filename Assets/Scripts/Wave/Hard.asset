@@ -12,4 +12,74 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2c0cc763e3d9c247bb74710084970f2, type: 3}
   m_Name: Hard
   m_EditorClassIdentifier: Assembly-CSharp::WaveData
-  waves: []
+  waves:
+  - enemies:
+    - enemyPrefab: {fileID: 3116017642917783631, guid: 75cc67f729b7bab4aa9e9c3c15ff5911, type: 3}
+      count: 10
+    - enemyPrefab: {fileID: 2836963592047139580, guid: c9523e780a6269e47bdc964a5e44c173, type: 3}
+      count: 10
+    - enemyPrefab: {fileID: 1429774585333224684, guid: e028d235f9f1b22449469726bdd0da08, type: 3}
+      count: 10
+  - enemies:
+    - enemyPrefab: {fileID: 3116017642917783631, guid: 75cc67f729b7bab4aa9e9c3c15ff5911, type: 3}
+      count: 15
+    - enemyPrefab: {fileID: 2836963592047139580, guid: c9523e780a6269e47bdc964a5e44c173, type: 3}
+      count: 15
+    - enemyPrefab: {fileID: 0}
+      count: 15
+  - enemies:
+    - enemyPrefab: {fileID: 3116017642917783631, guid: 75cc67f729b7bab4aa9e9c3c15ff5911, type: 3}
+      count: 20
+    - enemyPrefab: {fileID: 2836963592047139580, guid: c9523e780a6269e47bdc964a5e44c173, type: 3}
+      count: 15
+    - enemyPrefab: {fileID: 1429774585333224684, guid: e028d235f9f1b22449469726bdd0da08, type: 3}
+      count: 20
+  - enemies:
+    - enemyPrefab: {fileID: 3116017642917783631, guid: 75cc67f729b7bab4aa9e9c3c15ff5911, type: 3}
+      count: 22
+    - enemyPrefab: {fileID: 2836963592047139580, guid: c9523e780a6269e47bdc964a5e44c173, type: 3}
+      count: 20
+    - enemyPrefab: {fileID: 1429774585333224684, guid: e028d235f9f1b22449469726bdd0da08, type: 3}
+      count: 20
+  - enemies:
+    - enemyPrefab: {fileID: 3116017642917783631, guid: 75cc67f729b7bab4aa9e9c3c15ff5911, type: 3}
+      count: 10
+    - enemyPrefab: {fileID: 2836963592047139580, guid: c9523e780a6269e47bdc964a5e44c173, type: 3}
+      count: 10
+    - enemyPrefab: {fileID: 1429774585333224684, guid: e028d235f9f1b22449469726bdd0da08, type: 3}
+      count: 30
+  - enemies:
+    - enemyPrefab: {fileID: 3116017642917783631, guid: 75cc67f729b7bab4aa9e9c3c15ff5911, type: 3}
+      count: 15
+    - enemyPrefab: {fileID: 2836963592047139580, guid: c9523e780a6269e47bdc964a5e44c173, type: 3}
+      count: 20
+    - enemyPrefab: {fileID: 1429774585333224684, guid: e028d235f9f1b22449469726bdd0da08, type: 3}
+      count: 25
+  - enemies:
+    - enemyPrefab: {fileID: 3116017642917783631, guid: 75cc67f729b7bab4aa9e9c3c15ff5911, type: 3}
+      count: 10
+    - enemyPrefab: {fileID: 2836963592047139580, guid: c9523e780a6269e47bdc964a5e44c173, type: 3}
+      count: 30
+    - enemyPrefab: {fileID: 1429774585333224684, guid: e028d235f9f1b22449469726bdd0da08, type: 3}
+      count: 20
+  - enemies:
+    - enemyPrefab: {fileID: 3116017642917783631, guid: 75cc67f729b7bab4aa9e9c3c15ff5911, type: 3}
+      count: 30
+    - enemyPrefab: {fileID: 2836963592047139580, guid: c9523e780a6269e47bdc964a5e44c173, type: 3}
+      count: 20
+    - enemyPrefab: {fileID: 1429774585333224684, guid: e028d235f9f1b22449469726bdd0da08, type: 3}
+      count: 20
+  - enemies:
+    - enemyPrefab: {fileID: 3116017642917783631, guid: 75cc67f729b7bab4aa9e9c3c15ff5911, type: 3}
+      count: 20
+    - enemyPrefab: {fileID: 2836963592047139580, guid: c9523e780a6269e47bdc964a5e44c173, type: 3}
+      count: 30
+    - enemyPrefab: {fileID: 1429774585333224684, guid: e028d235f9f1b22449469726bdd0da08, type: 3}
+      count: 25
+  - enemies:
+    - enemyPrefab: {fileID: 3116017642917783631, guid: 75cc67f729b7bab4aa9e9c3c15ff5911, type: 3}
+      count: 30
+    - enemyPrefab: {fileID: 2836963592047139580, guid: c9523e780a6269e47bdc964a5e44c173, type: 3}
+      count: 30
+    - enemyPrefab: {fileID: 1429774585333224684, guid: e028d235f9f1b22449469726bdd0da08, type: 3}
+      count: 30
