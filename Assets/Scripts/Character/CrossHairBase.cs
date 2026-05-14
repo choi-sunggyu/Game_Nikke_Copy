@@ -20,6 +20,7 @@ public abstract class CrossHairBase : MonoBehaviour
 
     protected virtual void UpdateBulletCount(int count)
     {
+        if (!isActive) return;
         if(bulletCountText != null)
             bulletCountText.text = count.ToString();
     }

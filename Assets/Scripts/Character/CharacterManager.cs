@@ -21,8 +21,9 @@ public class CharacterManager : MonoBehaviour
         }
     }
 
-    void Start()
+    IEnumerator Start()
     {
+        yield return null;
         int startIndex = characters.Count / 2;
         currentCharacter = characters[startIndex];
 
