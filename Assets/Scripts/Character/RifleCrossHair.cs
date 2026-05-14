@@ -18,9 +18,28 @@ public class RifleCrossHair : CrossHairBase
         else
         {
             crossHairObject.SetActive(true);
+            RefreshBulletCount();
         }
-        // 활성화/비활성화 처리
+
+        // bulletText 가시성은 isActive 여부에 따라 항상 처리
+        if(bulletCountText != null)
+            bulletCountText.gameObject.SetActive(isActive);
+
         DrawCrossHair();
+    }
+
+    private void RefreshBulletCount()
+    {
+        if(CM != null && CM.CurrentCharacter != null && bulletCountText != null)
+            bulletCountText.text = CM.CurrentCharacter.CurrentBulletCount.ToString();
+    }
+
+    protected override void Start()
+    {
+        base.Start();
+        bulletCountText = bulletText;
+        if(bulletCountText != null)
+            bulletCountText.gameObject.SetActive(false);
     }
 
     protected override void DrawCrossHair()

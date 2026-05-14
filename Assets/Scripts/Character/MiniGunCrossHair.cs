@@ -17,15 +17,20 @@ public class MiniGunCrossHair : CrossHairBase
         }
         else
         {
-            if(bulletCountText != null)
-                bulletCountText.gameObject.SetActive(isActive);
             crossHairObject.SetActive(true);
+            RefreshBulletCount();
         }
+
         if(bulletCountText != null)
             bulletCountText.gameObject.SetActive(isActive);
-        
-        // 활성화/비활성화 처리
+
         DrawCrossHair();
+    }
+
+    private void RefreshBulletCount()
+    {
+        if(CM != null && CM.CurrentCharacter != null && bulletCountText != null)
+            bulletCountText.text = CM.CurrentCharacter.CurrentBulletCount.ToString();
     }
 
     protected override void Start()

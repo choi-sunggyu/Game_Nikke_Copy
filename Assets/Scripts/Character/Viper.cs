@@ -61,7 +61,7 @@ public class Viper : CharacterBase
         if(IsAlive && CurrentState == CharacterState.Fire && bulletCount > 0)
         {
             bulletCount--;
-            InvokeBulletCountChanged(bulletCount);
+            InvokeBulletCountChanged(this, bulletCount);
             FireBullet();
             if(bulletCount == 0)
             {

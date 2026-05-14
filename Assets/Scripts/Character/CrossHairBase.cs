@@ -16,11 +16,25 @@ public abstract class CrossHairBase : MonoBehaviour
     [Header("Platform Mode")]
     [SerializeField] protected static bool isPCMode = true;
 
+    // CharacterManager 캐싱 (매번 Find 방지)
+    private CharacterManager cachedCM;
+    protected CharacterManager CM
+    {
+        get
+        {
+            if(cachedCM == null)
+                cachedCM = FindAnyObjectByType<CharacterManager>();
+            return cachedCM;
+        }
+    }
+
     public Vector2 CrossHairPosition => rectTransform.position;
 
-    protected virtual void UpdateBulletCount(int count)
+    protected virtual void UpdateBulletCount(CharacterBase sender, int count)
     {
-        if (!isActive) return;
+        if(!isActive) return;
+        // 현재 활성 캐릭터가 보낸 이벤트만 처리
+        if(CM != null && sender != CM.CurrentCharacter) return;
         if(bulletCountText != null)
             bulletCountText.text = count.ToString();
     }

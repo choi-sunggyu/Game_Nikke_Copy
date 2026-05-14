@@ -12,6 +12,10 @@ public class ScopeCrossHair : CrossHairBase
     public Image donutImage;
     [SerializeField] private TextMeshProUGUI bulletText;
     private bool isReloading = false;
+    [Header("BulletCount 위치")]
+    [SerializeField] private Vector2 bulletCountIdlePos;  // 미클릭 시 위치
+    [SerializeField] private Vector2 bulletCountAimPos;   // 클릭(조준) 시 위치
+    private RectTransform bulletCountRect;
 
     protected override void Awake()
     {
@@ -36,6 +40,7 @@ public class ScopeCrossHair : CrossHairBase
         isActive = false;
         crossHairImage.SetActive(false);
         bulletCountText = bulletText;
+        bulletCountRect = bulletCountText.GetComponent<RectTransform>();
         if(bulletCountText != null)
             bulletCountText.gameObject.SetActive(false);
     }
@@ -57,14 +62,28 @@ public class ScopeCrossHair : CrossHairBase
     protected override void OnSwitchCharacter(int index)
     {
         isActive = (index == 2);
-        crossHairImage.SetActive(isActive);  // CrossHair는 항상 표시
+        crossHairImage.SetActive(isActive);
         if(bulletCountText != null)
+        {
             bulletCountText.gameObject.SetActive(isActive);
+            if(isActive)
+                bulletCountRect.anchoredPosition = bulletCountIdlePos;
+        }
         if(!isActive)
         {
             isDragging = false;
             HideScope();
         }
+        else
+        {
+            RefreshBulletCount();
+        }
+    }
+
+    private void RefreshBulletCount()
+    {
+        if(CM != null && CM.CurrentCharacter != null && bulletCountText != null)
+            bulletCountText.text = CM.CurrentCharacter.CurrentBulletCount.ToString();
     }
 
     protected override void OnFirePress()
@@ -80,6 +99,9 @@ public class ScopeCrossHair : CrossHairBase
         crossHairImage.SetActive(false);
         scopeOverlay.SetActive(true);
         canvasGroup.alpha = 1f;
+
+        // 조준 시 위치로 이동
+        bulletCountRect.anchoredPosition = bulletCountAimPos;
     }
 
     protected override void OnFireRelease()
@@ -87,7 +109,11 @@ public class ScopeCrossHair : CrossHairBase
         isDragging = false;
         HideScope();
         if(isActive)
+        {
             crossHairImage.SetActive(true);  // CrossHair 다시 표시
+            // 미클릭 위치로 복귀
+            bulletCountRect.anchoredPosition = bulletCountIdlePos;
+        }
     }
 
     void HandleReloadStart()

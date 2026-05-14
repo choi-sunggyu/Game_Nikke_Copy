@@ -42,7 +42,8 @@ public abstract class CharacterBase : MonoBehaviour
     public float NextFireTime => nextFireTime;
     public CharacterState CurrentState => currentState;
 
-    public static event Action<int> OnBulletCountChanged;
+    // sender: 이벤트를 발생시킨 캐릭터, count: 탄 수
+    public static event Action<CharacterBase, int> OnBulletCountChanged;
 
     private Coroutine reloadCoroutine;
 
@@ -52,9 +53,9 @@ public abstract class CharacterBase : MonoBehaviour
     public static event Action OnForcedReloadStart;
     public static event Action OnForcedReloadEnd;
 
-    public static void InvokeBulletCountChanged(int count)
+    public static void InvokeBulletCountChanged(CharacterBase sender, int count)
     {
-        OnBulletCountChanged?.Invoke(count);
+        OnBulletCountChanged?.Invoke(sender, count);
     }
 
     public void TakeDamage(float damage)
@@ -125,7 +126,7 @@ public abstract class CharacterBase : MonoBehaviour
                 bulletCount--;
                 nextFireTime = Time.time + fireRate;
 
-                OnBulletCountChanged?.Invoke(bulletCount);
+                OnBulletCountChanged?.Invoke(this, bulletCount);
                 FireBullet();
 
                 // 사격 로직 (예: 총알 발사, 애니메이션 재생 등)
@@ -210,7 +211,7 @@ public abstract class CharacterBase : MonoBehaviour
         currentState = CharacterState.Idle;
         spriteRenderer.sprite = idleSprite;
 
-        OnBulletCountChanged?.Invoke(bulletCount);
+        OnBulletCountChanged?.Invoke(this, bulletCount);
 
         if(isForced) OnForcedReloadEnd?.Invoke();
         

@@ -10,6 +10,7 @@ public class CharacterManager : MonoBehaviour
     private bool changing; // - 전환 중인지 아닌지
     private float delayTime; // - 전환 딜레이 시간
     public List<CharacterBase> Characters => characters;
+    public CharacterBase CurrentCharacter => currentCharacter;
 
     void Awake()
     {
@@ -23,12 +24,12 @@ public class CharacterManager : MonoBehaviour
 
     IEnumerator Start()
     {
-        yield return null;
+        yield return null; // Start에서 초기화 순서 보장 위해 한 프레임 대기
         int startIndex = characters.Count / 2;
         currentCharacter = characters[startIndex];
 
         InputManager.InvokeSwitchCharacter(startIndex);
-        CharacterBase.InvokeBulletCountChanged(currentCharacter.CurrentBulletCount);
+        CharacterBase.InvokeBulletCountChanged(currentCharacter, currentCharacter.CurrentBulletCount);
     }
 
     void OnEnable()
@@ -80,19 +81,12 @@ public class CharacterManager : MonoBehaviour
         changing = true;
         // currentCharacter 변경
         currentCharacter = characters[index];
-        // 이전 캐릭터 강제 초기화 (추후에 구현)
 
         // 전환 시 새 캐릭터 BulletCount 이벤트 발생
-        CharacterBase.InvokeBulletCountChanged(currentCharacter.CurrentBulletCount);
+        CharacterBase.InvokeBulletCountChanged(currentCharacter, currentCharacter.CurrentBulletCount);
 
         yield return new WaitForSeconds(delayTime);
         changing = false;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-    
     }
     
     void OnDisable() {

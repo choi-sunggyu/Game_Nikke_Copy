@@ -59,7 +59,7 @@ public class Titan : CharacterBase
         nextTitanFireTime = Time.time + currentFireRate;
         //Debug.Log($"TryFire / bullet: {bulletCount} / shots: {shotsFired} / rate: {1f / currentFireRate:F1}발/초");
 
-        InvokeBulletCountChanged(bulletCount);
+        InvokeBulletCountChanged(this, bulletCount);
         FireBullet();
 
         if (bulletCount == 0) TryReload();

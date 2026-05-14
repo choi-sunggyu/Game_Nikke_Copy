@@ -256,7 +256,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -80.4, y: 0}
+  m_AnchoredPosition: {x: -55, y: 0}
   m_SizeDelta: {x: 59.3946, y: 14.9109}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &69854147
@@ -503,11 +503,11 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1026338167}
+  m_Father: {fileID: 2100329493}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -159.8, y: 0}
+  m_AnchoredPosition: {x: -80.4, y: 0}
   m_SizeDelta: {x: 59.3946, y: 14.9109}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &135808912
@@ -1116,7 +1116,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -80.4, y: 0}
+  m_AnchoredPosition: {x: -55, y: 0}
   m_SizeDelta: {x: 59.3946, y: 14.9109}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &657571932
@@ -1433,7 +1433,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1026338167
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1449,7 +1449,6 @@ RectTransform:
   - {fileID: 2029754031}
   - {fileID: 951799755}
   - {fileID: 515823459}
-  - {fileID: 135808911}
   m_Father: {fileID: 2100329493}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -3139,6 +3138,7 @@ RectTransform:
   m_Children:
   - {fileID: 1387532108}
   - {fileID: 1026338167}
+  - {fileID: 135808911}
   m_Father: {fileID: 1688576544}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -3162,6 +3162,8 @@ MonoBehaviour:
   crossHairImage: {fileID: 1387532107}
   donutImage: {fileID: 2029754029}
   bulletText: {fileID: 135808912}
+  bulletCountIdlePos: {x: -50, y: 0}
+  bulletCountAimPos: {x: -120, y: 0}
 --- !u!1 &2119429276
 GameObject:
   m_ObjectHideFlags: 0
