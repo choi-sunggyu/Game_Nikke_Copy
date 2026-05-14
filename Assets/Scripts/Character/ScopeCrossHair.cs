@@ -70,10 +70,13 @@ public class ScopeCrossHair : CrossHairBase
     protected override void OnFirePress()
     {
         if(!isActive || isReloading) return;
-        if(isReloading) return;
 
         isDragging = true;
         currentPosition = Input.mousePosition;
+
+        // 스코프를 현재 크로스헤어 위치에 표시
+        scopeRectTransform.position = rectTransform.position;
+
         crossHairImage.SetActive(false);
         scopeOverlay.SetActive(true);
         canvasGroup.alpha = 1f;
@@ -107,35 +110,46 @@ public class ScopeCrossHair : CrossHairBase
 
     protected override void Update()
     {
-        // 미터치 or 강제 리로딩 중 → CrossHair 드래그
-        if(!isDragging && isActive)
+        if(isPCMode && isActive)
         {
-            if(Input.GetMouseButton(0) && isReloading)
-            {
-                Vector2 delta = (Vector2)Input.mousePosition - currentPosition;
-                Vector3 newPos = rectTransform.position + (Vector3)delta;
-                newPos.x = Mathf.Clamp(newPos.x, 0f, Screen.width);
-                newPos.y = Mathf.Clamp(newPos.y, 0f, Screen.height);
-                rectTransform.position = newPos;
-            }
-            currentPosition = Input.mousePosition;
-        }
-
-        // 조준 중 → 조준경 + CrossHair 같이 이동
-        if(isDragging && isActive)
-        {
-            Vector2 touchDelta = (Vector2)Input.mousePosition - currentPosition;
-
-            // CrossHair 이동
-            Vector3 newPos = rectTransform.position + (Vector3)touchDelta;
+            // PC: 클릭 여부 상관없이 항상 마우스를 따라다님
+            Vector3 newPos = Input.mousePosition;
             newPos.x = Mathf.Clamp(newPos.x, 0f, Screen.width);
             newPos.y = Mathf.Clamp(newPos.y, 0f, Screen.height);
             rectTransform.position = newPos;
 
-            // 조준경은 CrossHair 위치를 그대로 따라감
-            scopeRectTransform.position = rectTransform.position;
+            // 클릭 중이면 스코프도 따라감
+            if(isDragging)
+                scopeRectTransform.position = rectTransform.position;
+        }
+        else if(!isPCMode && isActive)
+        {
+            // 모바일: 미터치 or 강제 리로딩 중 → CrossHair 드래그
+            if(!isDragging)
+            {
+                if(Input.GetMouseButton(0) && isReloading)
+                {
+                    Vector2 delta = (Vector2)Input.mousePosition - currentPosition;
+                    Vector3 newPos = rectTransform.position + (Vector3)delta;
+                    newPos.x = Mathf.Clamp(newPos.x, 0f, Screen.width);
+                    newPos.y = Mathf.Clamp(newPos.y, 0f, Screen.height);
+                    rectTransform.position = newPos;
+                }
+                currentPosition = Input.mousePosition;
+            }
 
-            currentPosition = Input.mousePosition;
+            // 모바일: 조준 중 → 조준경 + CrossHair 같이 이동
+            if(isDragging)
+            {
+                Vector2 touchDelta = (Vector2)Input.mousePosition - currentPosition;
+                Vector3 newPos = rectTransform.position + (Vector3)touchDelta;
+                newPos.x = Mathf.Clamp(newPos.x, 0f, Screen.width);
+                newPos.y = Mathf.Clamp(newPos.y, 0f, Screen.height);
+                rectTransform.position = newPos;
+
+                scopeRectTransform.position = rectTransform.position;
+                currentPosition = Input.mousePosition;
+            }
         }
 
         if(!isDragging && canvasGroup.alpha <= 0f)

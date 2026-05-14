@@ -12,6 +12,10 @@ public abstract class CrossHairBase : MonoBehaviour
     protected bool isDragging;  // 터치 중인지
     protected bool isActive;
 
+    // ★ 이 한 줄로 PC/모바일 조작 전환 (true = PC, false = 모바일)
+    [Header("Platform Mode")]
+    [SerializeField] protected static bool isPCMode = true;
+
     public Vector2 CrossHairPosition => rectTransform.position;
 
     protected virtual void UpdateBulletCount(int count)
@@ -51,23 +55,29 @@ public abstract class CrossHairBase : MonoBehaviour
 
     protected virtual void Update()
     {
-        if(isDragging)
+        if(isPCMode)
         {
-            Vector2 touchDelta = (Vector2)Input.mousePosition - currentPosition;
-            Vector3 newPosition = rectTransform.position + (Vector3)touchDelta;
-
-            // 화면 경계 클램핑
+            // PC: 항상 마우스 위치 = 크로스헤어 위치 (클릭 여부 무관)
+            Vector3 newPosition = Input.mousePosition;
             newPosition.x = Mathf.Clamp(newPosition.x, 0f, Screen.width);
             newPosition.y = Mathf.Clamp(newPosition.y, 0f, Screen.height);
-
+            rectTransform.position = newPosition;
+        }
+        else if(isDragging)
+        {
+            // 모바일: 드래그 delta만큼 상대 이동
+            Vector2 touchDelta = (Vector2)Input.mousePosition - currentPosition;
+            Vector3 newPosition = rectTransform.position + (Vector3)touchDelta;
+            newPosition.x = Mathf.Clamp(newPosition.x, 0f, Screen.width);
+            newPosition.y = Mathf.Clamp(newPosition.y, 0f, Screen.height);
             rectTransform.position = newPosition;
             currentPosition = Input.mousePosition;
         }
     }
 
-    protected virtual void OnFirePress() { 
-        isDragging = true; 
-        currentPosition = Input.mousePosition;  // 시작점 초기화
+    protected virtual void OnFirePress() {
+        isDragging = true;
+        currentPosition = Input.mousePosition;
     }
     protected virtual void OnFireRelease() { isDragging = false; }  // 위치 고정
 
