@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -26,6 +27,7 @@ public abstract class EnemyBase : MonoBehaviour
     public EnemyState CurrentState => currentState;
     public Vector3 TargetPosition => targetPosition;
     public bool IsSpawning => isSpawning;
+    public event Action OnDied;
 
     // abstract 메서드
     public abstract void Initialize();
@@ -46,6 +48,7 @@ public abstract class EnemyBase : MonoBehaviour
 
     public virtual void Die()
     {
+        OnDied?.Invoke();
         survive = false;
         currentState = EnemyState.Dead;
         // 사망 처리: 콜라이더 비활성화 후 오브젝트 제거
@@ -96,7 +99,7 @@ public abstract class EnemyBase : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         
         // characters 연결 추가
-        CharacterManager characterManager = Object.FindAnyObjectByType<CharacterManager>();
+        CharacterManager characterManager = UnityEngine.Object.FindAnyObjectByType<CharacterManager>();
         if(characterManager != null)
         {
             characters = characterManager.Characters;

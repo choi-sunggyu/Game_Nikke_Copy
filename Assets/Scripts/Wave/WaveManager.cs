@@ -29,6 +29,8 @@ public class WaveManager : MonoBehaviour
     private float waveClearDelay = 2f;
     private float spawnInterval = 2f;
 
+    public IReadOnlyList<EnemyBase> ActiveEnemies => activeEnemies;
+
     public enum Difficulty { Easy, Normal, Hard }
 
     void Start()
@@ -115,6 +117,7 @@ public class WaveManager : MonoBehaviour
 
         GameObject obj = Instantiate(prefab, spawnPos, Quaternion.identity);
         EnemyBase enemy = obj.GetComponent<EnemyBase>();
+        enemy.OnDied += () => activeEnemies.Remove(enemy);
         if (enemy != null)
         {
             enemy.SetBulletPool(enemyBulletPool);

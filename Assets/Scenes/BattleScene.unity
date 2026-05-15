@@ -306,8 +306,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 12
-  m_fontSizeBase: 12
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -557,8 +557,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 12
-  m_fontSizeBase: 12
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1166,8 +1166,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 12
-  m_fontSizeBase: 12
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1877,7 +1877,7 @@ Transform:
   m_GameObject: {fileID: 1652395416}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7, y: -3, z: 1}
+  m_LocalPosition: {x: -6, y: -3, z: 1}
   m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1981,6 +1981,7 @@ GameObject:
   - component: {fileID: 1820671841}
   - component: {fileID: 1820671843}
   - component: {fileID: 1820671844}
+  - component: {fileID: 1820671845}
   m_Layer: 7
   m_Name: Titan
   m_TagString: Untagged
@@ -2094,7 +2095,7 @@ MonoBehaviour:
   idleSprite: {fileID: 21300000, guid: 6c46695d820de6b42aa2a52bd9602b7c, type: 3}
   shootSprite: {fileID: 21300000, guid: d3f50942f7871044d897269e0902abef, type: 3}
   reloadSprite: {fileID: 21300000, guid: 62802689f7d37fd4f8e9d38d2f346832, type: 3}
-  fireRate: 0
+  fireRate: 0.1
   crossHair: {fileID: 1881039033}
   enemyLayer:
     serializedVersion: 2
@@ -2137,6 +2138,19 @@ CapsuleCollider2D:
   m_Offset: {x: 0.7421656, y: 0.7421675}
   m_Size: {x: 8.203347, y: 8.755665}
   m_Direction: 0
+--- !u!114 &1820671845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1820671839}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 762febd8c55e90d40933ddea36a27107, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterAI
+  aimSpread: 2.5
 --- !u!1 &1850117850
 GameObject:
   m_ObjectHideFlags: 0
@@ -2516,6 +2530,7 @@ GameObject:
   - component: {fileID: 1989108158}
   - component: {fileID: 1989108160}
   - component: {fileID: 1989108161}
+  - component: {fileID: 1989108162}
   m_Layer: 7
   m_Name: Viper
   m_TagString: Untagged
@@ -2591,7 +2606,7 @@ Transform:
   m_GameObject: {fileID: 1989108157}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.5, y: -3, z: 0}
+  m_LocalPosition: {x: 4, y: -3, z: 0}
   m_LocalScale: {x: 0.3884, y: 0.3884, z: 0.3884}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2629,7 +2644,7 @@ MonoBehaviour:
   idleSprite: {fileID: 21300000, guid: 67a37994acbf2714490b9b9f7c7dde16, type: 3}
   shootSprite: {fileID: 21300000, guid: b44b49e3d6a4d4048814028b3c7c7315, type: 3}
   reloadSprite: {fileID: 21300000, guid: f972d0036028a214bb53fbe188906830, type: 3}
-  fireRate: 0
+  fireRate: 1.2
   crossHair: {fileID: 2100329494}
   enemyLayer:
     serializedVersion: 2
@@ -2672,6 +2687,19 @@ CapsuleCollider2D:
   m_Offset: {x: 0.5005292, y: 0.6558696}
   m_Size: {x: 8.134314, y: 8.92826}
   m_Direction: 0
+--- !u!114 &1989108162
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1989108157}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 762febd8c55e90d40933ddea36a27107, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterAI
+  aimSpread: 2.5
 --- !u!1 &2029754028
 GameObject:
   m_ObjectHideFlags: 0
@@ -2951,6 +2979,7 @@ GameObject:
   - component: {fileID: 2094593709}
   - component: {fileID: 2094593711}
   - component: {fileID: 2094593712}
+  - component: {fileID: 2094593713}
   m_Layer: 7
   m_Name: Ghost
   m_TagString: Untagged
@@ -3026,7 +3055,7 @@ Transform:
   m_GameObject: {fileID: 2094593707}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.5, y: -3, z: 0}
+  m_LocalPosition: {x: -4, y: -3, z: 0}
   m_LocalScale: {x: 0.3884, y: 0.3884, z: 0.3884}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3064,7 +3093,7 @@ MonoBehaviour:
   idleSprite: {fileID: 21300000, guid: 4584805a15f230a428c88c6c13175a80, type: 3}
   shootSprite: {fileID: 21300000, guid: 9b85a13912b7bbc419f0fee86f6388b7, type: 3}
   reloadSprite: {fileID: 21300000, guid: 64c2d76a077525f4db5ad5c052a68be0, type: 3}
-  fireRate: 0
+  fireRate: 0.4
   crossHair: {fileID: 1223029944}
   enemyLayer:
     serializedVersion: 2
@@ -3107,6 +3136,19 @@ CapsuleCollider2D:
   m_Offset: {x: 0.13166426, y: 0.52665275}
   m_Size: {x: 6.8167605, y: 8.367457}
   m_Direction: 0
+--- !u!114 &2094593713
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2094593707}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 762febd8c55e90d40933ddea36a27107, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterAI
+  aimSpread: 2.5
 --- !u!1 &2100329492
 GameObject:
   m_ObjectHideFlags: 0
@@ -3234,7 +3276,7 @@ Transform:
   m_GameObject: {fileID: 2145625898}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.5, y: -3, z: 1}
+  m_LocalPosition: {x: 3, y: -3, z: 1}
   m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -249,9 +249,44 @@ public abstract class CharacterBase : MonoBehaviour
 
     protected virtual void OnDisable() {}
 
-    // Update is called once per frame
-    void Update()
+    // 캐릭터 AI용 사격 (CrossHair 우회)
+    public void TryFireAtTarget(Vector3 worldTarget)
     {
+        if (!survive) return;
+
+        // 쿨타임 중 → Idle
+        if (Time.time < nextFireTime)
+        {
+            // 쿨타임 중 idle로 전환하는게 아니라 필드에 적이 없을 때 reload 후 idle로 전환
+            //ChangeState(CharacterState.Idle);
+            return;
+        }
+
+        // 탄창 없음 → 리로드
+        if (bulletCount <= 0)
+        {
+            TryReload();
+            return;
+        }
+
+        // 사격
+        ChangeState(CharacterState.Fire);
+        bulletCount--;
+        nextFireTime = Time.time + fireRate;
+        OnBulletCountChanged?.Invoke(this, bulletCount);
+        FireBulletAtTarget(worldTarget);
+
+        if (bulletCount == 0) TryReload();
+    }
+
+    protected virtual void FireBulletAtTarget(Vector3 worldTarget)
+    {
+        if (bulletPool == null || muzzlePoint == null) return;
         
+        Vector3 fireDir = (worldTarget - muzzlePoint.position).normalized;
+        GameObject bullet = bulletPool.Get(muzzlePoint.position, Quaternion.identity);
+        if (bullet == null) return;
+
+        bullet.GetComponent<BulletBase>().Init(attackDamage, bulletSpeed, fireDir);
     }
 }
