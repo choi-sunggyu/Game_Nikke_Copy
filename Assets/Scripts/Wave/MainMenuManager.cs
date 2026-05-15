@@ -9,6 +9,7 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private Button hardButton;
     void Start()
     {
+        AudioManager.Instance.PlayMainMenuBGM();
         easyButton.onClick.AddListener(OnClickEasy);
         normalButton.onClick.AddListener(OnClickNormal);
         hardButton.onClick.AddListener(OnClickHard);

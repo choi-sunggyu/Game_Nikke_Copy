@@ -35,6 +35,8 @@ public class WaveManager : MonoBehaviour
 
     void Start()
     {
+        AudioManager.Instance.PlayBattleBGM();
+        StartGame(GameSettings.SelectedDifficulty);
         StartGame(GameSettings.SelectedDifficulty);
     }
 
