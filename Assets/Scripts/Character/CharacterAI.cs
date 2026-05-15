@@ -24,6 +24,7 @@ public class CharacterAI : MonoBehaviour
         ValidateAndSelectTarget();
         if (currentTarget == null)
         {
+            owner.OnStopFiring();
             owner.TryReload();
             return;
         }

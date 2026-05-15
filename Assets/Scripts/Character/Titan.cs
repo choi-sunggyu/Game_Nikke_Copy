@@ -87,4 +87,38 @@ public class Titan : CharacterBase
         base.OnDisable();
         InputManager.OnFireRelease -= ResetFireRate;
     }
+
+    public override void TryFireAtTarget(Vector3 worldTarget)
+    {
+        if (!survive) return;
+
+        if (Time.time < nextTitanFireTime)
+        {
+            return;
+        }
+
+        if (bulletCount <= 0)
+        {
+            TryReload();
+            return;
+        }
+
+        ChangeState(CharacterState.Fire);
+        bulletCount--;
+        shotsFired++;
+
+        currentFireRate = Mathf.Lerp(maxFireRate, minFireRate,
+                        Mathf.Clamp01(shotsFired / 20f));
+        nextTitanFireTime = Time.time + currentFireRate;
+
+        InvokeBulletCountChanged(this, bulletCount);
+        FireBulletAtTarget(worldTarget);
+
+        if (bulletCount == 0) TryReload();
+    }
+
+    public override void OnStopFiring()
+    {
+        ResetFireRate();
+    }
 }

@@ -250,7 +250,7 @@ public abstract class CharacterBase : MonoBehaviour
     protected virtual void OnDisable() {}
 
     // 캐릭터 AI용 사격 (CrossHair 우회)
-    public void TryFireAtTarget(Vector3 worldTarget)
+    public virtual void TryFireAtTarget(Vector3 worldTarget)
     {
         if (!survive) return;
 
@@ -278,6 +278,8 @@ public abstract class CharacterBase : MonoBehaviour
 
         if (bulletCount == 0) TryReload();
     }
+
+    public virtual void OnStopFiring() { }
 
     protected virtual void FireBulletAtTarget(Vector3 worldTarget)
     {
