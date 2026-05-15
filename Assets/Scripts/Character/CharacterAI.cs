@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class CharacterAI : MonoBehaviour
 {
-    [SerializeField] private float aimSpread = 1.0f; // 조준 오차 반경 (AI 바보 만들기)
+    [SerializeField] private float aimSpread = 0.3f; // 조준 오차 반경 (AI 바보 만들기)
 
     private CharacterBase owner;
     private CharacterManager characterManager;

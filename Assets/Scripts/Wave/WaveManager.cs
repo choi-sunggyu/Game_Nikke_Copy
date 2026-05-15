@@ -35,7 +35,7 @@ public class WaveManager : MonoBehaviour
 
     void Start()
     {
-        StartGame(Difficulty.Easy);
+        StartGame(GameSettings.SelectedDifficulty);
     }
 
     public void StartGame(Difficulty difficulty)
