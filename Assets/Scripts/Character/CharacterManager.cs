@@ -28,6 +28,12 @@ public class CharacterManager : MonoBehaviour
         int startIndex = characters.Count / 2;
         currentCharacter = characters[startIndex];
 
+        foreach (var c in characters)
+        {
+            c.IsActiveCharacter = false;
+        }
+        currentCharacter.IsActiveCharacter = true;
+
         InputManager.InvokeSwitchCharacter(startIndex);
         CharacterBase.InvokeBulletCountChanged(currentCharacter, currentCharacter.CurrentBulletCount);
     }
@@ -79,8 +85,13 @@ public class CharacterManager : MonoBehaviour
     private IEnumerator SwitchDelay(int index)
     {
         changing = true;
+
+        currentCharacter.IsActiveCharacter = false;
+        currentCharacter.StopAllSounds(); // 전환 시 현재 캐릭터의 모든 사운드 즉시 정지
+
         // currentCharacter 변경
         currentCharacter = characters[index];
+        currentCharacter.IsActiveCharacter = true;
 
         // 전환 시 새 캐릭터 BulletCount 이벤트 발생
         CharacterBase.InvokeBulletCountChanged(currentCharacter, currentCharacter.CurrentBulletCount);

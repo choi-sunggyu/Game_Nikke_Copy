@@ -2,6 +2,12 @@ using UnityEngine;
 
 public class Ghost : CharacterBase
 {
+    [SerializeField] private AudioClip singleShotClip;
+    [SerializeField] private AudioClip reloadClip;
+
+    private AudioSource singleShotSource;
+    private AudioSource reloadSource;
+
     public override void Initialize()
     {
         maxHp = 100;
@@ -16,23 +22,99 @@ public class Ghost : CharacterBase
         skillCoolTime = 10.0f;
         attackDamage = 20;
         survive = true;
-        fireRate = 1f / 12f;  // 초당 12발
+        fireRate = 1f / 12f;
         bulletSpeed = 500f;
+
+        singleShotSource = gameObject.AddComponent<AudioSource>();
+        singleShotSource.loop = false;
+
+        reloadSource = gameObject.AddComponent<AudioSource>();
+        reloadSource.loop = false;
     }
 
-    public override void UseSkill()
+    protected override void OnDisable()
     {
-        // Ghost 스킬 사용 로직
+        base.OnDisable();
+        //StopAllSounds(); // ← 비활성화 시 즉시 정지
     }
 
-    public override void UseBurst()
+    public override void TryFire()
     {
-        // Ghost 버스트 사용 로직
+        if (!survive) return;
+        if (bulletCount <= 0) return;
+        if (Time.time < NextFireTime) return;
+
+        StopReload();
+        StopReloadSound();
+        ChangeState(CharacterState.Fire);
+
+        bulletCount--;
+        SetNextFireTime(Time.time + fireRate);
+
+        InvokeBulletCountChanged(this, bulletCount);
+        PlayFireSound();
+        FireBullet();
+
+        if (bulletCount == 0) TryReload();
     }
 
-    // Update is called once per frame
-    void Update()
+    public override void TryFireAtTarget(Vector3 worldTarget)
     {
-        
+        if (!survive) return;
+        if (CurrentState == CharacterState.Reload) return;
+        if (Time.time < NextFireTime) return;
+
+        if (bulletCount <= 0)
+        {
+            TryReload();
+            return;
+        }
+
+        ChangeState(CharacterState.Fire);
+        bulletCount--;
+        SetNextFireTime(Time.time + fireRate);
+
+        InvokeBulletCountChanged(this, bulletCount);
+        PlayFireSound();
+        FireBulletAtTarget(worldTarget);
+
+        if (bulletCount == 0) TryReload();
     }
+
+    public override void TryReload()
+    {
+        if (CurrentState == CharacterState.Reload) return;
+        base.TryReload();
+        PlayReloadSound();
+    }
+
+    private void PlayFireSound()
+    {
+        if (!IsActiveCharacter) return;
+        StopReloadSound();
+        singleShotSource.PlayOneShot(singleShotClip);
+    }
+
+    private void PlayReloadSound()
+    {
+        if (!IsActiveCharacter) return;
+        if (reloadClip == null) return;
+        reloadSource.clip = reloadClip;
+        reloadSource.Play();
+    }
+
+    private void StopReloadSound()
+    {
+        if (reloadSource != null && reloadSource.isPlaying)
+            reloadSource.Stop();
+    }
+
+    public override void StopAllSounds()
+    {
+        singleShotSource?.Stop();
+        reloadSource?.Stop();
+    }
+
+    public override void UseSkill() { }
+    public override void UseBurst() { }
 }

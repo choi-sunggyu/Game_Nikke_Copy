@@ -2101,6 +2101,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   bulletSpeed: 0
+  singleShotClip: {fileID: 8300000, guid: 097d11264533cda428f4ba65b84b3809, type: 3}
+  spinUpClip: {fileID: 8300000, guid: 9e17cf95bcc780647bde316f2165acb5, type: 3}
+  fireLoopClip: {fileID: 8300000, guid: 599c9cff1625b6c44b558aca108e72ae, type: 3}
+  reloadClip: {fileID: 8300000, guid: d710ce856f8d16b40995b723fab1298a, type: 3}
 --- !u!70 &1820671844
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -2650,6 +2654,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   bulletSpeed: 0
+  singleShotClip: {fileID: 8300000, guid: 581466f43eea4ec40b28c673e2132c60, type: 3}
+  reloadClip: {fileID: 8300000, guid: d710ce856f8d16b40995b723fab1298a, type: 3}
 --- !u!70 &1989108161
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -3099,6 +3105,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   bulletSpeed: 0
+  singleShotClip: {fileID: 8300000, guid: 3bb68239e5fd5de49935efc5291696fe, type: 3}
+  reloadClip: {fileID: 8300000, guid: d710ce856f8d16b40995b723fab1298a, type: 3}
 --- !u!70 &2094593712
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

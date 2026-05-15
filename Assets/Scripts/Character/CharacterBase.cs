@@ -41,6 +41,9 @@ public abstract class CharacterBase : MonoBehaviour
     public float ShieldRatio => shield / maxShield;
     public float NextFireTime => nextFireTime;
     public CharacterState CurrentState => currentState;
+    protected void SetNextFireTime(float time) => nextFireTime = time;
+    public bool IsActiveCharacter { get; set; }
+
 
     // sender: 이벤트를 발생시킨 캐릭터, count: 탄 수
     public static event Action<CharacterBase, int> OnBulletCountChanged;
@@ -256,11 +259,7 @@ public abstract class CharacterBase : MonoBehaviour
 
         // 쿨타임 중 → Idle
         if (Time.time < nextFireTime)
-        {
-            // 쿨타임 중 idle로 전환하는게 아니라 필드에 적이 없을 때 reload 후 idle로 전환
-            //ChangeState(CharacterState.Idle);
             return;
-        }
 
         // 탄창 없음 → 리로드
         if (bulletCount <= 0)
@@ -291,4 +290,6 @@ public abstract class CharacterBase : MonoBehaviour
 
         bullet.GetComponent<BulletBase>().Init(attackDamage, bulletSpeed, fireDir);
     }
+
+    public virtual void StopAllSounds() { }
 }
