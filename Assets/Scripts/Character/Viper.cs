@@ -26,9 +26,11 @@ public class Viper : CharacterBase
 
         singleShotSource = gameObject.AddComponent<AudioSource>();
         singleShotSource.loop = false;
+        singleShotSource.volume = 0.9f;
 
         reloadSource = gameObject.AddComponent<AudioSource>();
         reloadSource.loop = false;
+        reloadSource.volume = 0.7f;
     }
 
     protected override void OnEnable()

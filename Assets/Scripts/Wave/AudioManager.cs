@@ -22,7 +22,7 @@ public class AudioManager : MonoBehaviour
 
         bgmSource = gameObject.AddComponent<AudioSource>();
         bgmSource.loop = true;
-        bgmSource.volume = 0.5f;
+        bgmSource.volume = 0.4f;
     }
 
     public void PlayMainMenuBGM()

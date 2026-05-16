@@ -47,6 +47,7 @@ public abstract class CharacterBase : MonoBehaviour
 
     // sender: 이벤트를 발생시킨 캐릭터, count: 탄 수
     public static event Action<CharacterBase, int> OnBulletCountChanged;
+    public static event Action<CharacterBase> OnStatChanged;
 
     private Coroutine reloadCoroutine;
 
@@ -109,8 +110,7 @@ public abstract class CharacterBase : MonoBehaviour
             {
                 survive = false;
             }
-            // hp 잔량 debug
-            //Debug.Log($"TakeDamage 호출 / damage: {damage} / survive: {survive} / state: {currentState} / hp: {hp} / shield: {shield}");
+            OnStatChanged?.Invoke(this);
         }
     }    
 

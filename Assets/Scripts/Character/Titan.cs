@@ -45,18 +45,22 @@ public class Titan : CharacterBase
 
         singleShotSource = gameObject.AddComponent<AudioSource>();
         singleShotSource.loop = false;
+        singleShotSource.volume = 0.5f;
 
         spinUpSource = gameObject.AddComponent<AudioSource>();
         spinUpSource.clip = spinUpClip;
         spinUpSource.loop = true;
+        spinUpSource.volume = 0.5f;
 
         loopSource = gameObject.AddComponent<AudioSource>();
         loopSource.clip = fireLoopClip;
         loopSource.loop = true;
+        loopSource.volume = 0.4f;
 
         reloadSource = gameObject.AddComponent<AudioSource>();
         reloadSource.clip = reloadClip;
         reloadSource.loop = false;
+        reloadSource.volume = 0.6f;
     }
 
     protected override void OnEnable()
