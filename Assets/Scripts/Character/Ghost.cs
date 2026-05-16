@@ -31,7 +31,7 @@ public class Ghost : CharacterBase
 
         reloadSource = gameObject.AddComponent<AudioSource>();
         reloadSource.loop = false;
-        reloadSource.volume = 0.6f;
+        reloadSource.volume = 0.8f;
     }
 
     protected override void OnDisable()

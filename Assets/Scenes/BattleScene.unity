@@ -2988,10 +2988,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   bulletSpeed: 0
-  singleShotClip: {fileID: 8300000, guid: 097d11264533cda428f4ba65b84b3809, type: 3}
+  singleShotClip: {fileID: 8300000, guid: a99e8343e9ec1ef42b9acb6c3ff08427, type: 3}
   spinUpClip: {fileID: 8300000, guid: 9e17cf95bcc780647bde316f2165acb5, type: 3}
   fireLoopClip: {fileID: 8300000, guid: 599c9cff1625b6c44b558aca108e72ae, type: 3}
-  reloadClip: {fileID: 8300000, guid: d710ce856f8d16b40995b723fab1298a, type: 3}
+  reloadClip: {fileID: 8300000, guid: c8b2d65a6f1361a48a6f4f00afb50774, type: 3}
 --- !u!70 &1820671844
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -3612,8 +3612,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   bulletSpeed: 0
-  singleShotClip: {fileID: 8300000, guid: 581466f43eea4ec40b28c673e2132c60, type: 3}
-  reloadClip: {fileID: 8300000, guid: d710ce856f8d16b40995b723fab1298a, type: 3}
+  singleShotClip: {fileID: 8300000, guid: 58db49b18a8673d44b65f5aa7f546e37, type: 3}
+  chargingClip: {fileID: 8300000, guid: 021697e972de1f2468bdefb6879965f7, type: 3}
+  reloadClip: {fileID: 8300000, guid: f61f18c758eeb4d41a97bcedcdf90009, type: 3}
 --- !u!70 &1989108161
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

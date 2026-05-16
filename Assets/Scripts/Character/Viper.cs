@@ -3,10 +3,13 @@ using UnityEngine;
 public class Viper : CharacterBase
 {
     [SerializeField] private AudioClip singleShotClip;
+    [SerializeField] private AudioClip chargingClip;
     [SerializeField] private AudioClip reloadClip;
 
     private AudioSource singleShotSource;
     private AudioSource reloadSource;
+    private AudioSource chargingSource;
+    private bool hasPlayedCharging = false;
 
     public override void Initialize()
     {
@@ -26,11 +29,15 @@ public class Viper : CharacterBase
 
         singleShotSource = gameObject.AddComponent<AudioSource>();
         singleShotSource.loop = false;
-        singleShotSource.volume = 0.9f;
+        singleShotSource.volume = 1.2f;
 
         reloadSource = gameObject.AddComponent<AudioSource>();
         reloadSource.loop = false;
-        reloadSource.volume = 0.7f;
+        reloadSource.volume = 1.2f;
+
+        chargingSource = gameObject.AddComponent<AudioSource>();
+        chargingSource.loop = false;
+        chargingSource.volume = 1.0f;
     }
 
     protected override void OnEnable()
@@ -52,12 +59,15 @@ public class Viper : CharacterBase
         {
             StopReload();
             StopReloadSound(); // ← 리로드음 중단
+            PlayChargingSound();
             ChangeState(CharacterState.Fire);
         }
     }
 
     void HandleFireRelease()
     {
+        hasPlayedCharging = false; // ← 클릭 해제 시 플래그 리셋
+
         if (IsAlive && CurrentState == CharacterState.Fire && bulletCount > 0)
         {
             bulletCount--;
@@ -70,6 +80,7 @@ public class Viper : CharacterBase
         }
     }
 
+    // AI용
     public override void TryFireAtTarget(Vector3 worldTarget)
     {
         if (!survive) return;
@@ -100,7 +111,7 @@ public class Viper : CharacterBase
     private void PlayFireSound()
     {
         if (!IsActiveCharacter) return;
-        StopReloadSound();
+        StopAllSounds();
         singleShotSource.PlayOneShot(singleShotClip);
     }
 
@@ -110,6 +121,16 @@ public class Viper : CharacterBase
         if (reloadClip == null) return;
         reloadSource.clip = reloadClip;
         reloadSource.Play();
+    }
+
+    private void PlayChargingSound()
+    {
+        if (!IsActiveCharacter) return;
+        if (chargingClip == null) return;
+        if (hasPlayedCharging) return; // ← 이번 클릭에서 이미 재생했으면 스킵
+        hasPlayedCharging = true;
+        chargingSource.clip = chargingClip;
+        chargingSource.Play();
     }
 
     private void StopReloadSound()
@@ -122,6 +143,7 @@ public class Viper : CharacterBase
     {
         singleShotSource?.Stop();
         reloadSource?.Stop();
+        chargingSource?.Stop();
     }
 
     public override void UseSkill() { }

@@ -30,7 +30,7 @@ public class Titan : CharacterBase
         bulletCount = maxBulletCount;
         maxShield = 50;
         shield = maxShield;
-        reloadTime = 4.0f;
+        reloadTime = 3.0f;
         chargingBurstGauge = 10;
         burstCoolTime = 20.0f;
         skillCoolTime = 10.0f;
@@ -50,17 +50,17 @@ public class Titan : CharacterBase
         spinUpSource = gameObject.AddComponent<AudioSource>();
         spinUpSource.clip = spinUpClip;
         spinUpSource.loop = true;
-        spinUpSource.volume = 0.5f;
+        spinUpSource.volume = 0.6f;
 
         loopSource = gameObject.AddComponent<AudioSource>();
         loopSource.clip = fireLoopClip;
         loopSource.loop = true;
-        loopSource.volume = 0.4f;
+        loopSource.volume = 0.3f;
 
         reloadSource = gameObject.AddComponent<AudioSource>();
         reloadSource.clip = reloadClip;
         reloadSource.loop = false;
-        reloadSource.volume = 0.6f;
+        reloadSource.volume = 1.2f;
     }
 
     protected override void OnEnable()
