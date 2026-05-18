@@ -27,7 +27,6 @@ public class Viper : CharacterBase
         attackDamage = 50;
         survive = true;
         bulletSpeed = 800f;
-        fireRate = 3.0f;
 
         singleShotSource = gameObject.AddComponent<AudioSource>();
         singleShotSource.loop = false;

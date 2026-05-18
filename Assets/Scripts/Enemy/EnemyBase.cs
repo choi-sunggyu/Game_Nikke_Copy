@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,6 +18,7 @@ public abstract class EnemyBase : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     protected ITargetStrategy targetStrategy;
     protected List<CharacterBase> characters;
+    private Coroutine hitFlashCoroutine;
 
     // 출현 연출 관련
     protected Vector3 targetPosition;
@@ -38,12 +40,24 @@ public abstract class EnemyBase : MonoBehaviour
     // 공통 메서드
     public virtual void TakeDamage(float damage)
     {
-        Debug.Log($"{gameObject.name}이(가) {damage}의 피해를 입었습니다.");
-        if(survive){ //살아 있는 상태인지 확인 (데미지를 주기 전에 파악할건지는 미정)
-            hp -= damage;
-            if (hp <= 0)
-                Die();
-        }
+        if (!survive) return;
+        hp -= damage;
+        
+        // 피격 모션 (빨갛게)
+        if (hitFlashCoroutine != null) StopCoroutine(hitFlashCoroutine);
+        hitFlashCoroutine = StartCoroutine(HitFlash());
+
+        // 데미지 팝업
+        DamagePopupManager.Instance.ShowDamage(damage, transform.position);
+
+        if (hp <= 0) Die();
+    }
+
+    private IEnumerator HitFlash()
+    {
+        spriteRenderer.color = Color.red;
+        yield return new WaitForSeconds(0.1f);
+        spriteRenderer.color = Color.white;
     }
 
     public virtual void Die()
