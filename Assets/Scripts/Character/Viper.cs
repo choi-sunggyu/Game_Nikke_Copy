@@ -156,6 +156,11 @@ public class Viper : CharacterBase
         chargingSource?.Stop();
     }
 
+    public void AIFire()
+    {
+        HandleFireRelease();
+    }
+
     public override void UseSkill() { }
     public override void UseBurst() { }
 }

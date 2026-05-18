@@ -41,6 +41,7 @@ public abstract class CharacterBase : MonoBehaviour
     public float ShieldRatio => shield / maxShield;
     public float NextFireTime => nextFireTime;
     public CharacterState CurrentState => currentState;
+    public CrossHairBase CrossHair => crossHair;
     protected void SetNextFireTime(float time) => nextFireTime = time;
     public bool IsActiveCharacter { get; set; }
 

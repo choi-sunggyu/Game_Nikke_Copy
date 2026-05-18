@@ -70,6 +70,7 @@ public abstract class CrossHairBase : MonoBehaviour
 
     protected virtual void Update()
     {
+        if (!isActive) return;
         if(isPCMode)
         {
             // PC: 항상 마우스 위치 = 크로스헤어 위치 (클릭 여부 무관)
