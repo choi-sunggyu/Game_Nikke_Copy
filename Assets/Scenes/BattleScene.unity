@@ -3612,7 +3612,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   bulletSpeed: 0
-  singleShotClip: {fileID: 8300000, guid: 58db49b18a8673d44b65f5aa7f546e37, type: 3}
+  singleShotClip: {fileID: 8300000, guid: 581466f43eea4ec40b28c673e2132c60, type: 3}
   chargingClip: {fileID: 8300000, guid: 021697e972de1f2468bdefb6879965f7, type: 3}
   reloadClip: {fileID: 8300000, guid: f61f18c758eeb4d41a97bcedcdf90009, type: 3}
 --- !u!70 &1989108161

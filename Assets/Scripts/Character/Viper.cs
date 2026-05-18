@@ -1,5 +1,6 @@
 using UnityEngine;
 
+
 public class Viper : CharacterBase
 {
     [SerializeField] private AudioClip singleShotClip;
@@ -26,6 +27,7 @@ public class Viper : CharacterBase
         attackDamage = 50;
         survive = true;
         bulletSpeed = 800f;
+        fireRate = 3.0f;
 
         singleShotSource = gameObject.AddComponent<AudioSource>();
         singleShotSource.loop = false;
@@ -51,6 +53,11 @@ public class Viper : CharacterBase
         base.OnDisable();
         InputManager.OnFireRelease -= HandleFireRelease;
         StopAllSounds(); // 비활성화 시 모든 사운드 즉시 정지
+    }
+
+    void Start()
+    {
+        Initialize();
     }
 
     public override void TryFire()
@@ -85,6 +92,8 @@ public class Viper : CharacterBase
     {
         if (!survive) return;
         if (CurrentState == CharacterState.Reload) return;
+        if (Time.time < NextFireTime) return;
+
         if (bulletCount <= 0)
         {
             TryReload();
@@ -93,6 +102,7 @@ public class Viper : CharacterBase
 
         ChangeState(CharacterState.Fire);
         bulletCount--;
+        SetNextFireTime(Time.time + fireRate);
         InvokeBulletCountChanged(this, bulletCount);
         PlayFireSound();
         FireBulletAtTarget(worldTarget);
@@ -103,6 +113,7 @@ public class Viper : CharacterBase
 
     public override void TryReload()
     {
+        Debug.Log($"{gameObject.name} TryReload 호출 / bulletCount: {bulletCount} / state: {CurrentState}");
         if (CurrentState == CharacterState.Reload) return;
         base.TryReload();
         PlayReloadSound();

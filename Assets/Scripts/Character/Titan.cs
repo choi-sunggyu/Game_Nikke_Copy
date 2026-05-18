@@ -50,7 +50,7 @@ public class Titan : CharacterBase
         spinUpSource = gameObject.AddComponent<AudioSource>();
         spinUpSource.clip = spinUpClip;
         spinUpSource.loop = true;
-        spinUpSource.volume = 0.6f;
+        spinUpSource.volume = 0.3f;
 
         loopSource = gameObject.AddComponent<AudioSource>();
         loopSource.clip = fireLoopClip;
