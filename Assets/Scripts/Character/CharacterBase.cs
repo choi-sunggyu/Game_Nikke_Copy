@@ -117,7 +117,6 @@ public abstract class CharacterBase : MonoBehaviour
 
     public virtual void TryFire()
     {
-        //Debug.Log($"TryFire 호출 / survive: {survive} / state: {currentState} / bullet: {bulletCount}");
         // 사격 조건 체크
         if (survive)
         {
@@ -222,7 +221,7 @@ public abstract class CharacterBase : MonoBehaviour
         //Debug.Log($"리로딩 완료/ survive: {survive} / state: {currentState} / bullet: {bulletCount}");
     }
 
-    protected void ChangeState(CharacterState newState)
+    public void ChangeState(CharacterState newState)
     {
         currentState = newState;
         switch(newState)
