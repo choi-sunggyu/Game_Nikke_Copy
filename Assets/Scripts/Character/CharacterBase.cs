@@ -49,6 +49,7 @@ public abstract class CharacterBase : MonoBehaviour
     // sender: 이벤트를 발생시킨 캐릭터, count: 탄 수
     public static event Action<CharacterBase, int> OnBulletCountChanged;
     public static event Action<CharacterBase> OnStatChanged;
+    public static event Action<CharacterBase, float> OnReloadProgress; // UI용 이벤트 (0~1)
 
     private Coroutine reloadCoroutine;
 
@@ -196,19 +197,30 @@ public abstract class CharacterBase : MonoBehaviour
         if(currentState == CharacterState.Reload) return;
 
         bool isForced = (bulletCount == 0);
-        reloadCoroutine = StartCoroutine(ReloadDelay(isForced));
+
+        // 탄창 절반 이하면 리로드 타임 +1초
+        float actualReloadTime = ((float)bulletCount / maxBulletCount) <= 0.5f
+            ? reloadTime + 1f
+            : reloadTime;
+
+        reloadCoroutine = StartCoroutine(ReloadDelay(isForced, actualReloadTime));
         // 이후 리로딩 애니메이션 재생 추가할 예정
     }
 
-    private IEnumerator ReloadDelay(bool isForced = false)
+    private IEnumerator ReloadDelay(bool isForced = false, float duration = 0f)
     {
         currentState = CharacterState.Reload;
         spriteRenderer.sprite = reloadSprite;
 
         if(isForced) OnForcedReloadStart?.Invoke();
         
-        // 리로딩 시간 대기
-        yield return new WaitForSeconds(reloadTime);
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            OnReloadProgress?.Invoke(this, elapsed / duration); // ← UI용 이벤트
+            yield return null;
+        }
         
         bulletCount = maxBulletCount;
         currentState = CharacterState.Idle;
@@ -218,7 +230,6 @@ public abstract class CharacterBase : MonoBehaviour
 
         if(isForced) OnForcedReloadEnd?.Invoke();
         
-        //Debug.Log($"리로딩 완료/ survive: {survive} / state: {currentState} / bullet: {bulletCount}");
     }
 
     public void ChangeState(CharacterState newState)
