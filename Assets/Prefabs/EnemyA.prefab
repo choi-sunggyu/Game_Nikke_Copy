@@ -161,6 +161,16 @@ MonoBehaviour:
   currentLayer: 0
   bulletPool: {fileID: 0}
   muzzlePoint: {fileID: 2189811233369315048}
+  fallDuration: 0.8
+  landBounceHeight: 0.5
+  bounceDuration: 0.2
+  warningDuration: 1.5
+  laserDuration: 0.5
+  warningRadius: 1
+  circleSegments: 32
+  characterLayer:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!1 &5723788304479517861
 GameObject:
   m_ObjectHideFlags: 0

@@ -48,10 +48,7 @@ public abstract class EnemyBase : MonoBehaviour
         hitFlashCoroutine = StartCoroutine(HitFlash());
 
         // 데미지 팝업
-        DamagePopupManager.Instance.ShowDamage(damage, transform.position);
-
-        if (DamagePopupManager.Instance != null)
-            DamagePopupManager.Instance.ShowDamage(damage, transform.position);
+        DamagePopupManager.Instance?.ShowDamage(damage, transform.position);
 
         if (hp <= 0) Die();
     }

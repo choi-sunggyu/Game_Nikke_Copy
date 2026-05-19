@@ -167,9 +167,9 @@ public class Titan : CharacterBase
     private void StopFireSound()
     {
         isLooping = false;
-        spinUpSource.Stop();
-        singleShotSource.Stop();
-        loopSource.Stop();
+        spinUpSource?.Stop();
+        singleShotSource?.Stop();
+        loopSource?.Stop();
     }
 
     public override void StopAllSounds()
