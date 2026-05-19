@@ -12,6 +12,13 @@ public class DamagePopupManager : MonoBehaviour
     {
         if (Instance != null) { Destroy(gameObject); return; }
         Instance = this;
+        Canvas canvas = FindAnyObjectByType<Canvas>();
+        if (canvas == null)
+        {
+            Debug.LogError("Canvas를 찾을 수 없습니다.");
+            return;
+        }
+
         canvasRect = FindAnyObjectByType<Canvas>().GetComponent<RectTransform>();
     }
 

@@ -20,7 +20,7 @@ public class Viper : CharacterBase
         bulletCount = maxBulletCount;
         maxShield = 50;
         shield = maxShield;
-        reloadTime = 2.5f;
+        reloadTime = 1.0f;
         chargingBurstGauge = 20;
         burstCoolTime = 20.0f;
         skillCoolTime = 10.0f;

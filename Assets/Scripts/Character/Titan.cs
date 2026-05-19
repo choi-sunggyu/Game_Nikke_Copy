@@ -30,7 +30,7 @@ public class Titan : CharacterBase
         bulletCount = maxBulletCount;
         maxShield = 50;
         shield = maxShield;
-        reloadTime = 3.0f;
+        reloadTime = 1.5f;
         chargingBurstGauge = 10;
         burstCoolTime = 20.0f;
         skillCoolTime = 10.0f;
@@ -41,7 +41,7 @@ public class Titan : CharacterBase
         currentFireRate = maxFireRate;
         shotsFired = 0;
         nextTitanFireTime = 0;
-        bulletSpeed = 400f;
+        bulletSpeed = 500f;
 
         singleShotSource = gameObject.AddComponent<AudioSource>();
         singleShotSource.loop = false;

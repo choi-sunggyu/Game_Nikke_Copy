@@ -16,13 +16,13 @@ public class Ghost : CharacterBase
         bulletCount = maxBulletCount;
         maxShield = 50;
         shield = maxShield;
-        reloadTime = 2.0f;
+        reloadTime = 1.0f;
         chargingBurstGauge = 5;
         burstCoolTime = 15.0f;
         skillCoolTime = 10.0f;
         attackDamage = 20;
         survive = true;
-        fireRate = 1f / 12f;
+        fireRate = 1f / 20f;
         bulletSpeed = 500f;
 
         singleShotSource = gameObject.AddComponent<AudioSource>();
