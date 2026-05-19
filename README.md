@@ -1,7 +1,7 @@
 # Game_Nikke_Copy
 시프트업의 건슈팅 RPG, NIKKE 모작
 
-개요
+## 개요
 
 Project BUSTER는 Goddess of Victory: Nikke 의 전투 구조를 분석하고,
 핵심 시스템을 직접 재구현하며 게임 클라이언트 아키텍처 역량을 증명하기 위해 제작한 프로젝트입니다.
@@ -14,66 +14,73 @@ StatusEffect 상속 구조
 Object Pooling 최적화
 Mobile → PC 입력 추상화
 캐릭터 스위칭 기반 카메라 연출
-프로젝트 정보
-항목	내용
-프로젝트명	Project BUSTER
-장르	Mobile TPS / Cover Shooter
-개발 인원	1인 개발
-개발 기간	3개월
-엔진	Unity
-언어	C#
-플랫폼	Android → PC Porting
-개발 목적	전투 시스템 및 클라이언트 아키텍처 포트폴리오
-핵심 전투 시스템
-1. 캐릭터 스위칭 시스템
+
+## 프로젝트 정보
+항목       	내용
+프로젝트명	 Project BUSTER
+장르	       Mobile TPS / Cover Shooter
+개발 인원	  1인 개발
+개발 기간	  3개월
+엔진	       Unity
+언어	       C#
+플랫폼	     Android → PC Porting
+개발 목적	  전투 시스템 및 클라이언트 아키텍처 포트폴리오
+
+## 핵심 전투 시스템
+**1. 캐릭터 스위칭 시스템**
 
 전투 중 실시간으로 3명의 캐릭터를 전환하며 플레이할 수 있습니다.
 
-주요 기능
+### 주요 기능
 전환 딜레이 적용
 캐릭터별 HP / 버프 상태 유지
 사망 캐릭터 전환 제한
 캐릭터 전환 시 카메라 Lerp 이동
-구현 포인트
+
+### 구현 포인트
 - State Machine 기반 상태 제어
 - 입력 차단 처리
 - Camera Lerp 연동
-2. 버스트 게이지 시스템
+
+**2. 버스트 게이지 시스템**
 
 팀 전체가 공유하는 단일 Burst Gauge를 사용합니다.
 
-특징
+### 특징
 캐릭터별 충전 효율 상이
 게이지 100% 달성 시 버스트 사용 가능
 사용 후 게이지 초기화
-설계 의도
 
+### 설계 의도
 원작의 Full Burst 구조를 단순화하여,
 전투 템포와 역할군 차이를 명확하게 드러내도록 설계했습니다.
 
-3. 리로딩 시스템
+**3. 리로딩 시스템**
 
 무기 타입마다 서로 다른 리로드 구조를 가집니다.
 
-캐릭터	무기	탄창	리로드
+### 캐릭터	무기	탄창	리로드
 3버스터	Sniper Rifle	5	3.0s
 2버스터	Minigun	100	2.0s
 1버스터	Assault Rifle	30	1.5s
-구현 요소
+
+### 구현 요소
 자동 리로딩
 강제 풀 리로딩
 리로드 UI 연동
 입력 차단 처리
-4. 적 AI 시스템
+
+**4. 적 AI 시스템**
 
 적 타입별로 서로 다른 행동 패턴을 구성했습니다.
 
-Enemy Types
-타입	특징
-원거리 고정형	고정 위치 사격
-위치 변경형	Waypoint 이동
-근접 돌진형	플레이어 추적
-구현 방식
+### Enemy Types
+타입	          특징
+원거리 고정형	 고정 위치 사격
+위치 변경형	   Waypoint 이동
+근접 돌진형	   플레이어 추적
+
+### 구현 방식
 Idle
 → Patrol
 → Attack
@@ -87,7 +94,7 @@ ScriptableObject 기반 데이터 설계
 
 캐릭터 / 무기 / 스킬 데이터를 코드에서 분리하여 관리했습니다.
 
-장점
+### 장점
 데이터 수정 용이
 유지보수성 향상
 확장성 확보
@@ -96,12 +103,13 @@ StatusEffect 시스템
 
 버프 / 디버프 / DOT를 하나의 구조로 통합했습니다.
 
-구조
+### 구조
 StatusEffect (Base)
  ├── BuffEffect
  ├── DebuffEffect
  └── DotEffect
-적용 기술
+ 
+### 적용 기술
 상속
 다형성
 Component 기반 설계
@@ -117,16 +125,19 @@ Damage UI
 GC 최소화
 모바일 성능 최적화
 Instantiate/Destroy 비용 감소
-입력 추상화
 
+###입력 추상화
 Unity Input System을 사용해
 모바일과 PC 입력을 통합 처리했습니다.
 
-지원 입력
+### 지원 입력
 Touch
 Mouse
 Keyboard
-프로젝트 구조
+
+---
+
+## 프로젝트 구조
 Assets
 ├── Scripts
 │   ├── Character
@@ -140,7 +151,8 @@ Assets
 ├── Animations
 ├── Effects
 └── Resources
-개발 일정
+
+### 개발 일정
 Phase	목표
 Phase 1	코어 전투 시스템 구축
 Phase 2	스킬 / 스위칭 / Burst 시스템
@@ -159,7 +171,7 @@ Phase 3	연출 / UI / 최적화 / PC 포팅
 
 단순 기능 구현이 아니라 다음 역량을 드러내는 데 집중했습니다.
 
-게임 아키텍처 설계
+### 게임 아키텍처 설계
 OOP 설계
 상태머신 활용
 성능 최적화
