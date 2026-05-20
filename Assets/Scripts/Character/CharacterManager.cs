@@ -44,6 +44,7 @@ public class CharacterManager : MonoBehaviour
         InputManager.OnFire += HandleFire;
         InputManager.OnIdle += HandleIdle;
         InputManager.OnSwitchCharacter += SwitchCharacter;
+        CharacterBase.OnCharacterDied += HandleCharacterDied;
     }
 
     void HandleFire()
@@ -100,10 +101,36 @@ public class CharacterManager : MonoBehaviour
         yield return new WaitForSeconds(delayTime);
         changing = false;
     }
+
+    private void HandleCharacterDied(CharacterBase dead)
+    {
+        // 사망한 캐릭터가 현재 캐릭터일 때만 자동 전환
+        if (dead != currentCharacter) return;
+
+        // 살아있는 캐릭터 중 HP 최저 캐릭터 선택
+        CharacterBase nextCharacter = null;
+        float lowestHp = float.MaxValue;
+
+        foreach (var c in characters)
+        {
+            if (!c.IsAlive || c == dead) continue;
+            if (c.HpRatio < lowestHp)
+            {
+                lowestHp = c.HpRatio;
+                nextCharacter = c;
+            }
+        }
+
+        if (nextCharacter == null) return; // 전원 사망
+
+        int nextIndex = characters.IndexOf(nextCharacter);
+        StartCoroutine(SwitchDelay(nextIndex));
+    }
     
     void OnDisable() {
         InputManager.OnFire -= HandleFire;
         InputManager.OnIdle -= HandleIdle;
         InputManager.OnSwitchCharacter -= SwitchCharacter;
+        CharacterBase.OnCharacterDied -= HandleCharacterDied;
     }
 }

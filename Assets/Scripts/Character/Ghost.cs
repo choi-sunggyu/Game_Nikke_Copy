@@ -27,7 +27,7 @@ public class Ghost : CharacterBase
 
         singleShotSource = gameObject.AddComponent<AudioSource>();
         singleShotSource.loop = false;
-        singleShotSource.volume = 0.5f;
+        singleShotSource.volume = 0.3f;
 
         reloadSource = gameObject.AddComponent<AudioSource>();
         reloadSource.loop = false;

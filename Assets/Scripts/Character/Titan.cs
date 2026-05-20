@@ -154,6 +154,7 @@ public class Titan : CharacterBase
     {
         if (!IsActiveCharacter) return; // ← 비활성 캐릭터 차단
         if (reloadClip == null) return;
+        StopAllSounds(); // ← 발사음과 리로드음이 겹치지 않도록 모든 사운드 중단
         reloadSource.clip = reloadClip;
         reloadSource.Play();
     }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class InputManager : MonoBehaviour
@@ -11,9 +12,11 @@ public class InputManager : MonoBehaviour
     public static event Action<int> OnSwitchCharacter;  // int: 캐릭터 인덱스
     private bool wasFiring = false;
 
+    private List<CharacterBase> characters; // 게임 내 모든 캐릭터를 관리하는 리스트
+
     void Start()
     {
-        
+        characters = new List<CharacterBase>();
     }
     
     public static void InvokeSwitchCharacter(int index)
@@ -25,6 +28,7 @@ public class InputManager : MonoBehaviour
     {
         bool isFiring = Input.GetMouseButton(0);
 
+        // 강제 리로딩 중이라면 클릭 했을 때 OnFire, OnFirePress, OnFireRelease 이벤트를 차단해야 엄폐로 보고 sheild가 깎임
         if(Input.GetMouseButtonDown(0))
             OnFirePress?.Invoke();
 
@@ -38,7 +42,7 @@ public class InputManager : MonoBehaviour
             OnIdle?.Invoke();
 
         wasFiring = isFiring;
-
+        // 캐릭터 사망 판단해서 번호키 입력 차단
         if(Input.GetKeyDown(KeyCode.Alpha1))
             OnSwitchCharacter?.Invoke(0);
         if(Input.GetKeyDown(KeyCode.Alpha2))

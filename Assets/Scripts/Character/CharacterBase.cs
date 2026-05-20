@@ -50,6 +50,7 @@ public abstract class CharacterBase : MonoBehaviour
     public static event Action<CharacterBase, int> OnBulletCountChanged;
     public static event Action<CharacterBase> OnStatChanged;
     public static event Action<CharacterBase, float> OnReloadProgress; // UI용 이벤트 (0~1)
+    public static event Action<CharacterBase> OnCharacterDied;
 
     private Coroutine reloadCoroutine;
 
@@ -66,54 +67,52 @@ public abstract class CharacterBase : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
-        if(survive){ //살아 있는 상태인지 확인 (데미지를 주기 전에 파악할건지는 미정)
-            //버프 고려
-            if (buff)
-            {
-                damage *= 0.75f;
-            }
-            //디버프 고려
-            if (debuff)
-            {
-                damage *= 1.25f;
-            }
+        if (!survive) return;
 
-            // 1. idle일 때는 쉴드가 먼저 깎이고, 쉴드가 깨지면 남은 데미지가 hp에 적용
-            // 2. fire일 때는 바로 hp에 데미지 적용
-            // 3. 리로딩 중일 때는 fire와 동일하게 hp에 데미지 적용 (리로딩이 엄폐 상태라고 가정)
-            switch(currentState)
-            {
-                case CharacterState.Idle:
-                    if(shield > 0) //쉴드가 남아 있음
+        if (buff) damage *= 0.75f;
+        if (debuff) damage *= 1.25f;
+
+        // 1. idle일 때는 쉴드가 먼저 깎이고, 쉴드가 깨지면 남은 데미지가 hp에 적용
+        // 2. fire일 때는 바로 hp에 데미지 적용
+        // 3. 리로딩 중일 때는 fire와 동일하게 shield에 데미지 적용 (리로딩이 엄폐 상태라고 가정)
+        switch(currentState)
+        {
+            case CharacterState.Idle:
+                if(shield > 0) //쉴드가 남아 있음
+                {
+                    shield -= damage;
+                    //체력 감소
+                    if(shield < 0) //쉴드 깨짐 남은 데미지 받음
                     {
-                        shield -= damage;
-                        //체력 감소
-                        if(shield < 0) //쉴드 깨짐 남은 데미지 받음
-                        {
-                            hp += shield;
-                            shield = 0;
-                        }
+                        hp += shield;
+                        shield = 0;
                     }
-                    else //쉴드 깨짐
-                    {
-                        hp -= damage;
-                    }
-                    break;
-                case CharacterState.Fire:
+                }
+                else //쉴드 깨짐
+                {
                     hp -= damage;
-                    break;
-                case CharacterState.Reload:
-                    hp -= damage;
-                    break;
-            }
-            
-            //사망 여부   
-            if(hp <= 0)
-            {
-                survive = false;
-            }
-            OnStatChanged?.Invoke(this);
+                }
+                break;
+            case CharacterState.Fire:
+                hp -= damage;
+                break;
+            case CharacterState.Reload:
+                shield -= damage;
+                if (shield < 0)
+                {
+                    hp += shield;
+                    shield = 0;
+                }
+                break;
         }
+        
+        //사망 여부   
+        if(hp <= 0)
+        {
+            survive = false;
+            OnCharacterDied?.Invoke(this);
+        }
+        OnStatChanged?.Invoke(this);
     }    
 
     public virtual void TryFire()

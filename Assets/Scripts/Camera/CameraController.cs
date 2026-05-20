@@ -46,8 +46,9 @@ public class CameraController : MonoBehaviour
 
     void MoveToCharacter(int index)
     {
+        if (!characters[index].IsAlive) return;
+
         Vector3 charPos = characters[index].transform.position;
-        // targetPosition 설정
         targetPosition = charPos + cameraOffset;
         targetPosition.z = charPos.z + cameraZOffset;
     }
