@@ -1,10 +1,12 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class CharacterManager : MonoBehaviour
-{//이벤트 구독, 현재 활성 캐릭터에게 전달
+{
+    //이벤트 구독, 현재 활성 캐릭터에게 전달
     private CharacterBase currentCharacter;
     [SerializeField] private List<CharacterBase> characters; // - 게임 내 모든 캐릭터를 관리하는 리스트
     private bool changing; // - 전환 중인지 아닌지
@@ -13,6 +15,7 @@ public class CharacterManager : MonoBehaviour
     public bool IsCovering => isCovering;
     public List<CharacterBase> Characters => characters;
     public CharacterBase CurrentCharacter => currentCharacter;
+    public static event Action OnGameOver;
 
     void Awake()
     {
@@ -148,7 +151,11 @@ public class CharacterManager : MonoBehaviour
             }
         }
 
-        if (nextCharacter == null) return; // 전원 사망
+        if (nextCharacter == null)
+        {
+            OnGameOver?.Invoke();
+            return;
+        }
 
         int nextIndex = characters.IndexOf(nextCharacter);
         StartCoroutine(SwitchDelay(nextIndex));
