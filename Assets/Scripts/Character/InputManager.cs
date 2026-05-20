@@ -9,9 +9,10 @@ public class InputManager : MonoBehaviour
     public static event Action OnIdle;
     public static event Action OnFirePress; // Viper 조준 시작 이벤트 전용
     public static event Action OnFireRelease; // Viper 조준 해제 이벤트 전용
-    public static event Action<int> OnSwitchCharacter;  // int: 캐릭터 인덱스
+    public static event Action<int> OnSwitchCharacter;
+    public static event Action OnCoverToggle;
+    
     private bool wasFiring = false;
-
     private List<CharacterBase> characters; // 게임 내 모든 캐릭터를 관리하는 리스트
 
     void Start()
@@ -42,7 +43,8 @@ public class InputManager : MonoBehaviour
             OnIdle?.Invoke();
 
         wasFiring = isFiring;
-        // 캐릭터 사망 판단해서 번호키 입력 차단
+        if(Input.GetKeyDown(KeyCode.Space))
+            OnCoverToggle?.Invoke();
         if(Input.GetKeyDown(KeyCode.Alpha1))
             OnSwitchCharacter?.Invoke(0);
         if(Input.GetKeyDown(KeyCode.Alpha2))

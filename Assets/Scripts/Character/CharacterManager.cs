@@ -9,6 +9,8 @@ public class CharacterManager : MonoBehaviour
     [SerializeField] private List<CharacterBase> characters; // - 게임 내 모든 캐릭터를 관리하는 리스트
     private bool changing; // - 전환 중인지 아닌지
     private float delayTime; // - 전환 딜레이 시간
+    private bool isCovering = false; // 엄폐 상태
+    public bool IsCovering => isCovering;
     public List<CharacterBase> Characters => characters;
     public CharacterBase CurrentCharacter => currentCharacter;
 
@@ -45,17 +47,37 @@ public class CharacterManager : MonoBehaviour
         InputManager.OnIdle += HandleIdle;
         InputManager.OnSwitchCharacter += SwitchCharacter;
         CharacterBase.OnCharacterDied += HandleCharacterDied;
+        InputManager.OnCoverToggle += HandleCoverToggle;
     }
 
     void HandleFire()
     {
-        Debug.Log("HandleFire 호출됨");
         currentCharacter.TryFire();
     }
 
     void HandleIdle()
     {
         currentCharacter.TryReload();
+    }
+
+    private void HandleCoverToggle()
+    {
+        isCovering = !isCovering;
+
+        if (isCovering)
+        {
+            // 엄폐 진입: AI 캐릭터 사격 중단 → 리로드 or Idle
+            foreach (var c in characters)
+            {
+                if (!c.IsAlive) continue; // 사망 시 무시
+                if (c == currentCharacter) continue; // 조작 캐릭터는 입력에 맡김
+                c.TryReload(); // 탄창 가득 차있으면 내부 guard에서 Idle 처리
+            }
+        }
+        else
+        {
+            // 엄폐 해제: 별도 처리 없음 (다음 입력 때 자연스럽게 재개)
+        }
     }
 
     public void SwitchCharacter(int index)
@@ -89,6 +111,11 @@ public class CharacterManager : MonoBehaviour
 
         currentCharacter.IsActiveCharacter = false;
         currentCharacter.StopAllSounds(); // 전환 시 현재 캐릭터의 모든 사운드 즉시 정지
+
+        if (isCovering)
+            currentCharacter.TryReload(); // 엄폐 중 → 이전 캐릭터 Reload
+        else
+            currentCharacter.TryReload();  // 비엄폐 중 → 클릭 중 전환 시 이전 캐릭터도 Reload
 
         // currentCharacter 변경
         currentCharacter = characters[index];
@@ -132,5 +159,6 @@ public class CharacterManager : MonoBehaviour
         InputManager.OnIdle -= HandleIdle;
         InputManager.OnSwitchCharacter -= SwitchCharacter;
         CharacterBase.OnCharacterDied -= HandleCharacterDied;
+        InputManager.OnCoverToggle -= HandleCoverToggle;
     }
 }

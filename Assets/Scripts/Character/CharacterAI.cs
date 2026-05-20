@@ -41,6 +41,7 @@ public class CharacterAI : MonoBehaviour
         // 플레이어가 조작 중이면 AI 비활성
         if (characterManager.CurrentCharacter == owner) return;
         if (!owner.IsAlive) return;
+        if (characterManager.IsCovering) return;
 
         ValidateAndSelectTarget();
 
