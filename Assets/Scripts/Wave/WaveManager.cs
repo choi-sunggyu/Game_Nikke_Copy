@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class WaveManager : MonoBehaviour
 {
@@ -28,6 +30,8 @@ public class WaveManager : MonoBehaviour
 
     private float waveClearDelay = 2f;
     private float spawnInterval = 2f;
+
+    public static event Action OnStageClear;
 
     public IReadOnlyList<EnemyBase> ActiveEnemies => activeEnemies;
 
@@ -76,6 +80,7 @@ public class WaveManager : MonoBehaviour
         }
 
         Debug.Log("[WaveManager] 모든 웨이브 클리어!");
+        OnStageClear?.Invoke();
     }
 
     IEnumerator SpawnWave(WaveData.Wave wave)
