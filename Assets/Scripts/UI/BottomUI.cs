@@ -162,6 +162,9 @@ public class BottomUI : MonoBehaviour
         if (rt == null) yield break;
 
         float startHeight = rt.sizeDelta.y;
+        // 시작 시점의 '아래 모서리 Y'를 한 번 계산해 고정 기준으로 삼는다.
+        // 점 앵커(min==max) 기준: 아래 모서리 = anchoredPosition.y - pivot.y * height
+        float bottomY = rt.anchoredPosition.y - rt.pivot.y * startHeight;
         float elapsed = 0f;
 
         while (elapsed < heightAnimDuration)
@@ -169,11 +172,21 @@ public class BottomUI : MonoBehaviour
             elapsed += Time.deltaTime;
             float t = Mathf.SmoothStep(0f, 1f, elapsed / heightAnimDuration); // 가감속으로 자연스럽게
             float newHeight = Mathf.Lerp(startHeight, targetHeight, t);
-            rt.sizeDelta = new Vector2(rt.sizeDelta.x, newHeight);
+            ApplyHeightKeepBottom(rt, newHeight, bottomY);
             yield return null;
         }
 
-        rt.sizeDelta = new Vector2(rt.sizeDelta.x, targetHeight);
+        ApplyHeightKeepBottom(rt, targetHeight, bottomY);
+    }
+
+    // 높이를 바꾸되 아래 모서리를 bottomY에 고정 → 박스가 위로만 자란다(아래로만 줄어든다).
+    private void ApplyHeightKeepBottom(RectTransform rt, float height, float bottomY)
+    {
+        rt.sizeDelta = new Vector2(rt.sizeDelta.x, height);
+
+        Vector2 pos = rt.anchoredPosition;
+        pos.y = bottomY + rt.pivot.y * height; // 아래 모서리 고정식을 역으로 푼 값
+        rt.anchoredPosition = pos;
     }
 
     private void HandleSwitchCharacter(int index)
