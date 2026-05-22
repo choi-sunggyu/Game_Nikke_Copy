@@ -73,9 +73,13 @@ public class CharacterManager : MonoBehaviour
             foreach (var c in characters)
             {
                 if (!c.IsAlive) continue; // 사망 시 무시
-                if (c == currentCharacter) continue; // 조작 캐릭터는 입력에 맡김
+                if (c == currentCharacter) continue; // 조작 캐릭터는 아래에서 별도 처리
                 c.TryReload(); // 탄창 가득 차있으면 내부 guard에서 Idle 처리
             }
+
+            // 조작 중인 캐릭터: 클릭하여 사격 중이라도 강제 리로딩(일시적 강제 엄폐).
+            // 리로드가 끝나면 잠금이 풀려, 마우스를 계속 누르고 있었다면 사격이 자동 재개된다.
+            currentCharacter.ForceCoverReload();
         }
         else
         {

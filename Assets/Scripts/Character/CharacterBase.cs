@@ -53,6 +53,8 @@ public abstract class CharacterBase : MonoBehaviour
     public static event Action<CharacterBase> OnCharacterDied;
 
     private Coroutine reloadCoroutine;
+    private bool coverReloadLocked = false; // 일시적 강제 엄폐(스페이스) 잠금: true 동안 사격 입력으로 리로드가 취소되지 않음
+    public bool IsCoverReloadLocked => coverReloadLocked;
 
     public abstract void Initialize();
     public abstract void UseSkill();
@@ -118,6 +120,10 @@ public abstract class CharacterBase : MonoBehaviour
     public virtual void TryFire()
     {
         // 사격 조건 체크
+        // 강제 엄폐 리로딩 중이면 사격은 물론 StopReload(리로드 취소)까지 막아야 한다.
+        // 그래서 마우스를 계속 누르고 있어도 강제 리로딩이 끊기지 않는다.
+        if (coverReloadLocked) return;
+
         if (survive)
         {
             if (bulletCount > 0 && Time.time >= nextFireTime) //강제 리로딩 중이 아니고 탄창이 남아 있는 경우에만 사격
@@ -182,6 +188,26 @@ public abstract class CharacterBase : MonoBehaviour
             StopCoroutine(reloadCoroutine);
             reloadCoroutine = null;
         }
+        coverReloadLocked = false; // 리로드가 강제 중단되면 엄폐 잠금도 함께 해제
+    }
+
+    // 일시적 강제 엄폐: 스페이스 입력 시 현재 캐릭터가 사격 중이라도 강제로 리로딩에 들어간다.
+    // 리로드가 끝나면 잠금이 풀리고, 마우스를 계속 누르고 있었다면 자연스럽게 사격이 재개된다.
+    public void ForceCoverReload()
+    {
+        if (!survive) return;
+        if (coverReloadLocked) return;            // 이미 강제 엄폐 중 → 중복 방지
+        if (bulletCount == maxBulletCount) return; // 탄창이 가득 차 있으면 리로드할 게 없음
+
+        StopReload();              // 진행 중이던 일반 리로드 코루틴 정리(여기서 잠금이 false로 내려감)
+        coverReloadLocked = true;  // 그 다음에 잠근다 (순서 중요)
+
+        // 탄창 절반 이하면 리로드 타임 +1초 (TryReload와 동일한 규칙)
+        float actualReloadTime = ((float)bulletCount / maxBulletCount) <= 0.5f
+            ? reloadTime + 1f
+            : reloadTime;
+
+        reloadCoroutine = StartCoroutine(ReloadDelay(true, actualReloadTime));
     }
     public virtual void TryReload()
     {
@@ -224,6 +250,7 @@ public abstract class CharacterBase : MonoBehaviour
         bulletCount = maxBulletCount;
         currentState = CharacterState.Idle;
         spriteRenderer.sprite = idleSprite;
+        coverReloadLocked = false; // 리로드 정상 완료 → 엄폐 잠금 해제, 사격 재개 가능
 
         OnBulletCountChanged?.Invoke(this, bulletCount);
 

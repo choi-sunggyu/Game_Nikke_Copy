@@ -37,10 +37,10 @@ public class BulletBase : MonoBehaviour, IPoolable
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log($"[BulletBase] 충돌 감지: {other.gameObject.name}");
+        //Debug.Log($"[BulletBase] 충돌 감지: {other.gameObject.name}");
         if (!isInitialized) return;
 
-        Debug.Log($"[BulletBase] 충돌: {other.gameObject.name} / Layer: {other.gameObject.layer}");
+        //Debug.Log($"[BulletBase] 충돌: {other.gameObject.name} / Layer: {other.gameObject.layer}");
 
         if (other.TryGetComponent<EnemyBase>(out EnemyBase enemy))
         {

@@ -61,6 +61,9 @@ public class Viper : CharacterBase
 
     public override void TryFire()
     {
+        // 강제 엄폐 리로딩 중에는 StopReload()가 호출되면 안 되므로 가장 먼저 차단
+        if (IsCoverReloadLocked) return;
+
         if (IsAlive && bulletCount > 0)
         {
             StopReload();
@@ -112,7 +115,7 @@ public class Viper : CharacterBase
 
     public override void TryReload()
     {
-        Debug.Log($"{gameObject.name} TryReload 호출 / bulletCount: {bulletCount} / state: {CurrentState}");
+        //Debug.Log($"{gameObject.name} TryReload 호출 / bulletCount: {bulletCount} / state: {CurrentState}");
         if (CurrentState == CharacterState.Reload) return;
         base.TryReload();
         PlayReloadSound();

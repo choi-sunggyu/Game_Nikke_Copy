@@ -70,14 +70,6 @@ public class HPShieldBarUI : MonoBehaviour
         ApplyState(hpBar, backPosition, backScale);
         // 작은 바(HP)를 나중에 그려서 큰 바(Shield) 위에 보이게
         hpBar.transform.SetAsLastSibling();
-
-        // ===== 디버그 로그 (문제 확인 후 삭제) =====
-        Debug.Log($"[HPShieldBarUI] owner: {owner?.name ?? "NULL"}");
-        Debug.Log($"[HPShieldBarUI] hpBar type: {hpBar.type}, fillAmount: {hpBar.fillAmount}, color: {hpBar.color}");
-        Debug.Log($"[HPShieldBarUI] shieldBar type: {shieldBar.type}, fillAmount: {shieldBar.fillAmount}, color: {shieldBar.color}");
-        Debug.Log($"[HPShieldBarUI] hpBar rect: pos={hpBar.rectTransform.anchoredPosition}, size={hpBar.rectTransform.sizeDelta}, scale={hpBar.rectTransform.localScale}");
-        Debug.Log($"[HPShieldBarUI] shieldBar rect: pos={shieldBar.rectTransform.anchoredPosition}, size={shieldBar.rectTransform.sizeDelta}, scale={shieldBar.rectTransform.localScale}");
-        Debug.Log($"[HPShieldBarUI] canvas: {GetComponentInParent<Canvas>()?.renderMode}, sortOrder: {GetComponentInParent<Canvas>()?.sortingOrder}");
     }
 
     void Update()
