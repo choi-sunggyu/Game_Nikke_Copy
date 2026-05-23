@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Ghost : CharacterBase
@@ -118,5 +119,28 @@ public class Ghost : CharacterBase
     }
 
     public override void UseSkill() { }
-    public override void UseBurst() { }
+    public override void UseBurst()
+    {
+        var waveManager = FindAnyObjectByType<WaveManager>();
+        var characterManager = FindAnyObjectByType<CharacterManager>();
+        if (waveManager == null || characterManager == null) return;
+
+        // 플래시 이펙트
+        var enemies = new List<EnemyBase>(waveManager.ActiveEnemies);
+        FlashEffect.Instance?.TriggerEnemyFlash(enemies);
+
+        // 전체 적 스턴
+        foreach (var enemy in enemies)
+        {
+            if (enemy != null && enemy.IsAlive)
+                enemy.ApplyStun(2f);
+        }
+
+        // 팀 전체 HP 20% 회복
+        foreach (var character in characterManager.Characters)
+        {
+            if (character != null && character.IsAlive)
+                character.Heal(character.MaxHp * 0.2f);
+        }
+    }
 }

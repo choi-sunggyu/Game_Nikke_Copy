@@ -39,6 +39,7 @@ public abstract class CharacterBase : MonoBehaviour
 
     public bool IsAlive => survive;
     public float HpRatio => hp / maxHp;
+    public float MaxHp => maxHp;
     public float MaxBulletCount => maxBulletCount;
     public int CurrentBulletCount => bulletCount;
     public float ShieldRatio => shield / maxShield;
@@ -323,6 +324,13 @@ public abstract class CharacterBase : MonoBehaviour
         FireBulletAtTarget(worldTarget);
 
         if (bulletCount == 0) TryReload();
+    }
+
+    public void Heal(float amount)
+    {
+        if (!survive) return;
+        hp = Mathf.Min(hp + amount, maxHp);
+        OnStatChanged?.Invoke(this);
     }
 
     public virtual void OnStopFiring() { }

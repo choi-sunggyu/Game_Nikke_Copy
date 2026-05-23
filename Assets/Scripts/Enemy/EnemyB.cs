@@ -73,7 +73,7 @@ public class EnemyB : EnemyBase
         Debug.Log($"[EnemyB] 등장 완료: {endPos}");
     }
 
-    void Update()
+    protected override void OnUpdate()
     {
         if (!IsAlive || isSpawning) return;
 
@@ -97,8 +97,15 @@ public class EnemyB : EnemyBase
         }
     }
 
+    protected override void OnStunned()
+    {
+        isMoving = false; // 이동 중단
+        transform.rotation = Quaternion.identity; // 기울기 복원
+    }
+
     void StartMove()
     {
+        if(IsStunned) return; // 기절 중이면 이동하지 않음
         isMoving = true;
         // 반대편 Waypoint로 타겟 전환
         currentTarget = (currentTarget == waypointA) ? waypointB : waypointA;

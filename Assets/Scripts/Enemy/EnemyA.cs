@@ -99,7 +99,7 @@ public class EnemyA : EnemyBase
         nextAttackTime = Time.time + attackDelay;
     }
 
-    void Update()
+    protected override void OnUpdate()
     {
         if (!IsAlive || isSpawning || isAttacking) return;
 
@@ -107,6 +107,14 @@ public class EnemyA : EnemyBase
         {
             StartCoroutine(LaserAttackRoutine());
         }
+    }
+
+    protected override void OnStunned()
+    {
+        StopCoroutine(nameof(LaserAttackRoutine));
+        isAttacking = false;
+        warningCircle.enabled = false;
+        laserLine.enabled = false;
     }
 
     public override void Attack()

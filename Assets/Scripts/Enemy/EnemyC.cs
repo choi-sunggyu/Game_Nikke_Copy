@@ -20,7 +20,7 @@ public class EnemyC : EnemyBase
         ScheduleNextJump();
     }
 
-    void Update()
+    protected override void OnUpdate()
     {
         if (!IsAlive) return;
         if (isJumping) return;
@@ -35,6 +35,12 @@ public class EnemyC : EnemyBase
         {
             StartCoroutine(JumpRoutine());
         }
+    }
+
+    protected override void OnStunned()
+    {
+        StopCoroutine(nameof(JumpRoutine));
+        isJumping = false;
     }
 
     IEnumerator JumpRoutine()

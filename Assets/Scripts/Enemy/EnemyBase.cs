@@ -19,6 +19,8 @@ public abstract class EnemyBase : MonoBehaviour
     protected ITargetStrategy targetStrategy;
     protected List<CharacterBase> characters;
     private Coroutine hitFlashCoroutine;
+    private bool isStunned = false;
+    private Coroutine stunCoroutine;
 
     // 출현 연출 관련
     protected Vector3 targetPosition;
@@ -29,6 +31,7 @@ public abstract class EnemyBase : MonoBehaviour
     public EnemyState CurrentState => currentState;
     public Vector3 TargetPosition => targetPosition;
     public bool IsSpawning => isSpawning;
+    public bool IsStunned => isStunned;
     public event Action OnDied;
 
     // abstract 메서드
@@ -52,6 +55,23 @@ public abstract class EnemyBase : MonoBehaviour
 
         if (hp <= 0) Die();
     }
+
+    public void ApplyStun(float duration)
+    {
+        if (!survive) return;
+        if (stunCoroutine != null) StopCoroutine(stunCoroutine);
+        stunCoroutine = StartCoroutine(StunCoroutine(duration));
+    }
+
+    private IEnumerator StunCoroutine(float duration)
+    {
+        isStunned = true;
+        OnStunned();
+        yield return new WaitForSeconds(duration);
+        isStunned = false;
+    }
+
+    protected virtual void OnStunned() { }
 
     private IEnumerator HitFlash()
     {
@@ -94,7 +114,18 @@ public abstract class EnemyBase : MonoBehaviour
 
     void Update()
     {
-        
+        if (!survive) return;
+        if (isStunned) return;
+        OnUpdate();
+    }
+
+    protected virtual void OnUpdate() { }
+
+    public void TryAttack()
+    {
+        if (!survive) return;
+        if (isStunned) return;
+        Attack();
     }
 
     public void SetBulletPool(ObjectPool pool)
