@@ -31,6 +31,12 @@ public class ReloadProgressBarUI : MonoBehaviour
         // 현재 조작 중인 캐릭터만 표시
         if (characterManager.CurrentCharacter != sender) return;
 
+        if (progress < 0f) // 취소 신호
+        {
+            barRoot.SetActive(false);
+            return;
+        }
+
         barRoot.SetActive(true);
         fillImage.fillAmount = progress;
     }

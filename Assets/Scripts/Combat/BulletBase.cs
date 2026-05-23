@@ -9,6 +9,7 @@ public class BulletBase : MonoBehaviour, IPoolable
     private Vector3 direction;      // 이동 방향
     private float lifetime = 3f;    // 총알 수명 (초)
     private float spawnTime;        // 총알이 생성된 시간
+    private float burstChargeAmount;
     private bool isInitialized = false;
 
     void OnEnable()
@@ -27,12 +28,13 @@ public class BulletBase : MonoBehaviour, IPoolable
         isInitialized = false;
     }
 
-    public void Init(float damage, float speed, Vector3 direction)
+    public void Init(float damage, float speed, Vector3 direction, float burstCharge)
     {
         isInitialized = true;
         this.damage = damage;
         this.speed = speed;
         this.direction = direction.normalized; // 방향 벡터를 정규화하여 이동 속도에 영향을 주지 않도록 함
+        burstChargeAmount = burstCharge;
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -45,6 +47,7 @@ public class BulletBase : MonoBehaviour, IPoolable
         if (other.TryGetComponent<EnemyBase>(out EnemyBase enemy))
         {
             enemy.TakeDamage(damage);
+            BurstGaugeManager.Instance?.AddGauge(burstChargeAmount);
             ownerPool.Return(gameObject);
             return;
         }

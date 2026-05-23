@@ -6,6 +6,7 @@ public class Viper : CharacterBase
     [SerializeField] private AudioClip singleShotClip;
     [SerializeField] private AudioClip chargingClip;
     [SerializeField] private AudioClip reloadClip;
+    private bool isFireHeld = false;
 
     private AudioSource singleShotSource;
     private AudioSource reloadSource;
@@ -21,7 +22,7 @@ public class Viper : CharacterBase
         maxShield = 50;
         shield = maxShield;
         reloadTime = 1.0f;
-        chargingBurstGauge = 20;
+        chargingBurstGauge = 20; // 집중사격 게이지 충전량
         burstCoolTime = 20.0f;
         skillCoolTime = 10.0f;
         attackDamage = 50;
@@ -44,14 +45,21 @@ public class Viper : CharacterBase
     protected override void OnEnable()
     {
         base.OnEnable();
+        InputManager.OnFirePress   += HandleFirePress;
         InputManager.OnFireRelease += HandleFireRelease;
     }
 
     protected override void OnDisable()
     {
         base.OnDisable();
+        InputManager.OnFirePress   -= HandleFirePress;
         InputManager.OnFireRelease -= HandleFireRelease;
         StopAllSounds(); // 비활성화 시 모든 사운드 즉시 정지
+    }
+
+    private void HandleFirePress()
+    {
+        isFireHeld = true; // ← 클릭 시작 시 기록
     }
 
     void Start()
@@ -75,6 +83,7 @@ public class Viper : CharacterBase
 
     void HandleFireRelease()
     {
+        isFireHeld = false;
         hasPlayedCharging = false; // ← 클릭 해제 시 플래그 리셋
 
         if (IsAlive && CurrentState == CharacterState.Fire && bulletCount > 0)
@@ -87,6 +96,12 @@ public class Viper : CharacterBase
             if (bulletCount == 0) TryReload();
             else ChangeState(CharacterState.Idle);
         }
+    }
+
+    protected override void OnReloadComplete()
+    {
+        if (isFireHeld && IsAlive && bulletCount > 0)
+            ChangeState(CharacterState.Fire); // ← 리로드 후 클릭 중이면 스코프 표시
     }
 
     // AI용

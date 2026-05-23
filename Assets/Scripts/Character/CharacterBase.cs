@@ -30,7 +30,10 @@ public abstract class CharacterBase : MonoBehaviour
     [SerializeField] protected CrossHairBase crossHair;
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] protected float bulletSpeed;
-    private float nextFireTime;                 // 다음 발사 가능 시간
+    [SerializeField] protected int burstNumber; // Ghost=1, Titan=2, Viper=3
+    [SerializeField] protected float burstCutsceneDuration = 0f; // 버스트 컷씬 지속 시간 (초) - 이 시간 동안 플레이어 조작 잠금, AI는 TryFireAtTarget로 공격
+    [SerializeField] private Sprite characterPortrait;
+    private float nextFireTime;
     private CharacterState currentState { get; set; }
     private SpriteRenderer spriteRenderer;
 
@@ -42,6 +45,10 @@ public abstract class CharacterBase : MonoBehaviour
     public float NextFireTime => nextFireTime;
     public CharacterState CurrentState => currentState;
     public CrossHairBase CrossHair => crossHair;
+    public int BurstNumber => burstNumber;
+    public float BurstCutsceneDuration => burstCutsceneDuration;
+    public float BurstCoolTime => burstCoolTime;
+    public Sprite CharacterPortrait => characterPortrait;
     protected void SetNextFireTime(float time) => nextFireTime = time;
     public bool IsActiveCharacter { get; set; }
 
@@ -178,17 +185,18 @@ public abstract class CharacterBase : MonoBehaviour
         if (bullet == null) return;
 
         BulletBase bulletBase = bullet.GetComponent<BulletBase>();
-        bulletBase.Init(attackDamage, bulletSpeed, fireDir);
+        bulletBase.Init(attackDamage, bulletSpeed, fireDir, chargingBurstGauge);
     }
 
     protected void StopReload()
     {
-        if(reloadCoroutine != null)
+        if (reloadCoroutine != null)
         {
             StopCoroutine(reloadCoroutine);
             reloadCoroutine = null;
+            OnReloadProgress?.Invoke(this, -1f); // ← 취소 신호 추가
         }
-        coverReloadLocked = false; // 리로드가 강제 중단되면 엄폐 잠금도 함께 해제
+        coverReloadLocked = false;
     }
 
     // 일시적 강제 엄폐: 스페이스 입력 시 현재 캐릭터가 사격 중이라도 강제로 리로딩에 들어간다.
@@ -229,7 +237,6 @@ public abstract class CharacterBase : MonoBehaviour
             : reloadTime;
 
         reloadCoroutine = StartCoroutine(ReloadDelay(isForced, actualReloadTime));
-        // 이후 리로딩 애니메이션 재생 추가할 예정
     }
 
     private IEnumerator ReloadDelay(bool isForced = false, float duration = 0f)
@@ -256,7 +263,10 @@ public abstract class CharacterBase : MonoBehaviour
 
         if(isForced) OnForcedReloadEnd?.Invoke();
         
+        OnReloadComplete();
     }
+
+    protected virtual void OnReloadComplete() { }
 
     public void ChangeState(CharacterState newState)
     {
@@ -325,7 +335,7 @@ public abstract class CharacterBase : MonoBehaviour
         GameObject bullet = bulletPool.Get(muzzlePoint.position, Quaternion.identity);
         if (bullet == null) return;
 
-        bullet.GetComponent<BulletBase>().Init(attackDamage, bulletSpeed, fireDir);
+        bullet.GetComponent<BulletBase>().Init(attackDamage, bulletSpeed, fireDir, chargingBurstGauge);
     }
 
     public virtual void StopAllSounds() { }

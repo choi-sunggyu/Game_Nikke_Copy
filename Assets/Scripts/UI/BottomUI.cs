@@ -26,7 +26,6 @@ public class BottomUI : MonoBehaviour
     [SerializeField] private CharacterManager characterManager;
 
     // 현재 캐릭터 박스 크기
-    [SerializeField] private float boxWidth = 100f;
     [SerializeField] private float activeBoxHeight = 130f;   // 조작 중인 캐릭터 박스 높이
     [SerializeField] private float inactiveBoxHeight = 100f; // 기본(비조작) 박스 높이
 

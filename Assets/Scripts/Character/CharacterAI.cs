@@ -13,6 +13,7 @@ public class CharacterAI : MonoBehaviour
 
     private RectTransform crossHairRect;
     private Vector2 aimTargetScreenPos; // 크로스헤어가 향할 목표 스크린 좌표
+    private bool isFocusFiring = false;
     private bool isViper;
 
     void Awake()
@@ -22,6 +23,23 @@ public class CharacterAI : MonoBehaviour
         waveManager = FindAnyObjectByType<WaveManager>();
 
         isViper = owner is Viper;
+    }
+
+    void OnEnable()
+    {
+        BurstGaugeManager.OnFocusFireStart += EnableFocusFire;
+        BurstGaugeManager.OnFocusFireEnd   += DisableFocusFire;
+    }
+
+    void EnableFocusFire()
+    {
+        if (characterManager.CurrentCharacter == owner) return;
+        isFocusFiring = true;
+    }
+
+    void DisableFocusFire()
+    {
+        isFocusFiring = false;
     }
 
     void Start()
@@ -43,6 +61,12 @@ public class CharacterAI : MonoBehaviour
         if (!owner.IsAlive) return;
         if (characterManager.IsCovering) return;
 
+        if (isFocusFiring)
+        {
+            UpdateFocusFire();
+            return;
+        }
+
         ValidateAndSelectTarget();
 
         if (currentTarget == null)
@@ -63,7 +87,7 @@ public class CharacterAI : MonoBehaviour
 
         if (isViper)
         {
-            // Viper: 목표 도달 시에만 발사
+            // Viper: 조준이 충분히 정확할 때만 발사 (실제 발사는 HandleFireRelease에서)
             if (dist <= viperFireThreshold)
             {
                 // 클릭 해제로 인식 → HandleFireRelease 트리거
@@ -80,6 +104,45 @@ public class CharacterAI : MonoBehaviour
         {
             // Ghost / Titan: 이동 중에도 계속 사격
             owner.TryFire();
+        }
+    }
+
+    private void UpdateFocusFire()
+    {
+        CharacterBase activeCharacter = characterManager.CurrentCharacter;
+        if (activeCharacter == null || activeCharacter.CrossHair == null) return;
+
+        Vector2 focusScreenPos = activeCharacter.CrossHair.CrossHairPosition;
+
+        // 스크린 좌표 → 월드 좌표 변환
+        Ray ray = Camera.main.ScreenPointToRay(focusScreenPos);
+        Vector3 worldTarget = ray.GetPoint(100f); // 충분한 거리의 월드 좌표
+
+        // 크로스헤어 Lerp 이동은 유지 (시각적 표현용)
+        MoveAimToward(focusScreenPos);
+
+        // 자신의 크로스헤어 무시하고 플레이어 조준점으로 직접 발사
+        if (isViper)
+        {
+            float dist = Vector2.Distance(crossHairRect.position, focusScreenPos);
+            if (dist <= viperFireThreshold)
+                SimulateViperFireAtTarget(worldTarget);
+            else
+                owner.TryFire(); // 조준 중 상태 유지
+        }
+        else
+        {
+            owner.TryFireAtTarget(worldTarget);
+        }
+    }
+
+    private void SimulateViperFireAtTarget(Vector3 worldTarget)
+    {
+        var viper = owner as Viper;
+        if (viper != null)
+        {
+            owner.TryFire();
+            viper.AIFire();
         }
     }
 

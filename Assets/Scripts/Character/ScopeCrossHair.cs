@@ -124,7 +124,16 @@ public class ScopeCrossHair : CrossHairBase
         HideScope();
     }
 
-    void HandleReloadEnd() { isReloading = false; }
+    void HandleReloadEnd() 
+    { 
+        isReloading = false; 
+        
+        // 리로드 완료 시점에 클릭 중이면 스코프 즉시 활성화
+        if (Input.GetMouseButton(0))
+        {
+            OnFirePress();
+        }
+    }
 
     void HideScope()
     {
