@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -36,6 +37,7 @@ public abstract class CharacterBase : MonoBehaviour
     private float nextFireTime;
     private CharacterState currentState { get; set; }
     private SpriteRenderer spriteRenderer;
+    protected float attackDamageMultiplier = 1f;
 
     public bool IsAlive => survive;
     public float HpRatio => hp / maxHp;
@@ -50,6 +52,7 @@ public abstract class CharacterBase : MonoBehaviour
     public float BurstCutsceneDuration => burstCutsceneDuration;
     public float BurstCoolTime => burstCoolTime;
     public Sprite CharacterPortrait => characterPortrait;
+    public float AttackDamageMultiplier => attackDamageMultiplier;
     protected void SetNextFireTime(float time) => nextFireTime = time;
     public bool IsActiveCharacter { get; set; }
 
@@ -160,6 +163,35 @@ public abstract class CharacterBase : MonoBehaviour
                 // bulletCount가 0인 경우는 여기서 TryReload를 하지 않고 다른 곳에서 처리 중일 것임
             }
         }
+    }
+
+    public void ApplyDamageBuff(float multiplier, float duration, string buffId)
+    {
+        StartCoroutine(DamageBuffCoroutine(multiplier, duration, buffId));
+    }
+
+    private Dictionary<string, Coroutine> activeBuffs = new Dictionary<string, Coroutine>();
+    
+    private IEnumerator DamageBuffCoroutine(float multiplier, float duration, string buffId)
+    {
+        if (activeBuffs.ContainsKey(buffId) && activeBuffs[buffId] != null)
+        {
+            StopCoroutine(activeBuffs[buffId]);
+            attackDamageMultiplier /= multiplier;
+        }
+
+        attackDamageMultiplier *= multiplier;
+
+        Coroutine c = StartCoroutine(BuffTimer(multiplier, duration, buffId));
+        activeBuffs[buffId] = c;
+        yield break;
+    }
+
+    private IEnumerator BuffTimer(float multiplier, float duration, string buffId)
+    {
+        yield return new WaitForSeconds(duration);
+        attackDamageMultiplier /= multiplier;
+        activeBuffs.Remove(buffId);
     }
 
     protected virtual void FireBullet()

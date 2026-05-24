@@ -9,11 +9,22 @@ public class Titan : CharacterBase
     private int shotsFired;
     private float nextTitanFireTime;
     private bool isLooping = false;
+    private const string TitanBuffId = "Titan_DamageBuff";
+    private const float buffDuration = 10f;
+    private const float buffMultiplier = 1.2f;
+    private const float starDamageRatio = 0.4f;
+    private const float starFireInterval = 0.25f;
+    private const float starSpeed = 100f;
+
+    private CharacterManager characterManager;
+    private WaveManager waveManager;
 
     [SerializeField] private AudioClip singleShotClip;
     [SerializeField] private AudioClip spinUpClip;
     [SerializeField] private AudioClip fireLoopClip;
     [SerializeField] private AudioClip reloadClip;
+    [SerializeField] private GameObject buffStarPrefab;    // 버프 별 스프라이트 프리팹
+    [SerializeField] private GameObject attackStarPrefab;  // 공격 별 프리팹
 
     private AudioSource singleShotSource;
     private AudioSource spinUpSource;
@@ -21,6 +32,13 @@ public class Titan : CharacterBase
     private AudioSource reloadSource;
 
     private const int LoopStartShots = 5;
+
+    void Start()
+    {
+        Initialize();
+        characterManager = FindAnyObjectByType<CharacterManager>();
+        waveManager = FindAnyObjectByType<WaveManager>();
+    }
 
     public override void Initialize()
     {
@@ -192,6 +210,47 @@ public class Titan : CharacterBase
         ResetFireRate();
     }
 
+    private IEnumerator StarAttackRoutine()
+    {
+        float elapsed = 0f;
+
+        while (elapsed < buffDuration)
+        {
+            elapsed += starFireInterval;
+            yield return new WaitForSeconds(starFireInterval);
+
+            var enemies = waveManager.ActiveEnemies;
+            if (enemies == null || enemies.Count == 0) continue;
+
+            // 무작위 적 선택
+            EnemyBase target = enemies[Random.Range(0, enemies.Count)];
+            if (target == null || !target.IsAlive) continue;
+
+            // 캐릭터 주변 랜덤 위치에서 별 생성
+            Vector3 spawnOffset = (Vector3)Random.insideUnitCircle * 1.5f;
+            Vector3 spawnPos = transform.position + spawnOffset;
+
+            GameObject star = Instantiate(attackStarPrefab, spawnPos, Quaternion.identity);
+            float starDamage = attackDamage * attackDamageMultiplier * starDamageRatio;
+            star.GetComponent<AttackStar>()?.Init(starDamage, starSpeed, target);
+        }
+    }
+
     public override void UseSkill() { }
-    public override void UseBurst() { }
+    public override void UseBurst()
+    {
+        // 팀 전체 공격력 버프 + 별 이펙트
+        foreach (var character in characterManager.Characters)
+        {
+            if (character == null || !character.IsAlive) continue;
+
+            character.ApplyDamageBuff(buffMultiplier, buffDuration, TitanBuffId);
+            GameObject star = Instantiate(buffStarPrefab, character.transform.position, Quaternion.identity);
+            star.transform.SetParent(character.transform);
+            star.GetComponent<BuffStarEffect>()?.Show(buffDuration);
+        }
+
+        // 연속 공격 코루틴 시작
+        StartCoroutine(StarAttackRoutine());
+    }
 }

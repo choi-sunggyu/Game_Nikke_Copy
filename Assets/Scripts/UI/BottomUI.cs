@@ -196,6 +196,7 @@ public class BottomUI : MonoBehaviour
     private void HandleStatChanged(CharacterBase sender)
     {
         int idx = characters.IndexOf(sender);
+        Debug.Log($"HandleStatChanged / sender: {sender.name} / idx: {idx} / shieldRatio: {sender.ShieldRatio}");
         if (idx < 0 || idx >= characterBoxes.Count) return;
 
         characterBoxes[idx].hpBar.fillAmount = sender.HpRatio;
