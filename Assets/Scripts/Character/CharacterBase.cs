@@ -70,8 +70,8 @@ public abstract class CharacterBase : MonoBehaviour
     public abstract void Initialize();
     public abstract void UseSkill();
     public abstract void UseBurst();
-    public static event Action OnForcedReloadStart;
-    public static event Action OnForcedReloadEnd;
+    public static event Action<CharacterBase> OnForcedReloadStart;
+    public static event Action<CharacterBase> OnForcedReloadEnd;
 
     public static void InvokeBulletCountChanged(CharacterBase sender, int count)
     {
@@ -277,7 +277,7 @@ public abstract class CharacterBase : MonoBehaviour
         currentState = CharacterState.Reload;
         spriteRenderer.sprite = reloadSprite;
 
-        if(isForced) OnForcedReloadStart?.Invoke();
+        if(isForced) OnForcedReloadStart?.Invoke(this);
         
         float elapsed = 0f;
         while (elapsed < duration)
@@ -294,7 +294,7 @@ public abstract class CharacterBase : MonoBehaviour
 
         OnBulletCountChanged?.Invoke(this, bulletCount);
 
-        if(isForced) OnForcedReloadEnd?.Invoke();
+        if(isForced) OnForcedReloadEnd?.Invoke(this);
         
         OnReloadComplete();
     }

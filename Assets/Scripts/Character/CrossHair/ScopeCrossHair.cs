@@ -116,23 +116,22 @@ public class ScopeCrossHair : CrossHairBase
         }
     }
 
-    void HandleReloadStart()
+    void HandleReloadStart(CharacterBase sender)
     {
         if(!isActive) return;
+        if (CM == null || sender != CM.CurrentCharacter) return;
         isReloading = true;
         isDragging = false;
         HideScope();
     }
 
-    void HandleReloadEnd() 
+    void HandleReloadEnd(CharacterBase sender) 
     { 
-        isReloading = false; 
-        
-        // 리로드 완료 시점에 클릭 중이면 스코프 즉시 활성화
+        // 조준 상태에서 강제 리로드 → 조준 유지한 채로 리로드 완료 → 다시 스코프 표시
+        if (CM == null || sender != CM.CurrentCharacter) return;
+        isReloading = false;
         if (Input.GetMouseButton(0))
-        {
             OnFirePress();
-        }
     }
 
     void HideScope()

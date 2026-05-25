@@ -79,20 +79,23 @@ public class Viper : CharacterBase
 
     public override void TryFire()
     {
-        // 강제 엄폐 리로딩 중에는 StopReload()가 호출되면 안 되므로 가장 먼저 차단
         if (IsCoverReloadLocked) return;
+        if (!IsAlive || bulletCount <= 0) return;
 
-        if (IsAlive && bulletCount > 0)
+        // 이미 차지 중이면 상태 유지만 (chargeStartTime 갱신 금지)
+        if (isCharging)
         {
-            StopReload();
-            StopReloadSound();
-            PlayChargingSound();
             ChangeState(CharacterState.Fire);
-
-            // 차지 시작 시간 기록
-            chargeStartTime = Time.time;
-            isCharging = true;
+            return;
         }
+
+        // 첫 클릭 프레임에만 실행
+        StopReload();
+        StopReloadSound();
+        PlayChargingSound();
+        ChangeState(CharacterState.Fire);
+        chargeStartTime = Time.time; // ← 최초 1회만 기록
+        isCharging = true;
     }
 
     void HandleFireRelease()
