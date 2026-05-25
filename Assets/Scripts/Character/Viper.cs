@@ -22,6 +22,9 @@ public class Viper : CharacterBase
     private AudioSource chargingSource;
     private bool hasPlayedCharging = false;
     private bool isFireHeld = false;
+    private bool hasAITarget = false;
+    private Vector3 aiWorldTarget;
+    private WaveManager waveManager; // 필드 추가
 
     public override void Initialize()
     {
@@ -75,6 +78,7 @@ public class Viper : CharacterBase
     void Start()
     {
         Initialize();
+        waveManager = FindAnyObjectByType<WaveManager>(); // 캐싱(매 버스트마다 호출하고 있었음)
     }
 
     public override void TryFire()
@@ -125,10 +129,21 @@ public class Viper : CharacterBase
     {
         if (bulletPool == null || muzzlePoint == null) return;
 
-        Ray camRay = Camera.main.ScreenPointToRay(crossHair.CrossHairPosition);
-        Vector3 worldTarget = Physics.Raycast(camRay, out RaycastHit hit, 1000f)
-            ? hit.point
-            : camRay.GetPoint(1000f);
+        Vector3 worldTarget;
+
+        if (hasAITarget)
+        {
+            worldTarget = aiWorldTarget;
+            hasAITarget = false;
+        }
+        else
+        {
+            Ray camRay = Camera.main.ScreenPointToRay(crossHair.CrossHairPosition);
+
+            worldTarget = Physics.Raycast(camRay, out RaycastHit hit, 1000f)
+                ? hit.point
+                : camRay.GetPoint(1000f);
+        }
 
         Vector3 fireDir = (worldTarget - muzzlePoint.position).normalized;
         GameObject bullet = bulletPool.Get(muzzlePoint.position, Quaternion.identity);
@@ -149,6 +164,9 @@ public class Viper : CharacterBase
     // AI용
     public override void TryFireAtTarget(Vector3 worldTarget)
     {
+        aiWorldTarget = worldTarget;
+        hasAITarget = true;
+
         if (!survive) return;
         if (CurrentState == CharacterState.Reload) return;
         if (Time.time < NextFireTime) return;
@@ -164,7 +182,7 @@ public class Viper : CharacterBase
         SetNextFireTime(Time.time + fireRate);
         InvokeBulletCountChanged(this, bulletCount);
         PlayFireSound();
-        FireBulletAtTarget(worldTarget);
+        AIFire();
 
         if (bulletCount == 0) TryReload();
         else ChangeState(CharacterState.Idle);
@@ -224,10 +242,7 @@ public class Viper : CharacterBase
     public override void UseSkill() { }
     public override void UseBurst()
     {
-        Debug.Log($"[Viper UseBurst] 호출 횟수 체크");
-
         //웨이브 매니저게에서 살아있는 적들 중 HP가 가장 높은 적을 찾아 집중사격 발사
-        var waveManager = FindAnyObjectByType<WaveManager>();
         if (waveManager == null) return; // 웨이브 매니저가 없으면 스킬 사용 불가
 
         // HP 가장 높은 적 탐색

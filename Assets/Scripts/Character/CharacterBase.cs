@@ -55,6 +55,7 @@ public abstract class CharacterBase : MonoBehaviour
     public float AttackDamageMultiplier => attackDamageMultiplier;
     protected void SetNextFireTime(float time) => nextFireTime = time;
     public bool IsActiveCharacter { get; set; }
+    public Transform MuzzlePoint => muzzlePoint;
 
 
     // sender: 이벤트를 발생시킨 캐릭터, count: 탄 수
@@ -171,7 +172,7 @@ public abstract class CharacterBase : MonoBehaviour
     }
 
     private Dictionary<string, Coroutine> activeBuffs = new Dictionary<string, Coroutine>();
-    
+
     private IEnumerator DamageBuffCoroutine(float multiplier, float duration, string buffId)
     {
         if (activeBuffs.ContainsKey(buffId) && activeBuffs[buffId] != null)
@@ -183,7 +184,7 @@ public abstract class CharacterBase : MonoBehaviour
         attackDamageMultiplier *= multiplier;
 
         Coroutine c = StartCoroutine(BuffTimer(multiplier, duration, buffId));
-        activeBuffs[buffId] = c;
+        activeBuffs[buffId] = c; // ← BuffTimer가 즉시 완료되면 이미 Remove된 후 저장될 수 있음
         yield break;
     }
 
@@ -191,7 +192,8 @@ public abstract class CharacterBase : MonoBehaviour
     {
         yield return new WaitForSeconds(duration);
         attackDamageMultiplier /= multiplier;
-        activeBuffs.Remove(buffId);
+        if (activeBuffs.ContainsKey(buffId)) // BuffTimer 안에서 Remove 전 Contanins 체크
+            activeBuffs.Remove(buffId);
     }
 
     protected virtual void FireBullet()
@@ -300,6 +302,16 @@ public abstract class CharacterBase : MonoBehaviour
     }
 
     protected virtual void OnReloadComplete() { }
+
+    public Vector3 GetWorldTargetFromScreenPos(Vector2 screenPos)
+    {
+        Ray ray = Camera.main.ScreenPointToRay(screenPos);
+
+        if (Physics.Raycast(ray, out RaycastHit hit, 1000f, enemyLayer))
+            return hit.point;
+
+        return ray.GetPoint(1000f);
+    }
 
     public void ChangeState(CharacterState newState)
     {

@@ -27,6 +27,7 @@ public class BurstGaugeManager : MonoBehaviour
     private float currentGauge = 0f;
     private BurstPhase currentPhase = BurstPhase.Charging;
     private bool isAutoMode = false;
+    private bool isFinalBurstActive = false; // 집중사격 활성 여부
 
     private Coroutine timerCoroutine;  // 단계 대기 타이머
     private Coroutine autoCoroutine;   // 자동 발동
@@ -46,6 +47,7 @@ public class BurstGaugeManager : MonoBehaviour
 
     public BurstPhase CurrentPhase => currentPhase;
     public bool IsAutoMode => isAutoMode;
+    public bool IsFinalBurstActive => isFinalBurstActive;
 
     void Awake()
     {
@@ -99,6 +101,8 @@ public class BurstGaugeManager : MonoBehaviour
 
             case BurstPhase.FocusFire:
                 OnFocusFireStart?.Invoke();
+                isFinalBurstActive = true;
+                // 집중 사격 종료 시 isFinalBurstActive = false로 전환
                 timerCoroutine = StartCoroutine(FocusFireCoroutine());
                 break;
         }
@@ -134,7 +138,6 @@ public class BurstGaugeManager : MonoBehaviour
             OnGaugeChanged?.Invoke(1f - (elapsed / focusFireDuration));
             yield return null;
         }
-        OnFocusFireEnd?.Invoke();
         ResetToCharging();
     }
 
@@ -188,9 +191,17 @@ public class BurstGaugeManager : MonoBehaviour
         EnterPhase(nextPhase);
     }
 
+    // 버스트 실패 시 즉시 충전 단계로 리셋
     private void ResetToCharging()
     {
         StopAllActiveCoroutines();
+
+        if (isFinalBurstActive)
+        {
+            OnFocusFireEnd?.Invoke();
+            isFinalBurstActive = false;
+        }
+
         currentGauge = 0f;
         currentPhase = BurstPhase.Charging;
         OnPhaseChanged?.Invoke(BurstPhase.Charging);
@@ -235,6 +246,7 @@ public class BurstGaugeManager : MonoBehaviour
         phase == BurstPhase.Step1Ready ? 1 :
         phase == BurstPhase.Step2Ready ? 2 : 3;
 
+    // 진행 중인 모든 코루틴 정지 (단계 진입 시마다 호출)
     private void StopAllActiveCoroutines()
     {
         if (timerCoroutine != null) { StopCoroutine(timerCoroutine); timerCoroutine = null; }

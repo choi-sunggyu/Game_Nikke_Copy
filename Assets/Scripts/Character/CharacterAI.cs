@@ -13,7 +13,7 @@ public class CharacterAI : MonoBehaviour
 
     private RectTransform crossHairRect;
     private Vector2 aimTargetScreenPos; // 크로스헤어가 향할 목표 스크린 좌표
-    private bool isFocusFiring = false;
+    private LineRenderer lineRenderer;
     private bool isViper;
 
     void Awake()
@@ -27,19 +27,18 @@ public class CharacterAI : MonoBehaviour
 
     void OnEnable()
     {
-        BurstGaugeManager.OnFocusFireStart += EnableFocusFire;
-        BurstGaugeManager.OnFocusFireEnd   += DisableFocusFire;
+        BurstGaugeManager.OnFocusFireEnd += DisableFocusFire;
     }
 
-    void EnableFocusFire()
+    void OnDisable()
     {
-        if (characterManager.CurrentCharacter == owner) return;
-        isFocusFiring = true;
+        BurstGaugeManager.OnFocusFireEnd -= DisableFocusFire;
     }
 
     void DisableFocusFire()
     {
-        isFocusFiring = false;
+        if (lineRenderer != null)
+            lineRenderer.enabled = false;
     }
 
     void Start()
@@ -52,16 +51,45 @@ public class CharacterAI : MonoBehaviour
         aimTargetScreenPos = new Vector2(Screen.width / 2f, Screen.height / 2f);
         if (crossHairRect != null)
             crossHairRect.position = aimTargetScreenPos;
+
+        lineRenderer = GetComponent<LineRenderer>();
+
+        if (lineRenderer != null)
+        {
+            lineRenderer.enabled = false;
+            lineRenderer.positionCount = 2;
+            lineRenderer.useWorldSpace = true;
+
+            Color lineColor = new Color(1f, 0f, 0f, 0.6f);
+
+            lineRenderer.startColor = lineColor;
+            lineRenderer.endColor = lineColor;
+
+            lineRenderer.startWidth = 0.08f;
+            lineRenderer.endWidth = 0.02f;
+
+            lineRenderer.sortingOrder = 100;
+        }
     }
 
     void Update()
     {
-        // 플레이어가 조작 중이면 AI 비활성
-        if (characterManager.CurrentCharacter == owner) return;
+        // 플레이어가 조작 중이면 가이드라인을 끄고 AI 비활성
+        if (characterManager.CurrentCharacter == owner)
+        {
+            if (lineRenderer != null && lineRenderer.enabled)
+                lineRenderer.enabled = false;
+            return;
+        }
+
         if (!owner.IsAlive) return;
         if (characterManager.IsCovering) return;
 
-        if (isFocusFiring)
+        // 플레이어 클릭(사격) 여부 확인 (※ InputManager 등 실제 게임의 입력 상태 변수로 교체하세요)
+        bool isPlayerFiring = Input.GetMouseButton(0);
+
+        // 이벤트 변수 대신 실시간으로 집중사격 상태 확인
+        if (BurstGaugeManager.Instance.IsFinalBurstActive && isPlayerFiring)
         {
             UpdateFocusFire();
             return;
@@ -81,6 +109,18 @@ public class CharacterAI : MonoBehaviour
 
         // 목표 스크린 좌표 = 적 위치 + aimSpread 오프셋 (타겟 선택 시 1회만 적용)
         MoveAimToward(targetScreenPos);
+
+        // 집중사격 단계지만 플레이어가 클릭 안 할 때: AI 타겟을 향해 가이드라인 유지
+        if (BurstGaugeManager.Instance.IsFinalBurstActive)
+        {
+            Vector3 aiWorldTarget = owner.GetWorldTargetFromScreenPos(crossHairRect.position);
+            FireLine(aiWorldTarget);
+        }
+        else
+        {
+            if (lineRenderer != null && lineRenderer.enabled)
+                lineRenderer.enabled = false;
+        }
 
         // 크로스헤어와 목표 거리
         float dist = Vector2.Distance(crossHairRect.position, targetScreenPos);
@@ -107,6 +147,30 @@ public class CharacterAI : MonoBehaviour
         }
     }
 
+    public void FireLine(Vector3 worldTarget)
+    {
+        if (lineRenderer == null)
+            return;
+
+        // 포커스 파이어 활성 & 자신이 조작 중인 캐릭터가 아닐 때만 라인 렌더러 활성화 & 최종 버스트 단계 후 사격 위치 업데이트
+        bool shouldShow =
+            owner.IsAlive &&
+            BurstGaugeManager.Instance != null &&
+            BurstGaugeManager.Instance.IsFinalBurstActive &&
+            characterManager.CurrentCharacter != owner;
+
+        if (!shouldShow)
+        {
+            lineRenderer.enabled = false;
+            return;
+        }
+
+        lineRenderer.enabled = true;
+
+        lineRenderer.SetPosition(0, owner.MuzzlePoint.position);
+        lineRenderer.SetPosition(1, worldTarget);
+    }
+
     private void UpdateFocusFire()
     {
         CharacterBase activeCharacter = characterManager.CurrentCharacter;
@@ -114,12 +178,12 @@ public class CharacterAI : MonoBehaviour
 
         Vector2 focusScreenPos = activeCharacter.CrossHair.CrossHairPosition;
 
-        // 스크린 좌표 → 월드 좌표 변환
-        Ray ray = Camera.main.ScreenPointToRay(focusScreenPos);
-        Vector3 worldTarget = ray.GetPoint(100f); // 충분한 거리의 월드 좌표
+        Vector3 worldTarget =
+            owner.GetWorldTargetFromScreenPos(focusScreenPos);
 
         // 크로스헤어 Lerp 이동은 유지 (시각적 표현용)
         MoveAimToward(focusScreenPos);
+        FireLine(worldTarget);
 
         // 자신의 크로스헤어 무시하고 플레이어 조준점으로 직접 발사
         if (isViper)
