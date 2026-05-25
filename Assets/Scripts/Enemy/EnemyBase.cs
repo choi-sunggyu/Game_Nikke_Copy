@@ -27,6 +27,7 @@ public abstract class EnemyBase : MonoBehaviour
     protected bool isSpawning = true; // 출현 연출 중 여부
 
     //프로퍼티
+    public float Hp => hp;
     public bool IsAlive => survive;
     public EnemyState CurrentState => currentState;
     public Vector3 TargetPosition => targetPosition;

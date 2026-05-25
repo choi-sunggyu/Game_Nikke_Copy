@@ -61,14 +61,6 @@ public class BurstGaugeManager : MonoBehaviour
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Tab)) ToggleAutoMode();
-
-        // 수동 버스트 키 (버스트 대기 단계에서만)
-        if (IsStepReady())
-        {
-            if (Input.GetKeyDown(KeyCode.A)) TryUseBurstBySlot(0);
-            if (Input.GetKeyDown(KeyCode.S)) TryUseBurstBySlot(1);
-            if (Input.GetKeyDown(KeyCode.D)) TryUseBurstBySlot(2);
-        }
     }
 
     // BulletBase에서 호출

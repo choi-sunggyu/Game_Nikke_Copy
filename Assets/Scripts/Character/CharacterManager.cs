@@ -131,7 +131,8 @@ public class CharacterManager : MonoBehaviour
 
         // 전환 시 새 캐릭터 BulletCount 이벤트 발생
         CharacterBase.InvokeBulletCountChanged(currentCharacter, currentCharacter.CurrentBulletCount);
-
+        InputManager.InvokeSwitchCharacter(index);
+        
         yield return new WaitForSeconds(delayTime);
         changing = false;
     }

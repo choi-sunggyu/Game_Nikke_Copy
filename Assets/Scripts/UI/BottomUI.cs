@@ -102,7 +102,7 @@ public class BottomUI : MonoBehaviour
             }
         }
 
-        Debug.Log($"[BottomUI] 그라데이션 적용 박스: {gradientApplied}/{characterBoxes.Count}");
+        //Debug.Log($"[BottomUI] 그라데이션 적용 박스: {gradientApplied}/{characterBoxes.Count}");
     }
 
     // 세로 방향 알파 그라데이션 스프라이트 생성

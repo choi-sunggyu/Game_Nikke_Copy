@@ -1,17 +1,27 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 
 public class Viper : CharacterBase
 {
+    [Header("차지 설정")]
+    [SerializeField] private float maxChargeTime = 1.13f;
+    private float chargeStartTime = -1f;
+    private bool isCharging = false;
+
+    [Header("소리 설정")]
     [SerializeField] private AudioClip singleShotClip;
     [SerializeField] private AudioClip chargingClip;
     [SerializeField] private AudioClip reloadClip;
-    private bool isFireHeld = false;
+
+    [Header("빔 설정")]
+    [SerializeField] private GameObject viperBeamPrefab;
 
     private AudioSource singleShotSource;
     private AudioSource reloadSource;
     private AudioSource chargingSource;
     private bool hasPlayedCharging = false;
+    private bool isFireHeld = false;
 
     public override void Initialize()
     {
@@ -75,9 +85,13 @@ public class Viper : CharacterBase
         if (IsAlive && bulletCount > 0)
         {
             StopReload();
-            StopReloadSound(); // ← 리로드음 중단
+            StopReloadSound();
             PlayChargingSound();
             ChangeState(CharacterState.Fire);
+
+            // 차지 시작 시간 기록
+            chargeStartTime = Time.time;
+            isCharging = true;
         }
     }
 
@@ -88,14 +102,39 @@ public class Viper : CharacterBase
 
         if (IsAlive && CurrentState == CharacterState.Fire && bulletCount > 0)
         {
+            // 차지 비율 계산
+            float chargeRatio = isCharging
+                ? Mathf.Clamp01((Time.time - chargeStartTime) / maxChargeTime)
+                : 0f;
+            isCharging = false;
+
             bulletCount--;
             InvokeBulletCountChanged(this, bulletCount);
             PlayFireSound();
-            FireBullet();
+            FireChargedBullet(chargeRatio);
 
             if (bulletCount == 0) TryReload();
             else ChangeState(CharacterState.Idle);
         }
+    }
+
+    private void FireChargedBullet(float chargeRatio)
+    {
+        if (bulletPool == null || muzzlePoint == null) return;
+
+        Ray camRay = Camera.main.ScreenPointToRay(crossHair.CrossHairPosition);
+        Vector3 worldTarget = Physics.Raycast(camRay, out RaycastHit hit, 1000f)
+            ? hit.point
+            : camRay.GetPoint(1000f);
+
+        Vector3 fireDir = (worldTarget - muzzlePoint.position).normalized;
+        GameObject bullet = bulletPool.Get(muzzlePoint.position, Quaternion.identity);
+        if (bullet == null) return;
+
+        // 차지 100% = 150%, 0% = 0% (선형 보간)
+        float chargedDamage = attackDamage * attackDamageMultiplier * Mathf.Lerp(0f, 1.5f, chargeRatio);
+
+        bullet.GetComponent<BulletBase>()?.Init(chargedDamage, bulletSpeed, fireDir, chargingBurstGauge);
     }
 
     protected override void OnReloadComplete()
@@ -180,5 +219,48 @@ public class Viper : CharacterBase
     }
 
     public override void UseSkill() { }
-    public override void UseBurst() { }
+    public override void UseBurst()
+    {
+        Debug.Log($"[Viper UseBurst] 호출 횟수 체크");
+
+        //웨이브 매니저게에서 살아있는 적들 중 HP가 가장 높은 적을 찾아 집중사격 발사
+        var waveManager = FindAnyObjectByType<WaveManager>();
+        if (waveManager == null) return; // 웨이브 매니저가 없으면 스킬 사용 불가
+
+        // HP 가장 높은 적 탐색
+        EnemyBase target = null;
+        float highestHp = float.MinValue;
+        List<EnemyBase> topTargets = new List<EnemyBase>();
+
+        foreach (var enemy in waveManager.ActiveEnemies)
+        {
+            if (enemy == null || !enemy.IsAlive) continue;
+            if (enemy.Hp > highestHp)
+            {
+                highestHp = enemy.Hp;
+                topTargets.Clear();
+                topTargets.Add(enemy);
+            }
+            else if (Mathf.Approximately(enemy.Hp, highestHp))
+            {
+                topTargets.Add(enemy);
+            }
+        }
+
+        if (topTargets.Count > 0)
+            target = topTargets[Random.Range(0, topTargets.Count)];
+
+        Debug.Log($"[Viper UseBurst] target: {target?.name} / topTargets: {topTargets.Count}");
+
+        if (target == null) return;
+
+        float burstDamage = attackDamage * attackDamageMultiplier * 20f;
+        Debug.Log($"[Viper UseBurst] burstDamage: {burstDamage}");
+        target.TakeDamage(burstDamage);
+
+        Debug.Log($"[Viper UseBurst] 빔 생성 직전 / muzzlePoint: {muzzlePoint.position} / target: {target.transform.position}");
+        GameObject beam = Instantiate(viperBeamPrefab, muzzlePoint.position, Quaternion.identity);
+        beam.GetComponent<ViperBeamEffect>()?.Fire(muzzlePoint.position, target.transform.position);
+        Debug.Log($"[Viper UseBurst] 빔 생성 완료");
+    }
 }
