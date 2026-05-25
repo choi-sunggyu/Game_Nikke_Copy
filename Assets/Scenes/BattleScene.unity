@@ -9738,6 +9738,7 @@ MonoBehaviour:
   aimSpeed: 3
   aimSpread: 2.5
   viperFireThreshold: 30
+  lineEndMoveSpeed: 1
 --- !u!114 &1820671846
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11314,6 +11315,7 @@ MonoBehaviour:
   aimSpeed: 3
   aimSpread: 2.5
   viperFireThreshold: 30
+  lineEndMoveSpeed: 2
 --- !u!114 &1989108163
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12270,6 +12272,7 @@ MonoBehaviour:
   aimSpeed: 3
   aimSpread: 2.5
   viperFireThreshold: 30
+  lineEndMoveSpeed: 2
 --- !u!114 &2094593714
 MonoBehaviour:
   m_ObjectHideFlags: 0

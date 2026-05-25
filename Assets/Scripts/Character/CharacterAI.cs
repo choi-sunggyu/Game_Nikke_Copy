@@ -15,6 +15,9 @@ public class CharacterAI : MonoBehaviour
     private Vector2 aimTargetScreenPos; // 크로스헤어가 향할 목표 스크린 좌표
     private LineRenderer lineRenderer;
     private bool isViper;
+    private Vector2 lineEndScreenPos; // 빨간 막대기 끝점 (스크린 좌표)
+    private bool lineEndInitialized = false;
+    [SerializeField] private float lineEndMoveSpeed = 3f; // 정속도 이동 속도 (Inspector 조절)
 
     void Awake()
     {
@@ -70,11 +73,13 @@ public class CharacterAI : MonoBehaviour
 
             lineRenderer.sortingOrder = 100;
         }
+
+        lineEndScreenPos = new Vector2(Screen.width / 2f, Screen.height / 2f);
+        lineEndInitialized = false;
     }
 
     void Update()
     {
-        // 플레이어가 조작 중이면 가이드라인을 끄고 AI 비활성
         if (characterManager.CurrentCharacter == owner)
         {
             if (lineRenderer != null && lineRenderer.enabled)
@@ -85,16 +90,36 @@ public class CharacterAI : MonoBehaviour
         if (!owner.IsAlive) return;
         if (characterManager.IsCovering) return;
 
-        // 플레이어 클릭(사격) 여부 확인 (※ InputManager 등 실제 게임의 입력 상태 변수로 교체하세요)
         bool isPlayerFiring = Input.GetMouseButton(0);
+        bool isFocusActive = BurstGaugeManager.Instance != null &&
+                            BurstGaugeManager.Instance.IsFinalBurstActive;
 
-        // 이벤트 변수 대신 실시간으로 집중사격 상태 확인
-        if (BurstGaugeManager.Instance.IsFinalBurstActive && isPlayerFiring)
+        if (isFocusActive)
         {
-            UpdateFocusFire();
+            if (isPlayerFiring)
+            {
+                // 클릭 중 → 즉각 집중사격
+                UpdateFocusFire();
+            }
+            else
+            {
+                // 클릭 해제 → 가이드라인 유지 + AI 사격
+                UpdateAIShotWithLine();
+            }
             return;
         }
 
+        // 집중사격 아닐 때 → 일반 AI
+        if (lineRenderer != null && lineRenderer.enabled)
+        {
+            lineRenderer.enabled = false;
+            lineEndInitialized = false;
+        }
+        UpdateAIShot();
+    }
+
+    private void UpdateAIShot()
+    {
         ValidateAndSelectTarget();
 
         if (currentTarget == null)
@@ -104,55 +129,25 @@ public class CharacterAI : MonoBehaviour
             return;
         }
 
-        // 적 월드좌표 → 스크린좌표
         Vector2 targetScreenPos = Camera.main.WorldToScreenPoint(currentTarget.transform.position);
-
-        // 목표 스크린 좌표 = 적 위치 + aimSpread 오프셋 (타겟 선택 시 1회만 적용)
         MoveAimToward(targetScreenPos);
-
-        // 집중사격 단계지만 플레이어가 클릭 안 할 때: AI 타겟을 향해 가이드라인 유지
-        if (BurstGaugeManager.Instance.IsFinalBurstActive)
-        {
-            Vector3 aiWorldTarget = owner.GetWorldTargetFromScreenPos(crossHairRect.position);
-            FireLine(aiWorldTarget);
-        }
-        else
-        {
-            if (lineRenderer != null && lineRenderer.enabled)
-                lineRenderer.enabled = false;
-        }
-
-        // 크로스헤어와 목표 거리
-        float dist = Vector2.Distance(crossHairRect.position, targetScreenPos);
 
         if (isViper)
         {
-            // Viper: 조준이 충분히 정확할 때만 발사 (실제 발사는 HandleFireRelease에서)
-            if (dist <= viperFireThreshold)
-            {
-                // 클릭 해제로 인식 → HandleFireRelease 트리거
-                owner.TryFire();          // Fire 상태 진입
-                SimulateViperFire();      // 즉시 해제 → 발사
-            }
-            else
-            {
-                // 조준 중 → Fire 상태만 유지 (실제 발사 없음)
-                owner.TryFire();
-            }
+            float dist = Vector2.Distance(crossHairRect.position, targetScreenPos);
+            if (dist <= viperFireThreshold) { owner.TryFire(); SimulateViperFire(); }
+            else owner.TryFire();
         }
         else
         {
-            // Ghost / Titan: 이동 중에도 계속 사격
             owner.TryFire();
         }
     }
 
-    public void FireLine(Vector3 worldTarget)
+    public void FireLine(Vector2 targetScreenPos)
     {
-        if (lineRenderer == null)
-            return;
+        if (lineRenderer == null) return;
 
-        // 포커스 파이어 활성 & 자신이 조작 중인 캐릭터가 아닐 때만 라인 렌더러 활성화 & 최종 버스트 단계 후 사격 위치 업데이트
         bool shouldShow =
             owner.IsAlive &&
             BurstGaugeManager.Instance != null &&
@@ -162,13 +157,14 @@ public class CharacterAI : MonoBehaviour
         if (!shouldShow)
         {
             lineRenderer.enabled = false;
+            lineEndInitialized = false;
             return;
         }
 
+        Vector3 worldEndPoint = owner.GetWorldTargetFromScreenPos(targetScreenPos);
         lineRenderer.enabled = true;
-
         lineRenderer.SetPosition(0, owner.MuzzlePoint.position);
-        lineRenderer.SetPosition(1, worldTarget);
+        lineRenderer.SetPosition(1, worldEndPoint);
     }
 
     private void UpdateFocusFire()
@@ -177,26 +173,69 @@ public class CharacterAI : MonoBehaviour
         if (activeCharacter == null || activeCharacter.CrossHair == null) return;
 
         Vector2 focusScreenPos = activeCharacter.CrossHair.CrossHairPosition;
+        Vector3 worldTarget = owner.GetWorldTargetFromScreenPos(focusScreenPos);
 
-        Vector3 worldTarget =
-            owner.GetWorldTargetFromScreenPos(focusScreenPos);
+        // 크로스헤어도 즉각 이동
+        if (crossHairRect != null)
+            crossHairRect.position = focusScreenPos;
 
-        // 크로스헤어 Lerp 이동은 유지 (시각적 표현용)
-        MoveAimToward(focusScreenPos);
-        FireLine(worldTarget);
+        // 가이드라인 끝점 즉각 갱신
+        lineEndScreenPos = focusScreenPos;
+        lineEndInitialized = true;
+        FireLine(focusScreenPos);
 
-        // 자신의 크로스헤어 무시하고 플레이어 조준점으로 직접 발사
         if (isViper)
         {
             float dist = Vector2.Distance(crossHairRect.position, focusScreenPos);
             if (dist <= viperFireThreshold)
                 SimulateViperFireAtTarget(worldTarget);
             else
-                owner.TryFire(); // 조준 중 상태 유지
+                owner.TryFire();
         }
         else
         {
             owner.TryFireAtTarget(worldTarget);
+        }
+    }
+
+    private void UpdateAIShotWithLine()
+    {
+        ValidateAndSelectTarget();
+
+        if (currentTarget == null)
+        {
+            owner.OnStopFiring();
+            owner.TryReload();
+            // 가이드라인은 유지 (lineEndScreenPos 마지막 위치 그대로)
+            if (lineEndInitialized) FireLine(lineEndScreenPos);
+            return;
+        }
+
+        Vector2 targetScreenPos = Camera.main.WorldToScreenPoint(currentTarget.transform.position);
+        MoveAimToward(targetScreenPos); // AI 크로스헤어는 정상 이동
+
+        // 가이드라인 끝점은 AI 크로스헤어 현재 위치로 부드럽게 이동
+        if (crossHairRect != null)
+        {
+            lineEndScreenPos = Vector2.Lerp(
+                lineEndScreenPos,
+                crossHairRect.position,
+                Time.deltaTime * lineEndMoveSpeed
+            );
+        }
+
+        FireLine(lineEndScreenPos);
+
+        // AI 사격
+        if (isViper)
+        {
+            float dist = Vector2.Distance(crossHairRect.position, targetScreenPos);
+            if (dist <= viperFireThreshold) { owner.TryFire(); SimulateViperFire(); }
+            else owner.TryFire();
+        }
+        else
+        {
+            owner.TryFire();
         }
     }
 
