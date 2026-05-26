@@ -9,7 +9,7 @@ public class MiniGunCrossHair : CrossHairBase
     [SerializeField] private TextMeshProUGUI bulletText;
     protected override void OnSwitchCharacter(int index)
     {
-        isActive = (index == 1);
+        isActive = (CM.CurrentCharacter == owner);
         if(!isActive)
         {
             isDragging = false;

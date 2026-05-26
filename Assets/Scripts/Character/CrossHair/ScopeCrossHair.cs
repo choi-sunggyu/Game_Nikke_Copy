@@ -61,7 +61,7 @@ public class ScopeCrossHair : CrossHairBase
 
     protected override void OnSwitchCharacter(int index)
     {
-        isActive = (index == 2);
+        isActive = (CM.CurrentCharacter == owner);
         crossHairImage.SetActive(isActive);
         if(bulletCountText != null)
         {

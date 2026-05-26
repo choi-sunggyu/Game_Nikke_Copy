@@ -16,6 +16,7 @@ public class CharacterManager : MonoBehaviour
     public List<CharacterBase> Characters => characters;
     public CharacterBase CurrentCharacter => currentCharacter;
     public static event Action OnGameOver;
+    public static event Action<int> OnCharacterSwitchConfirmed;
 
     void Awake()
     {
@@ -135,6 +136,22 @@ public class CharacterManager : MonoBehaviour
         
         yield return new WaitForSeconds(delayTime);
         changing = false;
+    }
+
+    private void HandleSwitchCharacter(int index)
+    {
+        // 사망 체크 등 검증...
+        if (!characters[index].IsAlive)
+        {
+            Debug.Log("요청한 캐릭터 사망");
+            return;
+        }
+
+        // 검증 통과 후 CurrentCharacter 업데이트
+        currentCharacter = characters[index];
+
+        // ← 검증 완료 후에만 발화
+        OnCharacterSwitchConfirmed?.Invoke(index);
     }
 
     private void HandleCharacterDied(CharacterBase dead)

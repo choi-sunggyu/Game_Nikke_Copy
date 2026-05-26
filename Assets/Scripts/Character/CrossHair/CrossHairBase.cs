@@ -15,6 +15,8 @@ public abstract class CrossHairBase : MonoBehaviour
     // ★ 이 한 줄로 PC/모바일 조작 전환 (true = PC, false = 모바일)
     [Header("Platform Mode")]
     [SerializeField] protected static bool isPCMode = true;
+    [Header("Owner")]
+    [SerializeField] protected CharacterBase owner;
 
     // CharacterManager 캐싱 (매번 Find 방지)
     private CharacterManager cachedCM;
@@ -57,6 +59,7 @@ public abstract class CrossHairBase : MonoBehaviour
         InputManager.OnFireRelease += OnFireRelease;
         InputManager.OnSwitchCharacter += OnSwitchCharacter;
         CharacterBase.OnBulletCountChanged += UpdateBulletCount;
+        CharacterManager.OnCharacterSwitchConfirmed += OnSwitchCharacter;
     }
 
     protected virtual void OnDisable()
@@ -66,6 +69,7 @@ public abstract class CrossHairBase : MonoBehaviour
         InputManager.OnFireRelease -= OnFireRelease;
         InputManager.OnSwitchCharacter -= OnSwitchCharacter;
         CharacterBase.OnBulletCountChanged -= UpdateBulletCount;
+        CharacterManager.OnCharacterSwitchConfirmed -= OnSwitchCharacter;
     }
 
     protected virtual void Update()
