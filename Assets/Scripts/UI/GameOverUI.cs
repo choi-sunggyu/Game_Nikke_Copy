@@ -48,13 +48,15 @@ public class GameOverUI : MonoBehaviour
         stageClearRoot.SetActive(true);
     }
 
-    private void OnClickRestart()
+    public void OnClickRestart()
     {
+        Debug.Log("Restart button clicked. Reloading current scene.");
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    private void OnClickMainMenu()
+    public void OnClickMainMenu()
     {
+        Debug.Log("Main Menu button clicked. Loading MainMenuScene.");
         SceneManager.LoadScene("MainMenuScene");
     }
 }

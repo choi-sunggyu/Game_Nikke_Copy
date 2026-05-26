@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class InputManager : MonoBehaviour
 {
@@ -19,6 +20,32 @@ public class InputManager : MonoBehaviour
     {
         characters = new List<CharacterBase>();
     }
+
+    void OnEnable()
+    {
+        // 게임 오버 및 클리어 이벤트를 구독하여 스스로를 끄게 만듭니다.
+        CharacterManager.OnGameOver += DisableInput;
+        WaveManager.OnStageClear += DisableInput;
+    }
+
+    void OnDisable()
+    {
+        CharacterManager.OnGameOver -= DisableInput;
+        WaveManager.OnStageClear -= DisableInput;
+    }
+
+    private void DisableInput()
+    {
+        // 컴포넌트를 비활성화하여 Update() 실행을 막음
+        this.enabled = false; 
+        
+        // 사격 중이었다면 떼진 것으로 안전하게 처리
+        OnIdle?.Invoke();
+        OnFireRelease?.Invoke();
+        wasFiring = false;
+        
+        Debug.Log("InputManager disabled due to game end.");
+    }
     
     public static void InvokeSwitchCharacter(int index)
     {
@@ -27,6 +54,8 @@ public class InputManager : MonoBehaviour
 
     void Update()
     {
+        //bool isMouseOverUI = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
+
         bool isFiring = Input.GetMouseButton(0);
 
         // 강제 리로딩 중이라면 클릭 했을 때 OnFire, OnFirePress, OnFireRelease 이벤트를 차단해야 엄폐로 보고 sheild가 깎임
