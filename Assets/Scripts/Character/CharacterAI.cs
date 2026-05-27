@@ -200,14 +200,17 @@ public class CharacterAI : MonoBehaviour
     private void HandleManualOverrideInput()
     {
         Vector2 mousePos = Input.mousePosition;
-        
+
         if (crossHairRect != null)
-            crossHairRect.position = mousePos; 
+            crossHairRect.position = mousePos;
 
         Vector3 worldTarget = owner.GetWorldTargetFromScreenPos(mousePos);
-        lastFireScreenPos = mousePos; 
+        lastFireScreenPos = mousePos;
 
-        FireWeapon(worldTarget, mousePos);
+        // Viper는 자체 입력 이벤트(HandleFirePress/HandleFireRelease)로 차지-발사를 처리하므로
+        // CharacterAI에서 직접 발사 호출 시 차지 없이 즉발 사격되는 문제를 방지
+        if (!isViper)
+            FireWeapon(worldTarget, mousePos);
     }
 
     private void UpdateAIShot()

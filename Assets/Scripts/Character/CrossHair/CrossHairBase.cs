@@ -43,6 +43,19 @@ public abstract class CrossHairBase : MonoBehaviour
     protected virtual void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
+
+        // Inspector에서 owner가 미할당된 경우, CrossHair를 참조하는 CharacterBase를 자동 탐색
+        if (owner == null)
+        {
+            foreach (var c in FindObjectsByType<CharacterBase>(FindObjectsSortMode.None))
+            {
+                if (c.CrossHair == this)
+                {
+                    owner = c;
+                    break;
+                }
+            }
+        }
     }
 
     protected virtual void Start()
