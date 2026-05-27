@@ -32,7 +32,7 @@ public class BulletBase : MonoBehaviour, IPoolable
         burstChargeAmount = burstCharge;
 
         // 예시: 자동으로 Enemy, Player, Background 레이어를 체크하도록 설정 (프로젝트 레이어 이름에 맞게 수정)
-        collisionMask = LayerMask.GetMask("Enemy", "Player");
+        collisionMask = LayerMask.GetMask("Enemy", "Player", "Object");
     }
 
     void Update()

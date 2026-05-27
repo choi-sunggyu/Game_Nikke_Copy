@@ -144,13 +144,42 @@ public class ScopeCrossHair : CrossHairBase
 
     protected override void Update()
     {
+        // AutoScopeMode 전용 스코프 표시 처리
+        if (CharacterAI.IsAutoScopeMode && isActive && !isReloading)
+        {
+            // 스코프가 꺼져 있으면 켜기
+            if (!scopeOverlay.activeSelf)
+            {
+                crossHairImage.SetActive(false);
+                scopeOverlay.SetActive(true);
+                canvasGroup.alpha = 1f;
+                bulletCountRect.anchoredPosition = bulletCountAimPos;
+            }
+            // 스코프가 crosshair 위치를 따라가도록
+            scopeRectTransform.position = rectTransform.position;
+        }
+        else if (!CharacterAI.IsAutoScopeMode && isActive && !isDragging)
+        {
+            // AutoScopeMode 해제 시 스코프 닫기
+            if (scopeOverlay.activeSelf && canvasGroup.alpha > 0f)
+            {
+                HideScope();
+                crossHairImage.SetActive(true);
+                bulletCountRect.anchoredPosition = bulletCountIdlePos;
+            }
+        }
+
         if(isPCMode && isActive)
         {
             // PC: 클릭 여부 상관없이 항상 마우스를 따라다님
-            Vector3 newPos = Input.mousePosition;
-            newPos.x = Mathf.Clamp(newPos.x, 0f, Screen.width);
-            newPos.y = Mathf.Clamp(newPos.y, 0f, Screen.height);
-            rectTransform.position = newPos;
+            // AutoScopeMode 중에는 CharacterAI가 위치를 제어하므로 마우스 추적 비활성
+            if (!CharacterAI.IsAutoScopeMode)
+            {
+                Vector3 newPos = Input.mousePosition;
+                newPos.x = Mathf.Clamp(newPos.x, 0f, Screen.width);
+                newPos.y = Mathf.Clamp(newPos.y, 0f, Screen.height);
+                rectTransform.position = newPos;
+            }
 
             // 클릭 중이면 스코프도 따라감
             if(isDragging)
