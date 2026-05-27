@@ -227,6 +227,10 @@ public class CharacterAI : MonoBehaviour
         Vector2 targetScreenPos = Camera.main.WorldToScreenPoint(currentTarget.transform.position);
         MoveAimToward(targetScreenPos); // 크로스헤어를 적 위치로 자동 이동
 
+        // AI 크로스헤어에도 에임 어시스트 적용
+        Vector2 assisted = owner.CrossHair.ApplyAimAssist(crossHairRect.position , true);
+        crossHairRect.position = assisted;
+
         Vector3 worldTarget = owner.GetWorldTargetFromScreenPos(crossHairRect.position);
         lastFireScreenPos = crossHairRect.position; 
 

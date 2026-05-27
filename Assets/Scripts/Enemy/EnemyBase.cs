@@ -14,6 +14,7 @@ public abstract class EnemyBase : MonoBehaviour
     [SerializeField] protected float attackDelay;
     [SerializeField] protected int currentLayer;
     [SerializeField] protected ObjectPool bulletPool;
+    [SerializeField] private Transform muzzlePoint;
     private EnemyState currentState { get; set; }
     private SpriteRenderer spriteRenderer;
     protected ITargetStrategy targetStrategy;
@@ -33,6 +34,7 @@ public abstract class EnemyBase : MonoBehaviour
     public Vector3 TargetPosition => targetPosition;
     public bool IsSpawning => isSpawning;
     public bool IsStunned => isStunned;
+    public Transform MuzzlePoint => muzzlePoint;
     public event Action OnDied;
 
     // abstract 메서드

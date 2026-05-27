@@ -15,8 +15,16 @@ public abstract class CrossHairBase : MonoBehaviour
     // ★ 이 한 줄로 PC/모바일 조작 전환 (true = PC, false = 모바일)
     [Header("Platform Mode")]
     [SerializeField] protected static bool isPCMode = true;
+
     [Header("Owner")]
     [SerializeField] protected CharacterBase owner;
+
+    [Header("에임 어시스트")]
+    [SerializeField] protected float aimAssistOuterRadius = 150f; // 흡착 시작 반경
+    [SerializeField] protected float aimAssistInnerRadius = 40f;  // 완전 고정 반경
+    [SerializeField] protected float aimAssistStrength = 8f;      // Lerp 강도
+
+    private WaveManager cachedWM;
 
     // CharacterManager 캐싱 (매번 Find 방지)
     private CharacterManager cachedCM;
@@ -99,7 +107,11 @@ public abstract class CrossHairBase : MonoBehaviour
             Vector3 newPosition = Input.mousePosition;
             newPosition.x = Mathf.Clamp(newPosition.x, 0f, Screen.width);
             newPosition.y = Mathf.Clamp(newPosition.y, 0f, Screen.height);
-            rectTransform.position = newPosition;
+
+            // 마우스 위치 계산 직후 에임 어시스트 적용
+            bool isClicking = Input.GetMouseButton(0);
+            Vector2 assisted = ApplyAimAssist(newPosition, isClicking);
+            rectTransform.position = assisted;
         }
         else if(isDragging)
         {
@@ -111,6 +123,60 @@ public abstract class CrossHairBase : MonoBehaviour
             rectTransform.position = newPosition;
             currentPosition = Input.mousePosition;
         }
+    }
+
+    
+    protected WaveManager WM
+    {
+        get
+        {
+            if (cachedWM == null)
+                cachedWM = FindAnyObjectByType<WaveManager>();
+            return cachedWM;
+        }
+    }
+
+    public Vector2 ApplyAimAssist(Vector2 screenPos, bool isClicking)
+    {
+        EnemyBase closest = GetClosestEnemyToScreenPos(screenPos);
+        if (closest == null || closest.MuzzlePoint == null) return screenPos;
+
+        // transform 대신 MuzzlePoint 기준
+        Vector2 muzzleScreenPos = Camera.main.WorldToScreenPoint(closest.MuzzlePoint.position);
+        float dist = Vector2.Distance(screenPos, muzzleScreenPos);
+
+        if (dist < aimAssistInnerRadius)
+            return muzzleScreenPos; // 클릭 중이어도 innerRadius 내면 고정 유지
+
+        if (!isClicking && dist < aimAssistOuterRadius)
+        {
+            float t = 1f - (dist - aimAssistInnerRadius) / (aimAssistOuterRadius - aimAssistInnerRadius);
+            return Vector2.Lerp(screenPos, muzzleScreenPos, t * aimAssistStrength * Time.deltaTime);
+        }
+
+        return screenPos;
+    }
+
+    private EnemyBase GetClosestEnemyToScreenPos(Vector2 screenPos)
+    {
+        var enemies = WM.ActiveEnemies;
+        if (enemies == null || enemies.Count == 0) return null;
+
+        EnemyBase closest = null;
+        float minDist = float.MaxValue;
+
+        foreach (var enemy in enemies)
+        {
+            if (!enemy.IsAlive || enemy.MuzzlePoint == null) continue;
+            Vector2 muzzleScreen = Camera.main.WorldToScreenPoint(enemy.MuzzlePoint.position);
+            float dist = Vector2.Distance(screenPos, muzzleScreen);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                closest = enemy;
+            }
+        }
+        return closest;
     }
 
     protected virtual void OnFirePress() {

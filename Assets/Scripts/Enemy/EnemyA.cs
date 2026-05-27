@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class EnemyA : EnemyBase
 {
-    [SerializeField] private Transform muzzlePoint;
 
     [Header("Spawn Animation")]
     [SerializeField] private float fallDuration = 0.8f;
@@ -145,7 +144,7 @@ public class EnemyA : EnemyBase
 
             // 반지름이 warningRadius → 0으로 줄어듦
             float currentRadius = Mathf.Lerp(warningRadius, 0f, t);
-            DrawCircle(warningCircle, muzzlePoint.position, currentRadius);
+            DrawCircle(warningCircle, MuzzlePoint.position, currentRadius);
 
             // 색상 흰색 → 빨강으로 변화
             Color c = Color.Lerp(Color.white, Color.red, t);
@@ -174,7 +173,7 @@ public class EnemyA : EnemyBase
         {
             elapsed += Time.deltaTime;
 
-            laserLine.SetPosition(0, muzzlePoint.position);
+            laserLine.SetPosition(0, MuzzlePoint.position);
             laserLine.SetPosition(1, laserEnd);
 
             yield return null;

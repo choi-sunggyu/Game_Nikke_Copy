@@ -34,6 +34,7 @@ public abstract class CharacterBase : MonoBehaviour
     [SerializeField] protected int burstNumber; // Ghost=1, Titan=2, Viper=3
     [SerializeField] protected float burstCutsceneDuration = 0f; // 버스트 컷씬 지속 시간 (초) - 이 시간 동안 플레이어 조작 잠금, AI는 TryFireAtTarget로 공격
     [SerializeField] private Sprite characterPortrait;
+    [SerializeField] private LayerMask collisionMask;
     private float nextFireTime;
     private CharacterState currentState { get; set; }
     private SpriteRenderer spriteRenderer;
@@ -56,7 +57,7 @@ public abstract class CharacterBase : MonoBehaviour
     protected void SetNextFireTime(float time) => nextFireTime = time;
     public bool IsActiveCharacter { get; set; }
     public Transform MuzzlePoint => muzzlePoint;
-
+    public LayerMask EnemyLayer => enemyLayer;    
 
     // sender: 이벤트를 발생시킨 캐릭터, count: 탄 수
     public static event Action<CharacterBase, int> OnBulletCountChanged;
@@ -221,6 +222,7 @@ public abstract class CharacterBase : MonoBehaviour
 
         BulletBase bulletBase = bullet.GetComponent<BulletBase>();
         bulletBase.Init(attackDamage, bulletSpeed, fireDir, chargingBurstGauge);
+        Debug.Log($"[BulletBase] collisionMask value: {collisionMask.value}");
     }
 
     protected void StopReload()

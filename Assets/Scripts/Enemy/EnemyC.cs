@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class EnemyC : EnemyBase
 {
-    [SerializeField] private Transform muzzlePoint;
-
     private float attackDelaySelf = 1.5f;
     private float nextAttackTime;
     private float nextJumpTime;
@@ -122,11 +120,11 @@ public class EnemyC : EnemyBase
         CharacterBase target = GetTarget();
         if (target == null || !target.IsAlive) return;
 
-        GameObject bullet = bulletPool.Get(muzzlePoint.position, Quaternion.identity);
+        GameObject bullet = bulletPool.Get(MuzzlePoint.position, Quaternion.identity);
         if (bullet == null) return;
 
         EnemyBulletBase bulletBase = bullet.GetComponent<EnemyBulletBase>();
-        Vector3 direction = (target.transform.position - muzzlePoint.position).normalized;
+        Vector3 direction = (target.transform.position - MuzzlePoint.position).normalized;
         bulletBase.Init(attackDamage, 15f, direction);
     }
 

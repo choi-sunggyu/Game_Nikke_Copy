@@ -2,15 +2,17 @@ using UnityEngine;
 
 public class BulletBase : MonoBehaviour, IPoolable
 {
-    // 변수
-    private ObjectPool ownerPool;   // 이 총알을 관리하는 풀
-    private float damage;           // 데미지
-    private float speed;     // 이동 속도
-    private Vector3 direction;      // 이동 방향
-    private float lifetime = 3f;    // 총알 수명 (초)
-    private float spawnTime;        // 총알이 생성된 시간
+    private ObjectPool ownerPool;   
+    private float damage;           
+    private float speed;     
+    private Vector3 direction;      
+    private float lifetime = 3f;    
+    private float spawnTime;        
     private float burstChargeAmount;
     private bool isInitialized = false;
+
+    // 인스펙터나 코드로 적/아군/배경 레이어를 구분할 수 있도록 설정
+    [SerializeField] private LayerMask collisionMask; 
 
     void OnEnable()
     {
@@ -18,32 +20,49 @@ public class BulletBase : MonoBehaviour, IPoolable
         ownerPool = GetComponent<PoolObject>().OwnerPool;
     }
 
-    public void OnGet()
-    {
-        isInitialized = false;
-    }
-
-    public void OnReturn()
-    {
-        isInitialized = false;
-    }
+    public void OnGet() { isInitialized = false; }
+    public void OnReturn() { isInitialized = false; }
 
     public void Init(float damage, float speed, Vector3 direction, float burstCharge)
     {
         isInitialized = true;
         this.damage = damage;
         this.speed = speed;
-        this.direction = direction.normalized; // 방향 벡터를 정규화하여 이동 속도에 영향을 주지 않도록 함
+        this.direction = direction.normalized; 
         burstChargeAmount = burstCharge;
+
+        // 예시: 자동으로 Enemy, Player, Background 레이어를 체크하도록 설정 (프로젝트 레이어 이름에 맞게 수정)
+        collisionMask = LayerMask.GetMask("Enemy", "Player");
     }
 
-    void OnTriggerEnter2D(Collider2D other)
+    void Update()
     {
-        //Debug.Log($"[BulletBase] 충돌 감지: {other.gameObject.name}");
         if (!isInitialized) return;
 
-        //Debug.Log($"[BulletBase] 충돌: {other.gameObject.name} / Layer: {other.gameObject.layer}");
+        float moveDistance = speed * Time.deltaTime;
 
+        // 이번 프레임에 이동할 거리만큼 미리 3D 레이를 쏘아 충돌을 예측합니다. (속도 800f 대응)
+        if (Physics.Raycast(transform.position, direction, out RaycastHit hit, moveDistance, collisionMask))
+        {
+            // 충돌한 지점으로 총알을 일단 이동시키고 처리
+            transform.position = hit.point;
+            HandleCollision(hit.collider);
+            return;
+        }
+
+        // 충돌이 없으면 정상 이동
+        transform.Translate(direction * moveDistance, Space.World);
+    
+        // 수명 초과 시 반환
+        if(Time.time - spawnTime > lifetime)
+        {
+            ownerPool.Return(gameObject);
+        }
+    }
+
+    // 기존 OnTriggerEnter2D 로직을 대체하는 충돌 처리 함수
+    private void HandleCollision(Collider other)
+    {
         if (other.TryGetComponent<EnemyBase>(out EnemyBase enemy))
         {
             enemy.TakeDamage(damage);
@@ -60,17 +79,6 @@ public class BulletBase : MonoBehaviour, IPoolable
         }
 
         if (other.CompareTag("Background"))
-        {
-            ownerPool.Return(gameObject);
-        }
-    }
-
-    void Update()
-    {
-        transform.Translate(direction * speed * Time.deltaTime, Space.World);
-    
-        // 수명 초과 시 반환
-        if(Time.time - spawnTime > lifetime)
         {
             ownerPool.Return(gameObject);
         }

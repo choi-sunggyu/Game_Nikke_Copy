@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class EnemyB : EnemyBase
 {
-    [SerializeField] private Transform muzzlePoint;
 
     [Header("Spawn Animation")]
     [SerializeField] private float slideDuration = 1.0f; // 슬라이드 등장 소요 시간
@@ -158,11 +157,11 @@ public class EnemyB : EnemyBase
         CharacterBase target = GetTarget();
         if (target == null || !target.IsAlive) return;
 
-        GameObject bullet = bulletPool.Get(muzzlePoint.position, Quaternion.identity);
+        GameObject bullet = bulletPool.Get(MuzzlePoint.position, Quaternion.identity);
         if (bullet == null) return;
 
         EnemyBulletBase bulletBase = bullet.GetComponent<EnemyBulletBase>();
-        Vector3 direction = (target.transform.position - muzzlePoint.position).normalized;
+        Vector3 direction = (target.transform.position - MuzzlePoint.position).normalized;
         bulletBase.Init(attackDamage, 15f, direction);
     }
 

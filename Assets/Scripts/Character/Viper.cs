@@ -138,21 +138,48 @@ public class Viper : CharacterBase
         }
         else
         {
+            // 1. 크로스헤어 위치에서 카메라 3D Ray 생성
             Ray camRay = Camera.main.ScreenPointToRay(crossHair.CrossHairPosition);
+            
+            // 디버깅용 빨간선 (카메라 조준선)
+            Debug.DrawRay(camRay.origin, camRay.direction * 100f, Color.red, 2f);
 
-            worldTarget = Physics.Raycast(camRay, out RaycastHit hit, 1000f)
-                ? hit.point
-                : camRay.GetPoint(1000f);
+            // 2. 3D 콜라이더(Box Collider)를 부착한 적을 감지
+            if (Physics.Raycast(camRay, out RaycastHit camHit, 1000f, EnemyLayer))
+            {
+                // 적을 정확히 맞췄다면 그 충돌 지점을 타겟으로 설정
+                worldTarget = camHit.point;
+            }
+            else
+            {
+                // 3. [플랜 B] 적을 비껴쳐서 허공을 쐈을 때
+                // 허공을 쏴도 적들이 배치된 깊이(Z축) 평면을 조준하게 만들어 시차를 방지합니다.
+                // (예: 적들이 주로 Z = 20 평면에 배치되어 있다면 20f 입력)
+                float defaultEnemyZ = 20f; 
+                Plane virtualPlane = new Plane(Vector3.back, new Vector3(0, 0, defaultEnemyZ));
+                
+                if (virtualPlane.Raycast(camRay, out float dist))
+                {
+                    worldTarget = camRay.GetPoint(dist);
+                }
+                else
+                {
+                    worldTarget = camRay.GetPoint(1000f);
+                }
+            }
         }
 
-        Vector3 fireDir = (worldTarget - muzzlePoint.position).normalized;
+        // 4. 총구에서 타겟을 향하는 방향 계산 및 총알 발사
+        Vector3 finalDir = (worldTarget - muzzlePoint.position).normalized;
+        
+        // 디버깅용 초록선 (실제 총알 궤적)
+        Debug.DrawLine(muzzlePoint.position, muzzlePoint.position + finalDir * 50f, Color.green, 2f);
+
         GameObject bullet = bulletPool.Get(muzzlePoint.position, Quaternion.identity);
         if (bullet == null) return;
 
-        // 차지 100% = 150%, 0% = 0% (선형 보간)
         float chargedDamage = attackDamage * attackDamageMultiplier * Mathf.Lerp(0f, 1.5f, chargeRatio);
-
-        bullet.GetComponent<BulletBase>()?.Init(chargedDamage, bulletSpeed, fireDir, chargingBurstGauge);
+        bullet.GetComponent<BulletBase>()?.Init(chargedDamage, bulletSpeed, finalDir, chargingBurstGauge);
     }
 
     protected override void OnReloadComplete()
