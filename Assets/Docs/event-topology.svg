@@ -1,0 +1,301 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 1200" font-family="'Segoe UI', Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto">
+      <path d="M0,0 L0,8 L10,4 z" fill="#94a3b8"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto">
+      <path d="M0,0 L0,8 L10,4 z" fill="#60a5fa"/>
+    </marker>
+    <marker id="arrow-purple" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto">
+      <path d="M0,0 L0,8 L10,4 z" fill="#c084fc"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto">
+      <path d="M0,0 L0,8 L10,4 z" fill="#fb923c"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto">
+      <path d="M0,0 L0,8 L10,4 z" fill="#4ade80"/>
+    </marker>
+  </defs>
+
+  <!-- 배경 -->
+  <rect width="1800" height="1200" fill="#0f172a"/>
+
+  <!-- 제목 -->
+  <text x="900" y="45" text-anchor="middle" fill="#f1f5f9" font-size="32" font-weight="700">
+    Project BUSTER — Event Topology
+  </text>
+  <text x="900" y="78" text-anchor="middle" fill="#94a3b8" font-size="16">
+    Publisher → Subscriber (정적 C# 이벤트 기반 의존성 역전)
+  </text>
+
+  <!-- 컬럼 레이블 -->
+  <text x="180" y="130" text-anchor="middle" fill="#60a5fa" font-size="18" font-weight="600">PUBLISHERS</text>
+  <text x="700" y="130" text-anchor="middle" fill="#c084fc" font-size="18" font-weight="600">CONTROLLERS</text>
+  <text x="1100" y="130" text-anchor="middle" fill="#fb923c" font-size="18" font-weight="600">CHARACTERS</text>
+  <text x="1550" y="130" text-anchor="middle" fill="#4ade80" font-size="18" font-weight="600">UI LAYER</text>
+
+  <!-- ════════════════ PUBLISHERS (좌측) ════════════════ -->
+
+  <!-- InputManager -->
+  <g>
+    <rect x="40" y="160" width="280" height="140" rx="10" fill="#1e3a8a" stroke="#60a5fa" stroke-width="2"/>
+    <text x="180" y="190" text-anchor="middle" fill="#fff" font-size="18" font-weight="700">InputManager</text>
+    <line x1="60" y1="200" x2="300" y2="200" stroke="#60a5fa" stroke-width="1"/>
+    <text x="60" y="222" fill="#e0e7ff" font-size="12">• OnFire / OnIdle</text>
+    <text x="60" y="242" fill="#e0e7ff" font-size="12">• OnFirePress / OnFireRelease</text>
+    <text x="60" y="262" fill="#e0e7ff" font-size="12">• OnSwitchCharacter (int)</text>
+    <text x="60" y="282" fill="#e0e7ff" font-size="12">• OnCoverToggle</text>
+  </g>
+
+  <!-- CharacterBase -->
+  <g>
+    <rect x="40" y="330" width="280" height="160" rx="10" fill="#1e3a8a" stroke="#60a5fa" stroke-width="2"/>
+    <text x="180" y="360" text-anchor="middle" fill="#fff" font-size="18" font-weight="700">CharacterBase</text>
+    <text x="180" y="378" text-anchor="middle" fill="#bfdbfe" font-size="11">(abstract base)</text>
+    <line x1="60" y1="388" x2="300" y2="388" stroke="#60a5fa" stroke-width="1"/>
+    <text x="60" y="408" fill="#e0e7ff" font-size="12">• OnBulletCountChanged</text>
+    <text x="60" y="426" fill="#e0e7ff" font-size="12">• OnStatChanged</text>
+    <text x="60" y="444" fill="#e0e7ff" font-size="12">• OnReloadProgress (float)</text>
+    <text x="60" y="462" fill="#e0e7ff" font-size="12">• OnForcedReloadStart / End</text>
+    <text x="60" y="480" fill="#e0e7ff" font-size="12">• OnCharacterDied</text>
+  </g>
+
+  <!-- BurstGaugeManager -->
+  <g>
+    <rect x="40" y="520" width="280" height="180" rx="10" fill="#1e3a8a" stroke="#60a5fa" stroke-width="2"/>
+    <text x="180" y="550" text-anchor="middle" fill="#fff" font-size="18" font-weight="700">BurstGaugeManager</text>
+    <text x="180" y="568" text-anchor="middle" fill="#bfdbfe" font-size="11">(singleton)</text>
+    <line x1="60" y1="578" x2="300" y2="578" stroke="#60a5fa" stroke-width="1"/>
+    <text x="60" y="598" fill="#e0e7ff" font-size="12">• OnGaugeChanged (float)</text>
+    <text x="60" y="616" fill="#e0e7ff" font-size="12">• OnPhaseChanged (BurstPhase)</text>
+    <text x="60" y="634" fill="#e0e7ff" font-size="12">• OnBurstReady (List)</text>
+    <text x="60" y="652" fill="#e0e7ff" font-size="12">• OnBurstConsumed</text>
+    <text x="60" y="670" fill="#e0e7ff" font-size="12">• OnAutoModeChanged (bool)</text>
+    <text x="60" y="688" fill="#e0e7ff" font-size="12">• OnFocusFireStart / End</text>
+  </g>
+
+  <!-- CharacterAI -->
+  <g>
+    <rect x="40" y="730" width="280" height="80" rx="10" fill="#1e3a8a" stroke="#60a5fa" stroke-width="2"/>
+    <text x="180" y="760" text-anchor="middle" fill="#fff" font-size="18" font-weight="700">CharacterAI</text>
+    <line x1="60" y1="770" x2="300" y2="770" stroke="#60a5fa" stroke-width="1"/>
+    <text x="60" y="792" fill="#e0e7ff" font-size="12">• OnAutoScopeModeChanged (bool)</text>
+  </g>
+
+  <!-- WaveManager + BattleIntroManager -->
+  <g>
+    <rect x="40" y="840" width="280" height="110" rx="10" fill="#1e3a8a" stroke="#60a5fa" stroke-width="2"/>
+    <text x="180" y="870" text-anchor="middle" fill="#fff" font-size="18" font-weight="700">WaveManager</text>
+    <line x1="60" y1="880" x2="300" y2="880" stroke="#60a5fa" stroke-width="1"/>
+    <text x="60" y="902" fill="#e0e7ff" font-size="12">• OnStageClear</text>
+    <text x="60" y="930" fill="#bfdbfe" font-size="13" font-weight="600">BattleIntroManager</text>
+    <text x="60" y="948" fill="#e0e7ff" font-size="12">• OnBattleIntroComplete</text>
+  </g>
+
+  <!-- ════════════════ CONTROLLERS (중앙) ════════════════ -->
+
+  <!-- CharacterManager -->
+  <g>
+    <rect x="560" y="220" width="280" height="160" rx="10" fill="#5b21b6" stroke="#c084fc" stroke-width="2"/>
+    <text x="700" y="252" text-anchor="middle" fill="#fff" font-size="18" font-weight="700">CharacterManager</text>
+    <line x1="580" y1="262" x2="820" y2="262" stroke="#c084fc" stroke-width="1"/>
+    <text x="580" y="282" fill="#ede9fe" font-size="11">구독: OnFire/OnIdle/OnSwitch/</text>
+    <text x="580" y="298" fill="#ede9fe" font-size="11">       OnCoverToggle/OnCharacterDied</text>
+    <text x="580" y="318" fill="#ede9fe" font-size="11">처리: 현재 캐릭터로 입력 위임</text>
+    <text x="580" y="334" fill="#ede9fe" font-size="11">       사망 시 자동 전환</text>
+    <line x1="580" y1="346" x2="820" y2="346" stroke="#c084fc" stroke-width="1"/>
+    <text x="580" y="366" fill="#fde68a" font-size="11">발행: OnGameOver</text>
+  </g>
+
+  <!-- CameraController -->
+  <g>
+    <rect x="560" y="420" width="280" height="90" rx="10" fill="#5b21b6" stroke="#c084fc" stroke-width="2"/>
+    <text x="700" y="452" text-anchor="middle" fill="#fff" font-size="18" font-weight="700">CameraController</text>
+    <line x1="580" y1="462" x2="820" y2="462" stroke="#c084fc" stroke-width="1"/>
+    <text x="580" y="482" fill="#ede9fe" font-size="11">구독: OnSwitchCharacter</text>
+    <text x="580" y="498" fill="#ede9fe" font-size="11">처리: 해당 캐릭터로 Lerp 이동</text>
+  </g>
+
+  <!-- ════════════════ CHARACTERS (중앙 오른쪽) ════════════════ -->
+
+  <!-- Ghost -->
+  <g>
+    <rect x="970" y="280" width="260" height="90" rx="10" fill="#7c2d12" stroke="#fb923c" stroke-width="2"/>
+    <text x="1100" y="312" text-anchor="middle" fill="#fff" font-size="18" font-weight="700">Ghost (1버스트)</text>
+    <line x1="990" y1="322" x2="1210" y2="322" stroke="#fb923c" stroke-width="1"/>
+    <text x="990" y="342" fill="#fed7aa" font-size="11">AR · 120발 · 1.0s 리로드</text>
+    <text x="990" y="358" fill="#fed7aa" font-size="11">버스트: 적 전체 스턴 + 팀 힐</text>
+  </g>
+
+  <!-- Titan -->
+  <g>
+    <rect x="970" y="400" width="260" height="100" rx="10" fill="#7c2d12" stroke="#fb923c" stroke-width="2"/>
+    <text x="1100" y="432" text-anchor="middle" fill="#fff" font-size="18" font-weight="700">Titan (2버스트)</text>
+    <line x1="990" y1="442" x2="1210" y2="442" stroke="#fb923c" stroke-width="1"/>
+    <text x="990" y="462" fill="#fed7aa" font-size="11">MG · 400발 · 스핀업</text>
+    <text x="990" y="478" fill="#fed7aa" font-size="11">구독: OnFireRelease (스핀업 리셋)</text>
+    <text x="990" y="494" fill="#fed7aa" font-size="11">버스트: 팀 공격력 1.2배 + 별 공격</text>
+  </g>
+
+  <!-- Viper -->
+  <g>
+    <rect x="970" y="530" width="260" height="110" rx="10" fill="#7c2d12" stroke="#fb923c" stroke-width="2"/>
+    <text x="1100" y="562" text-anchor="middle" fill="#fff" font-size="18" font-weight="700">Viper (3버스트)</text>
+    <line x1="990" y1="572" x2="1210" y2="572" stroke="#fb923c" stroke-width="1"/>
+    <text x="990" y="592" fill="#fed7aa" font-size="11">차지샷 · 5발 · 1.13s 차지</text>
+    <text x="990" y="608" fill="#fed7aa" font-size="11">구독: OnFirePress (차지 시작)</text>
+    <text x="990" y="624" fill="#fed7aa" font-size="11">       OnFireRelease (발사)</text>
+  </g>
+
+  <!-- ════════════════ UI LAYER (우측) ════════════════ -->
+
+  <g>
+    <rect x="1420" y="160" width="340" height="60" rx="8" fill="#14532d" stroke="#4ade80" stroke-width="2"/>
+    <text x="1590" y="185" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">BottomUI</text>
+    <text x="1590" y="205" text-anchor="middle" fill="#bbf7d0" font-size="11">탄창 표시 — OnBulletCountChanged</text>
+  </g>
+
+  <g>
+    <rect x="1420" y="240" width="340" height="60" rx="8" fill="#14532d" stroke="#4ade80" stroke-width="2"/>
+    <text x="1590" y="265" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">HPShieldBarUI</text>
+    <text x="1590" y="285" text-anchor="middle" fill="#bbf7d0" font-size="11">HP/쉴드 바 — OnStatChanged</text>
+  </g>
+
+  <g>
+    <rect x="1420" y="320" width="340" height="60" rx="8" fill="#14532d" stroke="#4ade80" stroke-width="2"/>
+    <text x="1590" y="345" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">ReloadProgressBarUI</text>
+    <text x="1590" y="365" text-anchor="middle" fill="#bbf7d0" font-size="11">리로드 진행 — OnReloadProgress</text>
+  </g>
+
+  <g>
+    <rect x="1420" y="400" width="340" height="60" rx="8" fill="#14532d" stroke="#4ade80" stroke-width="2"/>
+    <text x="1590" y="425" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">BurstGaugeUI</text>
+    <text x="1590" y="445" text-anchor="middle" fill="#bbf7d0" font-size="11">게이지/페이즈 — OnGauge/PhaseChanged</text>
+  </g>
+
+  <g>
+    <rect x="1420" y="480" width="340" height="60" rx="8" fill="#14532d" stroke="#4ade80" stroke-width="2"/>
+    <text x="1590" y="505" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">BurstSlotUI</text>
+    <text x="1590" y="525" text-anchor="middle" fill="#bbf7d0" font-size="11">슬롯 IN/OUT — OnBurstReady/Consumed</text>
+  </g>
+
+  <g>
+    <rect x="1420" y="560" width="340" height="60" rx="8" fill="#14532d" stroke="#4ade80" stroke-width="2"/>
+    <text x="1590" y="585" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">AutoBurstButtonUI</text>
+    <text x="1590" y="605" text-anchor="middle" fill="#bbf7d0" font-size="11">오토 토글 — OnAutoModeChanged</text>
+  </g>
+
+  <g>
+    <rect x="1420" y="640" width="340" height="60" rx="8" fill="#14532d" stroke="#4ade80" stroke-width="2"/>
+    <text x="1590" y="665" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">AutoScopeButtonUI</text>
+    <text x="1590" y="685" text-anchor="middle" fill="#bbf7d0" font-size="11">자동조준 — OnAutoScopeModeChanged</text>
+  </g>
+
+  <g>
+    <rect x="1420" y="720" width="340" height="60" rx="8" fill="#14532d" stroke="#4ade80" stroke-width="2"/>
+    <text x="1590" y="745" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">GameOverUI</text>
+    <text x="1590" y="765" text-anchor="middle" fill="#bbf7d0" font-size="11">게임 오버 — OnGameOver</text>
+  </g>
+
+  <!-- ════════════════ 화살표 — InputManager → 구독자 ════════════════ -->
+
+  <!-- InputManager → CharacterManager (OnFire/OnIdle/OnSwitch/OnCoverToggle) -->
+  <path d="M 320 230 L 560 290" stroke="#60a5fa" stroke-width="2" fill="none" marker-end="url(#arrow-blue)"/>
+  <text x="395" y="245" fill="#93c5fd" font-size="11">OnFire/OnIdle/</text>
+  <text x="395" y="258" fill="#93c5fd" font-size="11">OnSwitch/OnCover</text>
+
+  <!-- InputManager → CameraController (OnSwitchCharacter) -->
+  <path d="M 320 270 L 560 450" stroke="#60a5fa" stroke-width="2" fill="none" marker-end="url(#arrow-blue)"/>
+  <text x="405" y="370" fill="#93c5fd" font-size="11">OnSwitchCharacter</text>
+
+  <!-- InputManager → Viper (OnFirePress/Release) -->
+  <path d="M 320 250 Q 700 130 970 580" stroke="#60a5fa" stroke-width="2" fill="none" marker-end="url(#arrow-blue)"/>
+  <text x="650" y="165" fill="#93c5fd" font-size="11">OnFirePress / OnFireRelease (Viper)</text>
+
+  <!-- InputManager → Titan (OnFireRelease) -->
+  <path d="M 320 260 Q 650 200 970 440" stroke="#60a5fa" stroke-width="2" fill="none" marker-end="url(#arrow-blue)"/>
+  <text x="600" y="225" fill="#93c5fd" font-size="11">OnFireRelease (Titan)</text>
+
+  <!-- ════════════════ 화살표 — CharacterBase → 구독자 ════════════════ -->
+
+  <!-- CharacterBase → BottomUI (OnBulletCountChanged) -->
+  <path d="M 320 405 Q 870 190 1420 190" stroke="#60a5fa" stroke-width="1.5" fill="none" marker-end="url(#arrow-blue)" stroke-dasharray="4,3"/>
+
+  <!-- CharacterBase → HPShieldBarUI (OnStatChanged) -->
+  <path d="M 320 420 Q 870 270 1420 270" stroke="#60a5fa" stroke-width="1.5" fill="none" marker-end="url(#arrow-blue)" stroke-dasharray="4,3"/>
+
+  <!-- CharacterBase → ReloadProgressBarUI (OnReloadProgress + OnForcedReload) -->
+  <path d="M 320 440 Q 870 350 1420 350" stroke="#60a5fa" stroke-width="1.5" fill="none" marker-end="url(#arrow-blue)" stroke-dasharray="4,3"/>
+
+  <!-- CharacterBase → CharacterManager (OnCharacterDied) -->
+  <path d="M 320 470 L 560 340" stroke="#fb923c" stroke-width="2" fill="none" marker-end="url(#arrow-orange)"/>
+  <text x="380" y="430" fill="#fed7aa" font-size="11">OnCharacterDied</text>
+
+  <!-- ════════════════ 화살표 — BurstGaugeManager → UI ════════════════ -->
+
+  <!-- BurstGaugeManager → BurstGaugeUI (OnGaugeChanged + OnPhaseChanged) -->
+  <path d="M 320 605 Q 870 430 1420 430" stroke="#c084fc" stroke-width="1.5" fill="none" marker-end="url(#arrow-purple)" stroke-dasharray="4,3"/>
+
+  <!-- BurstGaugeManager → BurstSlotUI (OnBurstReady + OnBurstConsumed) -->
+  <path d="M 320 635 Q 870 510 1420 510" stroke="#c084fc" stroke-width="1.5" fill="none" marker-end="url(#arrow-purple)" stroke-dasharray="4,3"/>
+
+  <!-- BurstGaugeManager → AutoBurstButtonUI -->
+  <path d="M 320 665 Q 870 590 1420 590" stroke="#c084fc" stroke-width="1.5" fill="none" marker-end="url(#arrow-purple)" stroke-dasharray="4,3"/>
+
+  <!-- BurstGaugeManager → CharacterAI (OnFocusFireEnd) -->
+  <path d="M 180 700 Q 100 730 180 740" stroke="#c084fc" stroke-width="2" fill="none" marker-end="url(#arrow-purple)"/>
+  <text x="40" y="725" fill="#ddd6fe" font-size="10">OnFocusFireEnd</text>
+
+  <!-- ════════════════ 화살표 — CharacterAI → AutoScopeButtonUI ════════════════ -->
+
+  <path d="M 320 770 Q 870 670 1420 670" stroke="#60a5fa" stroke-width="1.5" fill="none" marker-end="url(#arrow-blue)" stroke-dasharray="4,3"/>
+
+  <!-- ════════════════ 화살표 — CharacterManager → GameOverUI / InputManager ════════════════ -->
+
+  <!-- CharacterManager → GameOverUI -->
+  <path d="M 840 350 Q 1100 800 1420 750" stroke="#c084fc" stroke-width="2" fill="none" marker-end="url(#arrow-purple)"/>
+  <text x="1100" y="700" fill="#ddd6fe" font-size="11">OnGameOver</text>
+
+  <!-- CharacterManager → InputManager (DisableInput) -->
+  <path d="M 560 365 Q 400 360 320 300" stroke="#c084fc" stroke-width="2" fill="none" marker-end="url(#arrow-purple)"/>
+  <text x="400" y="345" fill="#ddd6fe" font-size="10">OnGameOver→DisableInput</text>
+
+  <!-- ════════════════ 화살표 — WaveManager → InputManager + BattleIntro → WaveManager ════════════════ -->
+
+  <path d="M 320 900 Q 200 700 200 305" stroke="#60a5fa" stroke-width="1.5" fill="none" marker-end="url(#arrow-blue)" stroke-dasharray="3,3"/>
+  <text x="30" y="700" fill="#93c5fd" font-size="10">OnStageClear → DisableInput</text>
+
+  <path d="M 180 945 Q 180 990 180 950" stroke="#60a5fa" stroke-width="2" fill="none"/>
+  <path d="M 60 950 Q 30 970 60 990 L 320 990 L 320 945" stroke="#60a5fa" stroke-width="1.5" fill="none" marker-end="url(#arrow-blue)"/>
+  <text x="100" y="980" fill="#93c5fd" font-size="10">OnBattleIntroComplete</text>
+
+  <!-- ════════════════ 범례 ════════════════ -->
+
+  <g transform="translate(40, 1020)">
+    <rect x="0" y="0" width="1720" height="150" rx="10" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+    <text x="20" y="30" fill="#f1f5f9" font-size="16" font-weight="700">읽는 법 (Legend)</text>
+
+    <!-- 색상 범례 -->
+    <rect x="20" y="55" width="20" height="20" fill="#1e3a8a" stroke="#60a5fa"/>
+    <text x="50" y="70" fill="#cbd5e1" font-size="13">Publisher (이벤트 발행)</text>
+
+    <rect x="240" y="55" width="20" height="20" fill="#5b21b6" stroke="#c084fc"/>
+    <text x="270" y="70" fill="#cbd5e1" font-size="13">Controller (구독 + 재발행)</text>
+
+    <rect x="490" y="55" width="20" height="20" fill="#7c2d12" stroke="#fb923c"/>
+    <text x="520" y="70" fill="#cbd5e1" font-size="13">Character (구독, UseBurst 오버라이드)</text>
+
+    <rect x="800" y="55" width="20" height="20" fill="#14532d" stroke="#4ade80"/>
+    <text x="830" y="70" fill="#cbd5e1" font-size="13">UI (순수 구독자)</text>
+
+    <!-- 화살표 범례 -->
+    <line x1="20" y1="105" x2="80" y2="105" stroke="#60a5fa" stroke-width="2" marker-end="url(#arrow-blue)"/>
+    <text x="90" y="110" fill="#cbd5e1" font-size="13">실선 = 핵심 흐름 (입력/상태/사망)</text>
+
+    <line x1="430" y1="105" x2="490" y2="105" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#arrow-blue)" stroke-dasharray="4,3"/>
+    <text x="500" y="110" fill="#cbd5e1" font-size="13">점선 = UI 갱신용 이벤트</text>
+
+    <text x="20" y="140" fill="#94a3b8" font-size="12">핵심 설계 원칙: 발행자는 구독자를 모르고, 구독자는 발행자의 내부 구조를 모른다. 양쪽 모두 정적 이벤트 시그니처에만 의존.</text>
+  </g>
+
+</svg>

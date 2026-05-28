@@ -4022,6 +4022,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DamagePopupManager
   popupPrefab: {fileID: 3419240873321236959, guid: 792198b4c1b0bfe4caa09d3006a63b0e, type: 3}
+  targetCanvas: {fileID: 2035469876}
 --- !u!4 &671718476
 Transform:
   m_ObjectHideFlags: 0
@@ -12843,7 +12844,7 @@ GameObject:
   - component: {fileID: 2035469875}
   - component: {fileID: 2035469874}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: DamagePopUpCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13766,11 +13767,9 @@ SceneRoots:
   - {fileID: 1820671842}
   - {fileID: 1850117852}
   - {fileID: 2119429278}
-  - {fileID: 2035469877}
   - {fileID: 1728576597}
   - {fileID: 726087182}
   - {fileID: 646450914}
-  - {fileID: 1629236408}
   - {fileID: 1507759881}
   - {fileID: 1852207389}
   - {fileID: 2044303812}
@@ -13778,11 +13777,13 @@ SceneRoots:
   - {fileID: 2145625899}
   - {fileID: 1652395418}
   - {fileID: 1366220131}
+  - {fileID: 1629236408}
   - {fileID: 1946216267}
   - {fileID: 671718476}
-  - {fileID: 1789550187}
-  - {fileID: 1450351364}
-  - {fileID: 18489260}
   - {fileID: 544927048}
   - {fileID: 1106222798}
+  - {fileID: 2035469877}
+  - {fileID: 18489260}
   - {fileID: 133001493}
+  - {fileID: 1789550187}
+  - {fileID: 1450351364}
