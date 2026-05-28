@@ -17,18 +17,18 @@ public class MainMenuManager : MonoBehaviour
     public void OnClickEasy()
     {
         GameSettings.SelectedDifficulty = WaveManager.Difficulty.Easy;
-        SceneManager.LoadScene("BattleScene");
+        SceneManager.LoadScene("LoadingScene");
     }
 
     public void OnClickNormal()
     {
         GameSettings.SelectedDifficulty = WaveManager.Difficulty.Normal;
-        SceneManager.LoadScene("BattleScene");
+        SceneManager.LoadScene("LoadingScene");
     }
 
     public void OnClickHard()
     {
         GameSettings.SelectedDifficulty = WaveManager.Difficulty.Hard;
-        SceneManager.LoadScene("BattleScene");
+        SceneManager.LoadScene("LoadingScene");
     }
 }

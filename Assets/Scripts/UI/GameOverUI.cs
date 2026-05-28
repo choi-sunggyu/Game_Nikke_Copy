@@ -50,13 +50,11 @@ public class GameOverUI : MonoBehaviour
 
     public void OnClickRestart()
     {
-        Debug.Log("Restart button clicked. Reloading current scene.");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        SceneManager.LoadScene("LoadingScene");
     }
 
     public void OnClickMainMenu()
     {
-        Debug.Log("Main Menu button clicked. Loading MainMenuScene.");
         SceneManager.LoadScene("MainMenuScene");
     }
 }

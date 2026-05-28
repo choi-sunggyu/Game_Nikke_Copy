@@ -37,7 +37,7 @@ public class AudioManager : MonoBehaviour
 
     private void Play(AudioClip clip)
     {
-        if (clip == null || bgmSource.clip == clip) return;
+        if (clip == null) return;
         bgmSource.clip = clip;
         bgmSource.Play();
     }
