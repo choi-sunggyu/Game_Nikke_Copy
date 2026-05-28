@@ -1003,6 +1003,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LoadingSceneManager
   progressBar: {fileID: 851385139}
   progressText: {fileID: 519677101}
+  minimumLoadTime: 3
 --- !u!4 &2131035032
 Transform:
   m_ObjectHideFlags: 0

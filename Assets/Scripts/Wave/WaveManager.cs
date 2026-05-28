@@ -21,26 +21,61 @@ public class WaveManager : MonoBehaviour
     [SerializeField] private float maxYAtMaxZ = 10f;
 
     [Header("Overlap Prevention")]
-    [SerializeField] private float minEnemyDistance = 3f; // 적 간 최소 거리
-    [SerializeField] private int maxPlacementAttempts = 30; // 겹침 방지 최대 시도 횟수
+    [SerializeField] private float minEnemyDistance    = 3f;
+    [SerializeField] private int   maxPlacementAttempts = 30;
 
-    private WaveData currentData;
-    private int currentWaveIndex = 0;
-    private List<EnemyBase> activeEnemies = new List<EnemyBase>();
-
-    private float waveClearDelay = 2f;
-    private float spawnInterval = 2f;
-
+    // ═══════════════════════════════════════════════════════
+    //  이벤트
+    // ═══════════════════════════════════════════════════════
     public static event Action OnStageClear;
+
+    // ═══════════════════════════════════════════════════════
+    //  내부 상태
+    // ═══════════════════════════════════════════════════════
+    private WaveData        currentData;
+    private int             currentWaveIndex = 0;
+    private List<EnemyBase> activeEnemies    = new List<EnemyBase>();
+
+    private const float waveClearDelay = 2f;
+    private const float spawnInterval  = 2f;
 
     public IReadOnlyList<EnemyBase> ActiveEnemies => activeEnemies;
 
     public enum Difficulty { Easy, Normal, Hard }
 
+    // ═══════════════════════════════════════════════════════
+    //  인트로 이벤트 구독
+    // ═══════════════════════════════════════════════════════
+    void OnEnable()
+    {
+        BattleIntroManager.OnBattleIntroComplete += OnIntroComplete;
+    }
+
+    void OnDisable()
+    {
+        BattleIntroManager.OnBattleIntroComplete -= OnIntroComplete;
+    }
+
+    /// <summary>
+    /// 인트로 완료 시 호출 — 적 공격 AI 활성화
+    /// </summary>
+    void OnIntroComplete()
+    {
+        EnemyBase.BattleStarted = true;
+        Debug.Log("[WaveManager] 인트로 완료 → 적 공격 AI 활성화");
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  초기화
+    // ═══════════════════════════════════════════════════════
     void Start()
     {
+        // 인트로 중에는 적이 공격 안 함 (초기값 false)
+        EnemyBase.BattleStarted = false;
+
         AudioManager.Instance.PlayBattleBGM();
-        StartGame(GameSettings.SelectedDifficulty);
+
+        // ★ StartGame 한 번만 호출
         StartGame(GameSettings.SelectedDifficulty);
     }
 
@@ -55,9 +90,14 @@ public class WaveManager : MonoBehaviour
         };
 
         currentWaveIndex = 0;
+
+        // 인트로 중에도 적 스폰은 시작 (단, 공격은 BattleStarted 플래그로 제어)
         StartCoroutine(RunWave());
     }
 
+    // ═══════════════════════════════════════════════════════
+    //  웨이브 진행
+    // ═══════════════════════════════════════════════════════
     IEnumerator RunWave()
     {
         while (currentWaveIndex < currentData.waves.Count)
@@ -65,7 +105,6 @@ public class WaveManager : MonoBehaviour
             Debug.Log($"[WaveManager] Wave {currentWaveIndex + 1} 시작");
 
             yield return StartCoroutine(SpawnWave(currentData.waves[currentWaveIndex]));
-
             yield return StartCoroutine(WaitForWaveClear());
 
             Debug.Log($"[WaveManager] Wave {currentWaveIndex + 1} 클리어");
@@ -97,56 +136,51 @@ public class WaveManager : MonoBehaviour
 
     void SpawnEnemy(GameObject prefab)
     {
-        Vector3 targetPos = GetNonOverlappingPosition();
-
-        // 적 타입에 따라 초기 위치 결정
-        Vector3 spawnPos;
-        EnemyBase prefabEnemy = prefab.GetComponent<EnemyBase>();
+        Vector3   targetPos    = GetNonOverlappingPosition();
+        EnemyBase prefabEnemy  = prefab.GetComponent<EnemyBase>();
+        Vector3   spawnPos;
 
         if (prefabEnemy is EnemyA)
         {
-            // EnemyA: 화면 위에서 낙하
             float offScreenY = GetOffScreenY(targetPos.z);
             spawnPos = new Vector3(targetPos.x, offScreenY, targetPos.z);
         }
         else if (prefabEnemy is EnemyB)
         {
-            // EnemyB: 좌/우 랜덤 등장
             float offScreenX = GetOffScreenX(targetPos.z);
-            float side = Random.value > 0.5f ? 1f : -1f;
-            spawnPos = new Vector3(offScreenX * side, targetPos.y, targetPos.z);
+            float side       = Random.value > 0.5f ? 1f : -1f;
+            spawnPos         = new Vector3(offScreenX * side, targetPos.y, targetPos.z);
         }
         else
         {
-            // EnemyC 등 다른 타입: 목표 위치에 바로 생성
             spawnPos = targetPos;
         }
 
         GameObject obj = Instantiate(prefab, spawnPos, Quaternion.identity);
-        EnemyBase enemy = obj.GetComponent<EnemyBase>();
-        enemy.OnDied += () => activeEnemies.Remove(enemy);
+        EnemyBase  enemy = obj.GetComponent<EnemyBase>();
+
         if (enemy != null)
         {
             enemy.SetBulletPool(enemyBulletPool);
-            enemy.SetTargetPosition(targetPos); // 목표 위치 전달
+            enemy.SetTargetPosition(targetPos);
+            enemy.OnDied += () => activeEnemies.Remove(enemy);
             activeEnemies.Add(enemy);
         }
     }
 
-    /// <summary>
-    /// Z에 비례하는 범위 내 랜덤 위치를 생성하되, 기존 적과 겹치지 않는 위치를 반환
-    /// </summary>
+    // ═══════════════════════════════════════════════════════
+    //  위치 계산
+    // ═══════════════════════════════════════════════════════
     Vector3 GetNonOverlappingPosition()
     {
         for (int attempt = 0; attempt < maxPlacementAttempts; attempt++)
         {
-            Vector3 candidate = GetRandomSpawnPosition();
+            Vector3 candidate   = GetRandomSpawnPosition();
+            bool    overlapping = false;
 
-            bool overlapping = false;
             foreach (var enemy in activeEnemies)
             {
                 if (enemy == null || !enemy.IsAlive) continue;
-                // 목표 위치 기준으로 거리 비교
                 if (Vector3.Distance(candidate, enemy.TargetPosition) < minEnemyDistance)
                 {
                     overlapping = true;
@@ -154,54 +188,41 @@ public class WaveManager : MonoBehaviour
                 }
             }
 
-            if (!overlapping)
-                return candidate;
+            if (!overlapping) return candidate;
         }
 
-        // 최대 시도 초과 시 그냥 랜덤 위치 반환
         Debug.LogWarning("[WaveManager] 겹치지 않는 위치를 찾지 못해 랜덤 배치");
         return GetRandomSpawnPosition();
     }
 
-    /// <summary>
-    /// Z=10~50 범위에서 Z에 비례한 X, Y 범위 내 랜덤 위치 계산
-    /// </summary>
     Vector3 GetRandomSpawnPosition()
     {
         float z = Random.Range(minZ, maxZ);
-        float t = (z - minZ) / (maxZ - minZ); // 0~1 보간값
+        float t = (z - minZ) / (maxZ - minZ);
 
-        // Z에 비례하여 X 범위 확대
         float maxX = Mathf.Lerp(minXAtMinZ, maxXAtMaxZ, t);
-        float x = Random.Range(-maxX, maxX);
+        float x    = Random.Range(-maxX, maxX);
 
-        // Z에 비례하여 Y 범위 확대
         float minY = Mathf.Lerp(minYAtMinZ, 0f, t);
         float maxY = Mathf.Lerp(minYAtMinZ, maxYAtMaxZ, t);
-        float y = Random.Range(minY, maxY);
+        float y    = Random.Range(minY, maxY);
 
         return new Vector3(x, y, z);
     }
 
-    /// <summary>
-    /// 해당 Z에서 화면 상단 밖 Y 좌표 계산
-    /// </summary>
     float GetOffScreenY(float z)
     {
-        Camera cam = Camera.main;
-        float distanceFromCam = z - cam.transform.position.z;
-        Vector3 topWorld = cam.ViewportToWorldPoint(new Vector3(0.5f, 1f, distanceFromCam));
+        Camera  cam              = Camera.main;
+        float   distanceFromCam  = z - cam.transform.position.z;
+        Vector3 topWorld         = cam.ViewportToWorldPoint(new Vector3(0.5f, 1f, distanceFromCam));
         return topWorld.y + 5f;
     }
 
-    /// <summary>
-    /// 해당 Z에서 화면 측면 밖 X 좌표 계산
-    /// </summary>
     float GetOffScreenX(float z)
     {
-        Camera cam = Camera.main;
-        float distanceFromCam = z - cam.transform.position.z;
-        Vector3 rightWorld = cam.ViewportToWorldPoint(new Vector3(1f, 0.5f, distanceFromCam));
+        Camera  cam              = Camera.main;
+        float   distanceFromCam  = z - cam.transform.position.z;
+        Vector3 rightWorld       = cam.ViewportToWorldPoint(new Vector3(1f, 0.5f, distanceFromCam));
         return Mathf.Abs(rightWorld.x) + 5f;
     }
 
@@ -210,10 +231,7 @@ public class WaveManager : MonoBehaviour
         while (true)
         {
             activeEnemies.RemoveAll(e => e == null || !e.IsAlive);
-
-            if (activeEnemies.Count == 0)
-                yield break;
-
+            if (activeEnemies.Count == 0) yield break;
             yield return new WaitForSeconds(0.5f);
         }
     }

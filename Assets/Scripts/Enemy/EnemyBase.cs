@@ -22,6 +22,7 @@ public abstract class EnemyBase : MonoBehaviour
     private Coroutine hitFlashCoroutine;
     private bool isStunned = false;
     private Coroutine stunCoroutine;
+    public static bool BattleStarted = false;
 
     // 출현 연출 관련
     protected Vector3 targetPosition;
@@ -117,6 +118,7 @@ public abstract class EnemyBase : MonoBehaviour
 
     void Update()
     {
+        if (!BattleStarted) return;
         if (!survive) return;
         if (isStunned) return;
         OnUpdate();

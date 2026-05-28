@@ -12,10 +12,11 @@ public class DamagePopupManager : MonoBehaviour
     {
         if (Instance != null) { Destroy(gameObject); return; }
         Instance = this;
+
         Canvas canvas = FindAnyObjectByType<Canvas>();
         if (canvas == null)
         {
-            Debug.LogError("Canvas를 찾을 수 없습니다.");
+            Debug.LogError("[DamagePopupManager] Canvas를 찾을 수 없습니다.");
             return;
         }
 
@@ -28,12 +29,18 @@ public class DamagePopupManager : MonoBehaviour
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             canvasRect,
             screenPos,
-            null, // Overlay Canvas는 null
+            null,
             out Vector2 canvasPos
         );
 
         GameObject popup = Instantiate(popupPrefab, canvasRect);
+        popup.SetActive(true);  // ★ Init 전에 활성화
         popup.GetComponent<RectTransform>().localPosition = canvasPos;
         popup.GetComponent<DamagePopup>().Init(damage);
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
     }
 }
