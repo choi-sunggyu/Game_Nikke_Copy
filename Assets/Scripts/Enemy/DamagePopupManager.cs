@@ -6,6 +6,7 @@ public class DamagePopupManager : MonoBehaviour
     public static DamagePopupManager Instance { get; private set; }
 
     [SerializeField] private GameObject popupPrefab;
+    [SerializeField] private Canvas targetCanvas;
     private RectTransform canvasRect;
 
     void Awake()
@@ -13,14 +14,14 @@ public class DamagePopupManager : MonoBehaviour
         if (Instance != null) { Destroy(gameObject); return; }
         Instance = this;
 
-        Canvas canvas = FindAnyObjectByType<Canvas>();
-        if (canvas == null)
+        // FindAnyObjectByType 제거 → 인스펙터 연결로 대체
+        if (targetCanvas == null)
         {
-            Debug.LogError("[DamagePopupManager] Canvas를 찾을 수 없습니다.");
+            Debug.LogError("[DamagePopupManager] targetCanvas가 연결되지 않았습니다.");
             return;
         }
 
-        canvasRect = FindAnyObjectByType<Canvas>().GetComponent<RectTransform>();
+        canvasRect = targetCanvas.GetComponent<RectTransform>();
     }
 
     public void ShowDamage(float damage, Vector3 worldPos)
@@ -34,7 +35,13 @@ public class DamagePopupManager : MonoBehaviour
         );
 
         GameObject popup = Instantiate(popupPrefab, canvasRect);
-        popup.SetActive(true);  // ★ Init 전에 활성화
+        popup.SetActive(true);
+
+        // ★ 진단용 로그
+        Debug.Log($"activeSelf: {popup.activeSelf}");
+        Debug.Log($"activeInHierarchy: {popup.activeInHierarchy}");
+        Debug.Log($"Canvas activeInHierarchy: {canvasRect.gameObject.activeInHierarchy}");
+
         popup.GetComponent<RectTransform>().localPosition = canvasPos;
         popup.GetComponent<DamagePopup>().Init(damage);
     }
