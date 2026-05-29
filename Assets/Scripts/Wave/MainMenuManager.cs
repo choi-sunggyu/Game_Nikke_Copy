@@ -7,12 +7,15 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private Button easyButton;
     [SerializeField] private Button normalButton;
     [SerializeField] private Button hardButton;
+    //[SerializeField] private Button bossButton;
+
     void Start()
     {
         AudioManager.Instance.PlayMainMenuBGM();
         easyButton.onClick.AddListener(OnClickEasy);
         normalButton.onClick.AddListener(OnClickNormal);
         hardButton.onClick.AddListener(OnClickHard);
+        //bossButton.onClick.AddListener(OnClickBoss);
     }
     public void OnClickEasy()
     {
@@ -31,4 +34,10 @@ public class MainMenuManager : MonoBehaviour
         GameSettings.SelectedDifficulty = WaveManager.Difficulty.Hard;
         SceneManager.LoadScene("LoadingScene");
     }
+
+    // public void OnClickBoss()
+    // {
+    //     GameSettings.SelectedDifficulty = WaveManager.Difficulty.Boss;
+    //     SceneManager.LoadScene("LoadingScene");
+    // }
 }

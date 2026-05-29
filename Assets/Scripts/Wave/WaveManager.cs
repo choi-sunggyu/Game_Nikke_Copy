@@ -41,7 +41,7 @@ public class WaveManager : MonoBehaviour
 
     public IReadOnlyList<EnemyBase> ActiveEnemies => activeEnemies;
 
-    public enum Difficulty { Easy, Normal, Hard }
+    public enum Difficulty { Easy, Normal, Hard , Boss}
 
     // ═══════════════════════════════════════════════════════
     //  인트로 이벤트 구독
@@ -61,8 +61,14 @@ public class WaveManager : MonoBehaviour
     /// </summary>
     void OnIntroComplete()
     {
+        StartCoroutine(DelayedBattleStart());
+    }
+
+    IEnumerator DelayedBattleStart()
+    {
+        yield return new WaitForSeconds(2f);
         EnemyBase.BattleStarted = true;
-        Debug.Log("[WaveManager] 인트로 완료 → 적 공격 AI 활성화");
+        Debug.Log("[WaveManager] 전투 시작 — 적 공격 활성화");
     }
 
     // ═══════════════════════════════════════════════════════

@@ -19,6 +19,7 @@ public class CharacterAI : MonoBehaviour
     private bool isViper;
     private Vector2 lineEndScreenPos; 
     private bool lineEndInitialized = false;
+    private bool _battleStarted = false;
 
     // [전역 관리] static 필드
     private static bool isAutoScopeMode = false; 
@@ -48,14 +49,17 @@ public class CharacterAI : MonoBehaviour
 
     void OnEnable()
     {
+        BattleIntroManager.OnBattleIntroComplete += OnIntroComplete;
         BurstGaugeManager.OnFocusFireEnd += DisableFocusFire;
     }
 
     void OnDisable()
     {
+        BattleIntroManager.OnBattleIntroComplete -= OnIntroComplete;
         BurstGaugeManager.OnFocusFireEnd -= DisableFocusFire;
     }
 
+    void OnIntroComplete() => _battleStarted = true;
     public static void ToggleAutoScopeMode()
     {
         isAutoScopeMode = !isAutoScopeMode;
@@ -125,6 +129,7 @@ public class CharacterAI : MonoBehaviour
 
     void Update()
     {
+        if (!_battleStarted) return;
         if (characterManager.CurrentCharacter == owner && Input.GetKeyDown(KeyCode.LeftShift))
         {
             ToggleAutoScopeMode();

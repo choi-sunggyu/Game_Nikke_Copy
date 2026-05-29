@@ -20,15 +20,22 @@ public class ScopeCrossHair : CrossHairBase
     protected override void Awake()
     {
         base.Awake();
+
         canvasGroup = scopeOverlay.GetComponent<CanvasGroup>();
+
         if(canvasGroup == null)
             canvasGroup = scopeOverlay.AddComponent<CanvasGroup>();
 
         scopeRectTransform = scopeOverlay.GetComponent<RectTransform>();
+
+        float diagonal = Mathf.Sqrt(Screen.width * Screen.width +
+                                Screen.height * Screen.height);
+        scopeRectTransform.sizeDelta = new Vector2(diagonal * 2f, diagonal * 2f);
+
         canvasGroup.alpha = 0f;
         scopeOverlay.SetActive(false);
 
-        Texture2D donut = CreateDonutTexture(3072, 150f);
+        Texture2D donut = CreateDonutTexture(3072, 66f); 
         donutImage.sprite = Sprite.Create(
             donut, new Rect(0, 0, 3072, 3072), new Vector2(0.5f, 0.5f)
         );

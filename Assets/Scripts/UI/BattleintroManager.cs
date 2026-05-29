@@ -3,26 +3,34 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+/// <summary>
+/// 전투 시작 인트로 — UI 연출 전담 (책임: 다이아몬드 / 크로스헤어 / 텍스트 / 페이드)
+/// 카메라 위치 결정 권한은 CameraController 에 위임 (Single Source of Truth).
+/// 전체 시퀀스는 2초 이내에 종료되도록 조율됨.
+/// </summary>
 public class BattleIntroManager : MonoBehaviour
 {
     public static event System.Action OnBattleIntroComplete;
 
     [Header("── Camera ──────────────────────")]
     [Tooltip("비워두면 Camera.main 자동 사용")]
-    [SerializeField] private Camera         targetCamera;
-    [SerializeField] private float         cameraIntroZOffset = 8f;
-    [SerializeField] private float         cameraDuration     = 0.4f; // 0.5s -> 0.4s 단축
-    [SerializeField] private MonoBehaviour cameraController;
+    [SerializeField] private Camera           targetCamera;
+    //[SerializeField] private CameraController cameraController;     // 인트로 동안 enable=false 잠금용. 카메라 위치 계산에는 사용 안 함.
+    [Tooltip("인트로 시작 카메라 위치 (월드 좌표)")]
+    [SerializeField] private Vector3          cameraIntroStartPos = new Vector3(0f, 0f, 15f);
+    [Tooltip("인트로 종료 카메라 위치 — CameraController 가 Start 에서 도달하는 위치와 동일해야 점프 없음")]
+    [SerializeField] private Vector3          cameraIntroEndPos   = new Vector3(0f, -1.5f, -7f);
+    [SerializeField] private float            cameraDuration      = 2.0f; // 카메라가 종료점까지 도달하는 시간
 
     [Header("── Diamonds ─────────────────────")]
     [SerializeField] private RectTransform outerDiamond;
     [SerializeField] private RectTransform innerDiamond;
     [SerializeField] private CanvasGroup   diamondGroup;
-    [SerializeField] private float         diamondStartScale = 1.2f;
+    [SerializeField] private float         diamondStartScale = 1.1f;
     [SerializeField] private float         outerFinalScale   = 0.9f;
     [SerializeField] private float         innerFinalScale   = 1.0f;
-    [SerializeField] private float         outerShrinkDur    = 0.5f; // 0.6s -> 0.5s 단축
-    [SerializeField] private float         innerShrinkDur    = 0.8f; // 1.0s -> 0.8s 단축
+    [SerializeField] private float         outerShrinkDur    = 0.5f;
+    [SerializeField] private float         innerShrinkDur    = 0.8f;
     [SerializeField] private float         overlapThreshold  = 0.12f;
 
     [Header("── Crosshair ────────────────────")]
@@ -38,18 +46,22 @@ public class BattleIntroManager : MonoBehaviour
     [SerializeField] private CanvasGroup introGroup;
 
     [Header("── Timing ───────────────────────")]
-    [SerializeField] private float blinkInterval     = 0.05f; // 0.06s -> 0.05s 단축
-    [SerializeField] private float textHoldTime      = 0.2f;  // 0.25s -> 0.2s 단축
-    [SerializeField] private float diceRollDuration = 0.12f; // 0.15s -> 0.12s 단축
-    [SerializeField] private float diceSlideDistance= 50f;
+    [SerializeField] private float blinkInterval    = 0.05f;
+    [SerializeField] private float textHoldTime     = 0.15f;
+    [SerializeField] private float diceRollDuration = 0.10f;
+    [SerializeField] private float diceSlideDistance = 50f;
+    [SerializeField] private float fadeOutDuration  = 0.30f;
 
     private bool      _rotateCrosshair = false;
     private Transform _camTransform;
-    private Vector3   _camOriginalPos;
+    private Vector3   _camGameplayPos;     // 인트로 종료 목표 = CameraController 의 게임플레이 위치
 
     void Awake()
     {
         InitState();
+
+        // if (cameraController != null)
+        //     cameraController.enabled = false;
     }
 
     void Start()
@@ -64,35 +76,42 @@ public class BattleIntroManager : MonoBehaviour
     }
 
     // ═══════════════════════════════════════════════════════
-    //  메인 시퀀스 수정
+    //  메인 시퀀스 (목표: 총 길이 ≤ 2.0s)
+    //  타임라인:
+    //   [0.00 ~ 1.00] PullCamera + ShrinkDiamonds 병렬 (+ 크로스헤어 회전)
+    //   [1.00 ~ 1.20] DiceRollText "APPROVED"
+    //   [1.20 ~ 1.35] textHoldTime
+    //   [1.35 ~ 1.45] BlinkText(1)
+    //   [1.45 ~ 1.60] textHoldTime + "OPERATION START"
+    //   [1.60 ~ 1.90] FadeOut (intro + crosshair 병렬)
     // ═══════════════════════════════════════════════════════
     IEnumerator PlayIntro()
     {
-        // [해결 3] 게임 시작 즉시 UI를 보여주어 '유저 체감 지연 대기시간'을 제거
+        // 인트로 UI 즉시 표시 (페이드인 없이 곧장 켜짐)
         introGroup.alpha     = 1f;
         crosshairGroup.alpha = 0.4f;
         _rotateCrosshair     = true;
 
-        // ① 카메라 후퇴 (UI 연출과 동시에 진행하거나 빠르게 처리)
-        yield return StartCoroutine(PullCamera());
+        // ── Phase 1: 카메라 풀과 다이아 수축을 동시에 시작 ──
+        Coroutine camRoutine     = StartCoroutine(PullCamera());
+        Coroutine diamondRoutine = StartCoroutine(ShrinkDiamonds());
+        yield return camRoutine;
+        yield return diamondRoutine;
 
-        // ② 마름모 수축 및 점멸 (내부 정지 버그 수정됨)
-        yield return StartCoroutine(ShrinkDiamonds());
-
-        // ③ 주사위 전환: SYSTEM ACCESS → APPROVED
+        // ── Phase 2: 텍스트 전환 SYSTEM ACCESS → APPROVED ──
         yield return StartCoroutine(DiceRollText("APPROVED"));
         yield return new WaitForSeconds(textHoldTime);
 
-        // ④ OPERATION START: 텍스트만 점멸
+        // ── Phase 3: 텍스트 점멸 후 OPERATION START 표시 ──
         yield return StartCoroutine(BlinkText(1));
         statusText.text = "";
         titleText.text  = "OPERATION START";
         yield return new WaitForSeconds(textHoldTime);
 
-        // ⑤ 종료 페이드아웃 (두 그룹을 동시에 페이드하기 위해 yield를 하나로 병합)
+        // ── Phase 4: 페이드아웃 (두 그룹 병렬) ──
         _rotateCrosshair = false;
-        Coroutine c1 = StartCoroutine(FadeGroup(introGroup,     1f,   0f, 0.15f));
-        Coroutine c2 = StartCoroutine(FadeGroup(crosshairGroup, 0.4f, 0f, 0.15f));
+        Coroutine c1 = StartCoroutine(FadeGroup(introGroup,     1f,   0f, fadeOutDuration));
+        Coroutine c2 = StartCoroutine(FadeGroup(crosshairGroup, 0.4f, 0f, fadeOutDuration));
         yield return c1;
         yield return c2;
 
@@ -102,25 +121,26 @@ public class BattleIntroManager : MonoBehaviour
     void InitState()
     {
         if (targetCamera == null) targetCamera = Camera.main;
-        _camTransform   = targetCamera.transform;
-        _camOriginalPos = _camTransform.position;
+        _camTransform = targetCamera.transform;
 
-        if (cameraController != null) cameraController.enabled = false;
+        // 인트로 종료점 = 인스펙터 입력값 (CameraController.Start 의 도달 위치와 정확히 일치해야 점프 안 보임)
+        _camGameplayPos = cameraIntroEndPos;
 
-        Vector3 introPos = _camOriginalPos;
-        introPos.z      += cameraIntroZOffset;
-        _camTransform.position = introPos;
+        // 인트로 시작점 = 인스펙터 입력값 — 카메라를 즉시 이 위치로 이동
+        _camTransform.position = cameraIntroStartPos;
 
+        // 다이아 초기 스케일
         Vector3 s = Vector3.one * diamondStartScale;
         outerDiamond.localScale = s;
         innerDiamond.localScale = s;
 
+        // 텍스트 초기 상태
         titleText.text   = "BATTLE COMMAND";
         statusText.text  = "...SYSTEM ACCESS...";
         titleText.alpha  = 1f;
         statusText.alpha = 1f;
 
-        // 시작 시점에 깜빡이지 않도록 투명도 초기화
+        // 시작 시점에는 안 보이게 (PlayIntro 시작과 동시에 1로 켜짐)
         introGroup.alpha     = 0f;
         crosshairGroup.alpha = 0f;
     }
@@ -129,7 +149,7 @@ public class BattleIntroManager : MonoBehaviour
     {
         float   elapsed  = 0f;
         Vector3 startPos = _camTransform.position;
-        Vector3 endPos   = _camOriginalPos;
+        Vector3 endPos   = _camGameplayPos;
 
         while (elapsed < cameraDuration)
         {
@@ -141,9 +161,6 @@ public class BattleIntroManager : MonoBehaviour
         _camTransform.position = endPos;
     }
 
-    // ═══════════════════════════════════════════════════════
-    //  마름모 수축 로직 수정 (핵심 수정)
-    // ═══════════════════════════════════════════════════════
     IEnumerator ShrinkDiamonds()
     {
         float   elapsed    = 0f;
@@ -167,11 +184,11 @@ public class BattleIntroManager : MonoBehaviour
             float diff         = Mathf.Abs(outerDiamond.localScale.x - innerDiamond.localScale.x);
             bool  outerNearEnd = outerDiamond.localScale.x <= outerFinalScale + 0.3f;
 
-            // [해결 1] yield return 없이 StartCoroutine만 실행하여 메인 루프 멈춤을 방지!
+            // 메인 루프 멈춤 방지 위해 yield 없이 fire-and-forget
             if (!blinkFired && diff < overlapThreshold && outerNearEnd)
             {
                 blinkFired = true;
-                StartCoroutine(BlinkDiamonds(2)); 
+                StartCoroutine(BlinkDiamonds(2));
             }
 
             yield return null;
@@ -194,16 +211,16 @@ public class BattleIntroManager : MonoBehaviour
 
     IEnumerator DiceRollText(string nextStatus)
     {
-        RectTransform rt       = statusText.rectTransform;
+        RectTransform rt      = statusText.rectTransform;
         Vector2       origPos = rt.anchoredPosition;
         float         elapsed = 0f;
 
         while (elapsed < diceRollDuration)
         {
-            elapsed          += Time.deltaTime;
-            float t           = EaseInCubic(Mathf.Clamp01(elapsed / diceRollDuration));
+            elapsed            += Time.deltaTime;
+            float t             = EaseInCubic(Mathf.Clamp01(elapsed / diceRollDuration));
             rt.anchoredPosition = origPos + Vector2.down * (diceSlideDistance * t);
-            statusText.alpha  = 1f - t;
+            statusText.alpha    = 1f - t;
             yield return null;
         }
 
@@ -214,10 +231,10 @@ public class BattleIntroManager : MonoBehaviour
 
         while (elapsed < diceRollDuration)
         {
-            elapsed          += Time.deltaTime;
-            float t           = EaseOutCubic(Mathf.Clamp01(elapsed / diceRollDuration));
+            elapsed            += Time.deltaTime;
+            float t             = EaseOutCubic(Mathf.Clamp01(elapsed / diceRollDuration));
             rt.anchoredPosition = Vector2.Lerp(origPos + Vector2.up * diceSlideDistance, origPos, t);
-            statusText.alpha  = t;
+            statusText.alpha    = t;
             yield return null;
         }
 
@@ -244,8 +261,8 @@ public class BattleIntroManager : MonoBehaviour
         cg.alpha = from;
         while (elapsed < dur)
         {
-            elapsed  += Time.deltaTime;
-            cg.alpha  = Mathf.Lerp(from, to, elapsed / dur);
+            elapsed += Time.deltaTime;
+            cg.alpha = Mathf.Lerp(from, to, elapsed / dur);
             yield return null;
         }
         cg.alpha = to;
@@ -256,7 +273,8 @@ public class BattleIntroManager : MonoBehaviour
 
     void OnIntroFinished()
     {
-        if (cameraController != null) cameraController.enabled = true;
+        // CameraController 에게 통제권 반환 (이벤트 + 직접 enable 양쪽 안전망)
+        //if (cameraController != null) cameraController.enabled = true;
         OnBattleIntroComplete?.Invoke();
         gameObject.SetActive(false);
     }

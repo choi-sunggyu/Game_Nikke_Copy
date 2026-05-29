@@ -14,7 +14,11 @@ public class InputManager : MonoBehaviour
     public static event Action OnCoverToggle;
     
     private bool wasFiring = false;
+    private bool _inputLocked = true;
     private List<CharacterBase> characters; // 게임 내 모든 캐릭터를 관리하는 리스트
+
+    void UnlockInput() => _inputLocked = false;
+
 
     void Start()
     {
@@ -23,6 +27,7 @@ public class InputManager : MonoBehaviour
 
     void OnEnable()
     {
+        BattleIntroManager.OnBattleIntroComplete += UnlockInput;
         // 게임 오버 및 클리어 이벤트를 구독하여 스스로를 끄게 만듭니다.
         CharacterManager.OnGameOver += DisableInput;
         WaveManager.OnStageClear += DisableInput;
@@ -30,6 +35,7 @@ public class InputManager : MonoBehaviour
 
     void OnDisable()
     {
+        BattleIntroManager.OnBattleIntroComplete -= UnlockInput;
         CharacterManager.OnGameOver -= DisableInput;
         WaveManager.OnStageClear -= DisableInput;
     }
@@ -54,7 +60,7 @@ public class InputManager : MonoBehaviour
 
     void Update()
     {
-        //bool isMouseOverUI = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
+        if (_inputLocked) return;
 
         bool isFiring = Input.GetMouseButton(0);
 
