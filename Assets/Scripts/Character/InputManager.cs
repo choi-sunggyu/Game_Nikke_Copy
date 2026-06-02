@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class InputManager : MonoBehaviour
 {
@@ -50,7 +51,6 @@ public class InputManager : MonoBehaviour
         OnFireRelease?.Invoke();
         wasFiring = false;
         
-        Debug.Log("InputManager disabled due to game end.");
     }
     
     public static void InvokeSwitchCharacter(int index)

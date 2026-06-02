@@ -68,7 +68,6 @@ public class WaveManager : MonoBehaviour
     {
         yield return new WaitForSeconds(2f);
         EnemyBase.BattleStarted = true;
-        Debug.Log("[WaveManager] 전투 시작 — 적 공격 활성화");
     }
 
     // ═══════════════════════════════════════════════════════
@@ -119,7 +118,6 @@ public class WaveManager : MonoBehaviour
 
             if (currentWaveIndex < currentData.waves.Count)
             {
-                Debug.Log($"[WaveManager] 다음 웨이브까지 {waveClearDelay}초 대기");
                 yield return new WaitForSeconds(waveClearDelay);
             }
         }

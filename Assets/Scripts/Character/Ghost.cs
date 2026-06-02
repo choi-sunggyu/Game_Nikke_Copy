@@ -118,12 +118,23 @@ public class Ghost : CharacterBase
         reloadSource?.Stop();
     }
 
-    public override void UseSkill() { }
+    public override void UseSkill() 
+    {
+        // 아군 누적 탄환 400발 -> 버스트 게이지 23.12% 즉시 충전
+        foreach(var ally in BattleManager.Instance.Team)
+        {
+            Debug.Log($"[Ghost] UseSkill 호출 / ally: {ally.gameObject.name}");
+            ally.AddBurstGauge(23.12f);
+        }        
+    }
+
     public override void UseBurst()
     {
         var waveManager = FindAnyObjectByType<WaveManager>();
         var characterManager = FindAnyObjectByType<CharacterManager>();
         if (waveManager == null || characterManager == null) return;
+
+        UsedBurstThisCycle = true;
 
         // 플래시 이펙트
         var enemies = new List<EnemyBase>(waveManager.ActiveEnemies);

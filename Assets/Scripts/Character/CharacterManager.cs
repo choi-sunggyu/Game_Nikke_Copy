@@ -17,6 +17,10 @@ public class CharacterManager : MonoBehaviour
     public CharacterBase CurrentCharacter => currentCharacter;
     public static event Action OnGameOver;
     public static event Action<int> OnCharacterSwitchConfirmed;
+    public void ToggleCover()
+    {
+        HandleCoverToggle();
+    }
 
     void Awake()
     {
@@ -106,7 +110,6 @@ public class CharacterManager : MonoBehaviour
         }
         if(characters[index] == currentCharacter)
         {
-            Debug.Log("요청한 캐릭터는 현재 캐릭터와 같습니다.");
             return;
         }
         // 통과하면 StartCoroutine 호출

@@ -15,6 +15,11 @@ public class Titan : CharacterBase
     private const float starDamageRatio = 0.4f;
     private const float starFireInterval = 0.25f;
     private const float starSpeed = 100f;
+    private const string TitanBuff40 =
+        "Titan_40";
+
+    private const string TitanBuff20 =
+        "Titan_20";
 
     private CharacterManager characterManager;
     private WaveManager waveManager;
@@ -236,9 +241,38 @@ public class Titan : CharacterBase
         }
     }
 
-    public override void UseSkill() { }
+    public override void UseSkill()
+    {
+        foreach(var ally in BattleManager.Instance.Team)
+        {
+            if(ally == null || !ally.IsAlive)
+                continue;
+
+            if(ally.UsedBurstThisCycle)
+            {
+                Debug.Log($"[Titan] UseSkill - 버스트 사용한 아군에게 40% 버프 적용 / ally: {ally.gameObject.name}");
+                ally.ApplyDamageBuff(
+                    1.4f,
+                    15f,
+                    TitanBuff40);
+            }
+            else
+            {
+                Debug.Log($"[Titan] UseSkill - 버스트 안 쓴 아군에게 20% 버프 적용 / ally: {ally.gameObject.name}");
+                ally.ApplyDamageBuff(
+                    1.2f,
+                    15f,
+                    TitanBuff20);
+            }
+        }
+    }
     public override void UseBurst()
     {
+        var waveManager = FindAnyObjectByType<WaveManager>();
+        var characterManager = FindAnyObjectByType<CharacterManager>();
+        if (waveManager == null || characterManager == null) return;
+
+        UsedBurstThisCycle = true;
         // 팀 전체 공격력 버프 + 별 이펙트
         foreach (var character in characterManager.Characters)
         {

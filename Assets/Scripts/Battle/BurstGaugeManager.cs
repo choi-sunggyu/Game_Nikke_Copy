@@ -44,6 +44,7 @@ public class BurstGaugeManager : MonoBehaviour
 
     public static event Action OnFocusFireEnd;
     public static event Action<float> OnStepTimeChanged;
+    public static event Action OnFullBurstStarted;
 
     public BurstPhase CurrentPhase => currentPhase;
     public bool IsAutoMode => isAutoMode;
@@ -100,10 +101,11 @@ public class BurstGaugeManager : MonoBehaviour
                 break;
 
             case BurstPhase.FocusFire:
-                OnFocusFireStart?.Invoke();
-                isFinalBurstActive = true;
+                OnFullBurstStarted?.Invoke(); // 풀 버스트 돌입
+                OnFocusFireStart?.Invoke(); // 집중사격 시작
+                isFinalBurstActive = true; // 집중사격 활성화 플래그 설정
                 // 집중 사격 종료 시 isFinalBurstActive = false로 전환
-                timerCoroutine = StartCoroutine(FocusFireCoroutine());
+                timerCoroutine = StartCoroutine(FocusFireCoroutine()); // 집중사격 지속 타이머 시작
                 break;
         }
     }
@@ -200,6 +202,14 @@ public class BurstGaugeManager : MonoBehaviour
         {
             OnFocusFireEnd?.Invoke();
             isFinalBurstActive = false;
+        }
+
+        if(characterManager != null)
+        {
+            foreach(var character in characterManager.Characters)
+            {
+                character.UsedBurstThisCycle = false;
+            }
         }
 
         currentGauge = 0f;

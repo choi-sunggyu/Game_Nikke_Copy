@@ -25,6 +25,7 @@ public class Viper : CharacterBase
     private bool hasAITarget = false;
     private Vector3 aiWorldTarget;
     private WaveManager waveManager; // 필드 추가
+    private const string BuffId = "Viper_Crit"; // 버프 식별자
 
     public override void Initialize()
     {
@@ -179,7 +180,7 @@ public class Viper : CharacterBase
         if (bullet == null) return;
 
         float chargedDamage = attackDamage * attackDamageMultiplier * Mathf.Lerp(0f, 1.5f, chargeRatio);
-        bullet.GetComponent<BulletBase>()?.Init(chargedDamage, bulletSpeed, finalDir, chargingBurstGauge);
+        bullet.GetComponent<BulletBase>()?.Init(this, chargedDamage, bulletSpeed, finalDir, chargingBurstGauge);
     }
 
     protected override void OnReloadComplete()
@@ -266,11 +267,25 @@ public class Viper : CharacterBase
         HandleFireRelease();
     }
 
-    public override void UseSkill() { }
+    public override void UseSkill()
+    {
+        // 마지막 탄환 명중 시 아군 전체 크리티컬 확률 8% 업 (5초)
+        foreach(var ally in BattleManager.Instance.Team)
+        {
+            Debug.Log($"[Viper] UseSkill 호출 / ally: {ally.gameObject.name}");
+            ally.ApplyCriticalRateBuff(
+                0.08f,
+                5f,
+                BuffId);
+        }
+    }
     public override void UseBurst()
     {
-        //웨이브 매니저게에서 살아있는 적들 중 HP가 가장 높은 적을 찾아 집중사격 발사
-        if (waveManager == null) return; // 웨이브 매니저가 없으면 스킬 사용 불가
+        var waveManager = FindAnyObjectByType<WaveManager>();
+        var characterManager = FindAnyObjectByType<CharacterManager>();
+        if (waveManager == null || characterManager == null) return;
+
+        UsedBurstThisCycle = true;
 
         // HP 가장 높은 적 탐색
         EnemyBase target = null;
@@ -295,17 +310,12 @@ public class Viper : CharacterBase
         if (topTargets.Count > 0)
             target = topTargets[Random.Range(0, topTargets.Count)];
 
-        Debug.Log($"[Viper UseBurst] target: {target?.name} / topTargets: {topTargets.Count}");
-
         if (target == null) return;
 
         float burstDamage = attackDamage * attackDamageMultiplier * 20f;
-        Debug.Log($"[Viper UseBurst] burstDamage: {burstDamage}");
         target.TakeDamage(burstDamage);
 
-        Debug.Log($"[Viper UseBurst] 빔 생성 직전 / muzzlePoint: {muzzlePoint.position} / target: {target.transform.position}");
         GameObject beam = Instantiate(viperBeamPrefab, muzzlePoint.position, Quaternion.identity);
         beam.GetComponent<ViperBeamEffect>()?.Fire(muzzlePoint.position, target.transform.position);
-        Debug.Log($"[Viper UseBurst] 빔 생성 완료");
     }
 }

@@ -34,19 +34,16 @@ public class BurstSlotsController : MonoBehaviour
 
     private void HandleBurstReady(List<CharacterBase> targets)
     {
-        Debug.Log($"HandleBurstReady 호출 / targets: {targets?.Count} / slots: {slots?.Count}");
     
         currentTargets = targets;
 
         foreach (var slot in slots)
         {
-            Debug.Log($"SlideOut 호출 전 / slot: {slot}");
             slot.SlideOut();
         }
 
         for (int i = 0; i < targets.Count && i < slots.Count; i++)
         {
-            Debug.Log($"Setup 호출 전 / targets[{i}]: {targets[i]} / slots[{i}]: {slots[i]}");
             slots[i].Setup(targets[i], i);
             slots[i].SlideIn();
         }

@@ -38,9 +38,9 @@ public class DamagePopupManager : MonoBehaviour
         popup.SetActive(true);
 
         // ★ 진단용 로그
-        Debug.Log($"activeSelf: {popup.activeSelf}");
-        Debug.Log($"activeInHierarchy: {popup.activeInHierarchy}");
-        Debug.Log($"Canvas activeInHierarchy: {canvasRect.gameObject.activeInHierarchy}");
+        // Debug.Log($"activeSelf: {popup.activeSelf}");
+        // Debug.Log($"activeInHierarchy: {popup.activeInHierarchy}");
+        // Debug.Log($"Canvas activeInHierarchy: {canvasRect.gameObject.activeInHierarchy}");
 
         popup.GetComponent<RectTransform>().localPosition = canvasPos;
         popup.GetComponent<DamagePopup>().Init(damage);

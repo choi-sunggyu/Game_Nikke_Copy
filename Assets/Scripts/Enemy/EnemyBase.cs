@@ -154,7 +154,6 @@ public abstract class EnemyBase : MonoBehaviour
         {
             characters = characterManager.Characters;
             targetStrategy = new RandomTargetStrategy(characters);
-            Debug.Log("[EnemyBase] CharacterManager 연결 성공");
         }
         else
         {

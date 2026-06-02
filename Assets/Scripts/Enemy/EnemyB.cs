@@ -69,7 +69,6 @@ public class EnemyB : EnemyBase
         isSpawning = false;
         nextAttackTime = Time.time + attackDelay;
         nextMoveTime = Time.time + moveInterval;
-        Debug.Log($"[EnemyB] 등장 완료: {endPos}");
     }
 
     protected override void OnUpdate()

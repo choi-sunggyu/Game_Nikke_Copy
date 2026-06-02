@@ -35,10 +35,20 @@ public abstract class CharacterBase : MonoBehaviour
     [SerializeField] protected float burstCutsceneDuration = 0f; // 버스트 컷씬 지속 시간 (초) - 이 시간 동안 플레이어 조작 잠금, AI는 TryFireAtTarget로 공격
     [SerializeField] private Sprite characterPortrait;
     [SerializeField] private LayerMask collisionMask;
+    [SerializeField] protected float criticalRate;
+    protected float bonusCriticalRate;
+    public bool UsedBurstThisCycle { get; set; }
     private float nextFireTime;
     private CharacterState currentState { get; set; }
     private SpriteRenderer spriteRenderer;
     protected float attackDamageMultiplier = 1f;
+    protected float criticalRateMultiplier = 1f;
+
+    // 프로퍼티
+    public float CriticalRate =>
+        criticalRate * criticalRateMultiplier;
+    public float FinalAttackDamage =>
+        attackDamage * attackDamageMultiplier;
 
     public bool IsAlive => survive;
     public float HpRatio => hp / maxHp;
@@ -64,6 +74,7 @@ public abstract class CharacterBase : MonoBehaviour
     public static event Action<CharacterBase> OnStatChanged;
     public static event Action<CharacterBase, float> OnReloadProgress; // UI용 이벤트 (0~1)
     public static event Action<CharacterBase> OnCharacterDied;
+    public static event Action<CharacterBase, int> OnBulletConsumed;
 
     private Coroutine reloadCoroutine;
     private bool coverReloadLocked = false; // 일시적 강제 엄폐(스페이스) 잠금: true 동안 사격 입력으로 리로드가 취소되지 않음
@@ -146,26 +157,26 @@ public abstract class CharacterBase : MonoBehaviour
                 currentState = CharacterState.Fire;
 
                 bulletCount--;
+                OnBulletConsumed?.Invoke(this, 1);
                 nextFireTime = Time.time + fireRate;
 
                 OnBulletCountChanged?.Invoke(this, bulletCount);
                 FireBullet();
 
                 // 사격 로직 (예: 총알 발사, 애니메이션 재생 등)
-                //Debug.Log("사격");
                 if(bulletCount == 0) //탄창이 다 떨어졌으면 강제 리로딩 상태로 전환
                 {
-                    //Debug.Log("탄창이 다 떨어졌습니다. 강제 리로딩 상태로 전환합니다.");
                     TryReload();
                 }
             }
             else // 강제 리로딩 중이거나 탄창이 없는 경우 사격 불가
             {
-                //Debug.Log("사격 불가");
                 // bulletCount가 0인 경우는 여기서 TryReload를 하지 않고 다른 곳에서 처리 중일 것임
             }
         }
     }
+
+    private Dictionary<string, Coroutine> activeCriticalBuffs = new();
 
     public void ApplyDamageBuff(float multiplier, float duration, string buffId)
     {
@@ -221,8 +232,64 @@ public abstract class CharacterBase : MonoBehaviour
         if (bullet == null) return;
 
         BulletBase bulletBase = bullet.GetComponent<BulletBase>();
-        bulletBase.Init(attackDamage, bulletSpeed, fireDir, chargingBurstGauge);
-        Debug.Log($"[BulletBase] collisionMask value: {collisionMask.value}");
+
+        bulletBase.Init(
+            this,
+            FinalAttackDamage,
+            bulletSpeed,
+            fireDir,
+            chargingBurstGauge
+        );
+    }
+
+    public void ApplyCriticalRateBuff(
+        float amount,
+        float duration,
+        string buffId)
+    {
+        StartCoroutine(
+            CriticalRateBuffCoroutine(
+                amount,
+                duration,
+                buffId));
+    }
+
+    private IEnumerator CriticalRateBuffCoroutine(
+        float amount,
+        float duration,
+        string buffId)
+    {
+        if(activeCriticalBuffs.ContainsKey(buffId))
+        {
+            StopCoroutine(activeCriticalBuffs[buffId]);
+
+            bonusCriticalRate -= amount;
+        }
+
+        bonusCriticalRate += amount;
+
+        Coroutine c =
+            StartCoroutine(
+                CriticalRateBuffTimer(
+                    amount,
+                    duration,
+                    buffId));
+
+        activeCriticalBuffs[buffId] = c;
+
+        yield break;
+    }
+
+    private IEnumerator CriticalRateBuffTimer(
+        float amount,
+        float duration,
+        string buffId)
+    {
+        yield return new WaitForSeconds(duration);
+
+        bonusCriticalRate -= amount;
+
+        activeCriticalBuffs.Remove(buffId);
     }
 
     protected void StopReload()
@@ -365,6 +432,7 @@ public abstract class CharacterBase : MonoBehaviour
         // 사격
         ChangeState(CharacterState.Fire);
         bulletCount--;
+        OnBulletConsumed?.Invoke(this, 1);
         nextFireTime = Time.time + fireRate;
         OnBulletCountChanged?.Invoke(this, bulletCount);
         FireBulletAtTarget(worldTarget);
@@ -379,6 +447,12 @@ public abstract class CharacterBase : MonoBehaviour
         OnStatChanged?.Invoke(this);
     }
 
+    public void AddBurstGauge(float amount)
+    {
+        chargingBurstGauge =
+            Mathf.Min(chargingBurstGauge + amount, 100f);
+    }
+
     public virtual void OnStopFiring() { }
 
     protected virtual void FireBulletAtTarget(Vector3 worldTarget)
@@ -389,7 +463,7 @@ public abstract class CharacterBase : MonoBehaviour
         GameObject bullet = bulletPool.Get(muzzlePoint.position, Quaternion.identity);
         if (bullet == null) return;
 
-        bullet.GetComponent<BulletBase>().Init(attackDamage, bulletSpeed, fireDir, chargingBurstGauge);
+        bullet.GetComponent<BulletBase>().Init(this, attackDamage, bulletSpeed, fireDir, chargingBurstGauge);
     }
 
     public virtual void StopAllSounds() { }

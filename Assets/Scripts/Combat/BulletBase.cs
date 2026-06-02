@@ -1,18 +1,25 @@
+using System;
 using UnityEngine;
 
 public class BulletBase : MonoBehaviour, IPoolable
 {
-    private ObjectPool ownerPool;   
-    private float damage;           
-    private float speed;     
-    private Vector3 direction;      
-    private float lifetime = 3f;    
-    private float spawnTime;        
+    private ObjectPool ownerPool;
+    private CharacterBase owner;
+    private float damage;
+    private float speed;
+    private Vector3 direction;
+    private float lifetime = 3f;
+    private float spawnTime;
     private float burstChargeAmount;
     private bool isInitialized = false;
 
+    //프로퍼티 추가
+    public CharacterBase Owner => owner;
+
     // 인스펙터나 코드로 적/아군/배경 레이어를 구분할 수 있도록 설정
-    [SerializeField] private LayerMask collisionMask; 
+    [SerializeField] private LayerMask collisionMask;
+
+    public static event Action<CharacterBase> OnLastBulletHit;
 
     void OnEnable()
     {
@@ -23,9 +30,10 @@ public class BulletBase : MonoBehaviour, IPoolable
     public void OnGet() { isInitialized = false; }
     public void OnReturn() { isInitialized = false; }
 
-    public void Init(float damage, float speed, Vector3 direction, float burstCharge)
+    public void Init(CharacterBase owner, float damage, float speed, Vector3 direction, float burstCharge)
     {
         isInitialized = true;
+        this.owner = owner;
         this.damage = damage;
         this.speed = speed;
         this.direction = direction.normalized; 
@@ -66,7 +74,11 @@ public class BulletBase : MonoBehaviour, IPoolable
         if (other.TryGetComponent<EnemyBase>(out EnemyBase enemy))
         {
             enemy.TakeDamage(damage);
+
             BurstGaugeManager.Instance?.AddGauge(burstChargeAmount);
+
+            CheckViperLastBulletHit();
+
             ownerPool.Return(gameObject);
             return;
         }
@@ -82,5 +94,19 @@ public class BulletBase : MonoBehaviour, IPoolable
         {
             ownerPool.Return(gameObject);
         }
+    }
+
+    private void CheckViperLastBulletHit()
+    {
+        if(owner == null)
+            return;
+
+        if(owner is not Viper)
+            return;
+
+        if(owner.CurrentBulletCount != 0)
+            return;
+
+        OnLastBulletHit?.Invoke(owner);
     }
 }
