@@ -78,6 +78,8 @@ public class WaveManager : MonoBehaviour
         // 인트로 중에는 적이 공격 안 함 (초기값 false)
         EnemyBase.BattleStarted = false;
 
+        BattleManager.Instance.InitBulletConsumption(); // 총알 소비 초기화
+
         AudioManager.Instance.PlayBattleBGM();
 
         // ★ StartGame 한 번만 호출

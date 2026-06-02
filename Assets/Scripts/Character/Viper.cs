@@ -26,6 +26,7 @@ public class Viper : CharacterBase
     private Vector3 aiWorldTarget;
     private WaveManager waveManager; // 필드 추가
     private const string BuffId = "Viper_Crit"; // 버프 식별자
+    private CharacterManager characterManager;
 
     public override void Initialize()
     {
@@ -80,6 +81,7 @@ public class Viper : CharacterBase
     {
         Initialize();
         waveManager = FindAnyObjectByType<WaveManager>(); // 캐싱(매 버스트마다 호출하고 있었음)
+        characterManager = FindAnyObjectByType<CharacterManager>();
     }
 
     public override void TryFire()
@@ -281,8 +283,6 @@ public class Viper : CharacterBase
     }
     public override void UseBurst()
     {
-        var waveManager = FindAnyObjectByType<WaveManager>();
-        var characterManager = FindAnyObjectByType<CharacterManager>();
         if (waveManager == null || characterManager == null) return;
 
         UsedBurstThisCycle = true;

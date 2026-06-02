@@ -268,8 +268,6 @@ public class Titan : CharacterBase
     }
     public override void UseBurst()
     {
-        var waveManager = FindAnyObjectByType<WaveManager>();
-        var characterManager = FindAnyObjectByType<CharacterManager>();
         if (waveManager == null || characterManager == null) return;
 
         UsedBurstThisCycle = true;

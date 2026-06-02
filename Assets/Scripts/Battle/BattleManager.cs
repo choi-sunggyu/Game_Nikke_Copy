@@ -43,6 +43,12 @@ public class BattleManager : MonoBehaviour
         }
     }
 
+    public void InitBulletConsumption()
+    {
+        totalBulletConsumed = 0;
+        nextGhostTrigger = 400;
+    }
+
     private void ActivateGhostSkill()
     {
         Ghost ghost =

@@ -6,6 +6,9 @@ public class Ghost : CharacterBase
     [SerializeField] private AudioClip singleShotClip;
     [SerializeField] private AudioClip reloadClip;
 
+    private CharacterManager characterManager;
+    private WaveManager waveManager;
+
     private AudioSource singleShotSource;
     private AudioSource reloadSource;
 
@@ -39,6 +42,13 @@ public class Ghost : CharacterBase
     {
         base.OnDisable();
         //StopAllSounds(); // ← 비활성화 시 즉시 정지
+    }
+
+    void Start()
+    {
+        Initialize();
+        characterManager = FindAnyObjectByType<CharacterManager>();
+        waveManager = FindAnyObjectByType<WaveManager>();
     }
 
     public override void TryFire()
@@ -130,8 +140,6 @@ public class Ghost : CharacterBase
 
     public override void UseBurst()
     {
-        var waveManager = FindAnyObjectByType<WaveManager>();
-        var characterManager = FindAnyObjectByType<CharacterManager>();
         if (waveManager == null || characterManager == null) return;
 
         UsedBurstThisCycle = true;
