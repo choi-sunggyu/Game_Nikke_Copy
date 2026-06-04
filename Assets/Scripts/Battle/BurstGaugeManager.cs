@@ -59,6 +59,7 @@ public class BurstGaugeManager : MonoBehaviour
     void Start()
     {
         characterManager = FindAnyObjectByType<CharacterManager>();
+        OnAutoModeChanged?.Invoke(isAutoMode); // 초기 상태 UI 반영
     }
 
     void Update()

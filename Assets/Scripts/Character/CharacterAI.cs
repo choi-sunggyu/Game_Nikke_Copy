@@ -125,6 +125,8 @@ public class CharacterAI : MonoBehaviour
 
         lineEndScreenPos = centerPos;
         lineEndInitialized = false;
+
+        OnAutoScopeModeChanged?.Invoke(isAutoScopeMode);
     }
 
     void Update()
