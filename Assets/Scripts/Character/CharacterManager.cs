@@ -98,21 +98,10 @@ public class CharacterManager : MonoBehaviour
         // 1. 전환 중이면 무시
         // 2. 요청한 캐릭터가 사망했으면 무시
         // 3. 요청한 캐릭터가 현재 캐릭터면 무시
-        if(changing)
-        {
-            Debug.Log("캐릭터 전환 중입니다.");
-            return;
-        }
-        if(!characters[index].IsAlive)
-        {
-            Debug.Log("요청한 캐릭터는 사망했습니다.");
-            return;
-        }
-        if(characters[index] == currentCharacter)
-        {
-            return;
-        }
-        // 통과하면 StartCoroutine 호출
+        if (!BattleIntroManager.IsComplete) return;
+        if(changing) return;
+        if(!characters[index].IsAlive) return;
+        if(characters[index] == currentCharacter) return;
         StartCoroutine(SwitchDelay(index));
     }
 

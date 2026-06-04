@@ -52,6 +52,7 @@ public class BattleIntroManager : MonoBehaviour
     [SerializeField] private float diceSlideDistance = 50f;
     [SerializeField] private float fadeOutDuration  = 0.30f;
 
+    public static bool IsComplete { get; private set; } = false;
     private bool      _rotateCrosshair = false;
     private Transform _camTransform;
     private Vector3   _camGameplayPos;     // 인트로 종료 목표 = CameraController 의 게임플레이 위치
@@ -273,8 +274,9 @@ public class BattleIntroManager : MonoBehaviour
 
     void OnIntroFinished()
     {
+        IsComplete = true;
         // CameraController 에게 통제권 반환 (이벤트 + 직접 enable 양쪽 안전망)
-        //if (cameraController != null) cameraController.enabled = true;
+        // if (cameraController != null) cameraController.enabled = true;
         OnBattleIntroComplete?.Invoke();
         gameObject.SetActive(false);
     }
