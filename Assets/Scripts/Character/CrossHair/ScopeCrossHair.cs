@@ -71,7 +71,8 @@ public class ScopeCrossHair : CrossHairBase
         if (innerGlow != null)
         {
             RectTransform glowRect = innerGlow.GetComponent<RectTransform>();
-            glowRect.sizeDelta = new Vector2(scopeSize, scopeSize);
+            float glowScale = 2.0f;
+            glowRect.sizeDelta = new Vector2(scopeSize * glowScale, scopeSize * glowScale);
 
             // 원형 방사형 텍스처 생성 (원 밖은 완전 투명)
             Texture2D glowTex = CreateRadialGlowTexture(512);
