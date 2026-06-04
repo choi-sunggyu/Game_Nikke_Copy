@@ -141,10 +141,12 @@ public class CharacterAI : MonoBehaviour
             if (lineRenderer != null && lineRenderer.enabled)
                 lineRenderer.enabled = false;
 
-            if (!owner.IsAlive || characterManager.IsCovering || owner.CurrentState == CharacterState.Reload)
-            {
+            if (!owner.IsAlive || owner.CurrentState == CharacterState.Reload)
                 return;
-            }
+
+            // 엄폐 중이어도 자동사격 모드면 AI 사격 계속
+            if (characterManager.IsCovering && !isAutoScopeMode)
+                return;
 
             bool isPlayerFiring = Input.GetMouseButton(0);
 
