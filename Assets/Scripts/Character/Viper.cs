@@ -71,6 +71,12 @@ public class Viper : CharacterBase
         InputManager.OnFireRelease -= HandleFireRelease;
         StopAllSounds(); // 비활성화 시 모든 사운드 즉시 정지
     }
+    void Update()
+    {
+        if (!isCharging) return;
+        float ratio = Mathf.Clamp01((Time.time - chargeStartTime) / maxChargeTime);
+        (crossHair as ScopeCrossHair)?.UpdateChargeUI(ratio);
+    }
 
     private void HandleFirePress()
     {
@@ -90,6 +96,12 @@ public class Viper : CharacterBase
         if (!IsAlive || bulletCount <= 0) return;
 
         // 이미 차지 중이면 상태 유지만 (chargeStartTime 갱신 금지)
+        if (CurrentState == CharacterState.Reload)
+        {
+            StopReload();
+            StopReloadSound();
+        }
+
         if (isCharging)
         {
             ChangeState(CharacterState.Fire);
@@ -107,6 +119,8 @@ public class Viper : CharacterBase
 
     void HandleFireRelease()
     {
+        (crossHair as ScopeCrossHair)?.UpdateChargeUI(0f);
+
         isFireHeld = false;
         hasPlayedCharging = false; // ← 클릭 해제 시 플래그 리셋
 

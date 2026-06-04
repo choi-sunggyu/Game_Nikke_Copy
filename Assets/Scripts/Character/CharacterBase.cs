@@ -53,7 +53,7 @@ public abstract class CharacterBase : MonoBehaviour
     public bool IsAlive => survive;
     public float HpRatio => hp / maxHp;
     public float MaxHp => maxHp;
-    public float MaxBulletCount => maxBulletCount;
+    public int MaxBulletCount => maxBulletCount;
     public int CurrentBulletCount => bulletCount;
     public float ShieldRatio => shield / maxShield;
     public float NextFireTime => nextFireTime;

@@ -169,7 +169,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HexagonSpinner
   rotateSpeed: 120
   innerSpeed: -80
-  hexColor: {r: 0.9960785, g: 0.9960785, b: 0.9960785, a: 0.07058824}
+  hexColor: {r: 0.9960785, g: 0.9960785, b: 0.9960785, a: 1}
 --- !u!1 &519677099
 GameObject:
   m_ObjectHideFlags: 0

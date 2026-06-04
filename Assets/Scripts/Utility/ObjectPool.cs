@@ -7,7 +7,7 @@ public class ObjectPool : MonoBehaviour
     [SerializeField] private GameObject prefab;
     [SerializeField] private int initialSize = 10;
     [SerializeField] private bool canExpand = true;
-    [SerializeField] private Transform poolParent;
+    private Transform poolParent;
 
 
     private Queue<GameObject> pool = new Queue<GameObject>();
