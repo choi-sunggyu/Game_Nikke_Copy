@@ -29,6 +29,8 @@ public class ScopeCrossHair : CrossHairBase
     private RectTransform scopeRectTransform;
     public Image donutImage;
     private Coroutine _glowCoroutine;
+    [SerializeField] private float holeRadius = 70f;
+    [SerializeField] private float glowScale = 2.2f;
     private bool isReloading = false;
     [Header("BulletCount 위치")]
     [SerializeField] private Vector2 bulletCountIdlePos;  // 미클릭 시 위치
@@ -49,44 +51,6 @@ public class ScopeCrossHair : CrossHairBase
 
         scopeRectTransform = scopeOverlay.GetComponent<RectTransform>();
 
-        float diagonal = Mathf.Sqrt(Screen.width * Screen.width + Screen.height * Screen.height);
-
-        // ScopeOverlay는 화면 전체를 덮어야 하므로 diagonal * 2f 유지
-        scopeRectTransform.sizeDelta = new Vector2(diagonal * 2f, diagonal * 2f);
-
-        // ▼ 구멍 크기 조절 → holeRadius 값을 올리면 구멍이 커짐
-        float texSize    = 3072f;
-        float holeRadius = 80f; // ← 이 값을 올릴수록 도넛 구멍이 커짐 (기본 66f → 100f)
-
-        Texture2D donut = CreateDonutTexture((int)texSize, holeRadius);
-        donutImage.sprite = Sprite.Create(
-            donut, new Rect(0, 0, texSize, texSize), new Vector2(0.5f, 0.5f)
-        );
-
-        // 구멍 실제 픽셀 크기를 화면 크기 기준으로 환산
-        // ▼ holeRadius 바꿨으면 여기도 자동으로 맞춰짐 (건드릴 필요 없음)
-        float scopeSize = diagonal * 2f * (holeRadius / texSize) * 2f;
-
-        // InnerGlow 크기를 구멍에 맞춤 (원형 텍스처 사용)
-        if (innerGlow != null)
-        {
-            RectTransform glowRect = innerGlow.GetComponent<RectTransform>();
-            float glowScale = 2.0f;
-            glowRect.sizeDelta = new Vector2(scopeSize * glowScale, scopeSize * glowScale);
-
-            // 원형 방사형 텍스처 생성 (원 밖은 완전 투명)
-            Texture2D glowTex = CreateRadialGlowTexture(512);
-            innerGlow.sprite = Sprite.Create(
-                glowTex, new Rect(0, 0, 512, 512), new Vector2(0.5f, 0.5f)
-            );
-
-            // 시작 시 alpha 0, 비활성
-            Color c = innerGlow.color;
-            c.a = 0f;
-            innerGlow.color = c;
-            innerGlow.enabled = false;
-        }
-
         canvasGroup.alpha = 0f;
         scopeOverlay.SetActive(false);
     }
@@ -94,9 +58,40 @@ public class ScopeCrossHair : CrossHairBase
     protected override void Start()
     {
         base.Start();
+
+        float diagonal = Mathf.Sqrt(Screen.width * Screen.width + Screen.height * Screen.height);
+        float texSize  = 3072f;
+
+        // ScopeOverlay 화면 전체 덮기
+        scopeRectTransform.sizeDelta = new Vector2(diagonal * 2f, diagonal * 2f);
+
+        // 도넛 텍스처
+        Texture2D donut = CreateDonutTexture((int)texSize, holeRadius);
+        donutImage.sprite = Sprite.Create(
+            donut, new Rect(0, 0, texSize, texSize), new Vector2(0.5f, 0.5f)
+        );
+
+        // 구멍 실제 크기 환산 (holeRadius 하나만 바꾸면 자동 맞춰짐)
+        float scopeSize = diagonal * 2f * (holeRadius / texSize) * 2f;
+
+        if (innerGlow != null)
+        {
+            RectTransform glowRect = innerGlow.GetComponent<RectTransform>();
+            glowRect.sizeDelta = new Vector2(scopeSize * glowScale, scopeSize * glowScale);
+
+            Texture2D glowTex = CreateRadialGlowTexture(512);
+            innerGlow.sprite = Sprite.Create(
+                glowTex, new Rect(0, 0, 512, 512), new Vector2(0.5f, 0.5f)
+            );
+
+            Color c = innerGlow.color;
+            c.a = 0f;
+            innerGlow.color = c;
+            innerGlow.enabled = false;
+        }
+
         isActive = false;
         crossHairImage.SetActive(false);
-
         if (idleAmmoUI != null)
             idleAmmoUI.SetActive(false);
     }
