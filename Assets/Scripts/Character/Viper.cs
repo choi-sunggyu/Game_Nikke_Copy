@@ -95,6 +95,9 @@ public class Viper : CharacterBase
         if (IsCoverReloadLocked) return;
         if (!IsAlive || bulletCount <= 0) return;
 
+        // 적이 없으면 차징 시작 안 함
+        if (waveManager == null || waveManager.ActiveEnemies.Count == 0) return;
+
         // 이미 차지 중이면 상태 유지만 (chargeStartTime 갱신 금지)
         if (CurrentState == CharacterState.Reload)
         {
