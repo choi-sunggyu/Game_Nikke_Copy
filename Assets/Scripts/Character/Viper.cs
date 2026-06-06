@@ -80,7 +80,13 @@ public class Viper : CharacterBase
 
     private void HandleFirePress()
     {
-        isFireHeld = true; // ← 클릭 시작 시 기록
+        isFireHeld = true;
+        
+        if (CurrentState == CharacterState.Reload && bulletCount > 0)
+        {
+            StopReload();
+            StopReloadSound();
+        }
     }
 
     void Start()
@@ -96,7 +102,7 @@ public class Viper : CharacterBase
         if (!IsAlive || bulletCount <= 0) return;
 
         // 적이 없으면 차징 시작 안 함
-        if (waveManager == null || waveManager.ActiveEnemies.Count == 0) return;
+        //if (waveManager == null || waveManager.ActiveEnemies.Count == 0) return;
 
         // 이미 차지 중이면 상태 유지만 (chargeStartTime 갱신 금지)
         if (CurrentState == CharacterState.Reload)

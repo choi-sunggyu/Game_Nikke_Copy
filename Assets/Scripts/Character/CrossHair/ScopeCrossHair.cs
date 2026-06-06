@@ -5,48 +5,69 @@ using UnityEngine.UI;
 
 public class ScopeCrossHair : CrossHairBase
 {
+    // ═══════════════════════════════════════════════════════
+    //  Inspector 연결
+    // ═══════════════════════════════════════════════════════
+    [Header("── Scope 오브젝트 ───────────────")]
+    public  GameObject scopeOverlay;
+    public  GameObject crossHairImage;
+    public  Image      donutImage;
+    [SerializeField] private Image scopeImage;
+
+    [Header("── Scope 크기 (레퍼런스 1080x1920 기준) ──")]
+    [SerializeField] private float holeSize       = 300f;
+    [SerializeField] private float scopeImageSize = 280f;
+    [SerializeField] private float glowMultiplier = 1.0f;
+    [SerializeField] private int   donutTexSize   = 512;
+    [SerializeField] private Color glowColor      = new Color(1f, 0.6f, 0.1f, 1f);
+
     [Header("── Scope 차징 UI ─────────────")]
-    [SerializeField] private Image     chargeProgressBar;
-    [SerializeField] private TMP_Text  chargePercentText;
-    [SerializeField] private Image     innerGlow; // 차징 완료 빛
+    [SerializeField] private Image    chargeProgressBar;
+    [SerializeField] private TMP_Text chargePercentText;
+    [SerializeField] private Image    innerGlow;
 
     [Header("── Scope 탄약 UI ─────────────")]
-    [SerializeField] private Image     scopeAmmoBar;
-    [SerializeField] private TMP_Text  scopeAmmoText;
+    [SerializeField] private Image    scopeAmmoBar;
+    [SerializeField] private TMP_Text scopeAmmoText;
 
     [Header("── Idle 탄약 UI ──────────────")]
     [SerializeField] private GameObject idleAmmoUI;
-    [SerializeField] private Image      idleAmmoBar; // 가로 바
+    [SerializeField] private Image      idleAmmoBar;
     [SerializeField] private TMP_Text   idleAmmoText;
 
-    private static readonly Color normalColor = Color.white;
-    private static readonly Color warningColor = new Color(1f, 0.25f, 0.25f); // 빨간
+    // ═══════════════════════════════════════════════════════
+    //  내부 상태 및 캐싱
+    // ═══════════════════════════════════════════════════════
+    private static readonly Color normalColor  = Color.white;
+    private static readonly Color warningColor = new Color(1f, 0.25f, 0.25f);
 
-    [Header("Scope 전용")]
-    public GameObject scopeOverlay; // 스코프 UI 전체 오브젝트 (도넛 + 차징 + 탄약 등)
-    public GameObject crossHairImage;  // 미터치 시 표시할 CrossHair
-    private CanvasGroup canvasGroup; // 스코프 페이드 효과용 CanvasGroup
+    private CanvasGroup   canvasGroup;
     private RectTransform scopeRectTransform;
-    public Image donutImage;
+    private RectTransform _donutRect;
+    private RectTransform _glowRect;
+
     private Coroutine _glowCoroutine;
-    [SerializeField] private float holeRadius = 70f;
-    [SerializeField] private float glowScale = 2.2f;
-    private bool isReloading = false;
-    [Header("BulletCount 위치")]
-    [SerializeField] private Vector2 bulletCountIdlePos;  // 미클릭 시 위치
-    [SerializeField] private Vector2 bulletCountAimPos;   // 클릭(조준) 시 위치
-    private RectTransform bulletCountRect;
-    private bool _glowActive = false;
+    private bool      _glowActive = false;
 
-    private bool IsOwnerReloading => owner != null && 
-                                  owner.CurrentState == CharacterState.Reload;
+    // 매 프레임 new 할당 방지용 캐싱 필드
+    private Vector3 _targetPosition;
+    private Vector2 _touchDelta;
 
+    // Screen 크기 캐싱 (Start에서 1회 세팅)
+    private float _screenW;
+    private float _screenH;
+
+    private bool IsOwnerReloading =>
+        owner != null && owner.CurrentState == CharacterState.Reload;
+
+    // ═══════════════════════════════════════════════════════
+    //  초기화
+    // ═══════════════════════════════════════════════════════
     protected override void Awake()
     {
         base.Awake();
 
-        canvasGroup = scopeOverlay.GetComponent<CanvasGroup>();
-        if (canvasGroup == null)
+        if (!scopeOverlay.TryGetComponent(out canvasGroup))
             canvasGroup = scopeOverlay.AddComponent<CanvasGroup>();
 
         scopeRectTransform = scopeOverlay.GetComponent<RectTransform>();
@@ -59,36 +80,11 @@ public class ScopeCrossHair : CrossHairBase
     {
         base.Start();
 
-        float diagonal = Mathf.Sqrt(Screen.width * Screen.width + Screen.height * Screen.height);
-        float texSize  = 3072f;
+        // 화면 크기 1회 캐싱
+        _screenW = Screen.width;
+        _screenH = Screen.height;
 
-        // ScopeOverlay 화면 전체 덮기
-        scopeRectTransform.sizeDelta = new Vector2(diagonal * 2f, diagonal * 2f);
-
-        // 도넛 텍스처
-        Texture2D donut = CreateDonutTexture((int)texSize, holeRadius);
-        donutImage.sprite = Sprite.Create(
-            donut, new Rect(0, 0, texSize, texSize), new Vector2(0.5f, 0.5f)
-        );
-
-        // 구멍 실제 크기 환산 (holeRadius 하나만 바꾸면 자동 맞춰짐)
-        float scopeSize = diagonal * 2f * (holeRadius / texSize) * 2f;
-
-        if (innerGlow != null)
-        {
-            RectTransform glowRect = innerGlow.GetComponent<RectTransform>();
-            glowRect.sizeDelta = new Vector2(scopeSize * glowScale, scopeSize * glowScale);
-
-            Texture2D glowTex = CreateRadialGlowTexture(512);
-            innerGlow.sprite = Sprite.Create(
-                glowTex, new Rect(0, 0, 512, 512), new Vector2(0.5f, 0.5f)
-            );
-
-            Color c = innerGlow.color;
-            c.a = 0f;
-            innerGlow.color = c;
-            innerGlow.enabled = false;
-        }
+        BuildScopeUI();
 
         isActive = false;
         crossHairImage.SetActive(false);
@@ -96,48 +92,101 @@ public class ScopeCrossHair : CrossHairBase
             idleAmmoUI.SetActive(false);
     }
 
+    /// <summary>
+    /// 모든 Scope UI 크기를 코드로 통합 관리.
+    /// 레퍼런스 해상도(1080x1920) 기준 → Canvas Scaler가 스케일 처리.
+    /// holeSize, scopeImageSize, glowMultiplier 세 값만 Inspector에서 조절.
+    /// </summary>
+    private void BuildScopeUI()
+    {
+        float refDiagonal = Mathf.Sqrt(1080f * 1080f + 1920f * 1920f);
+
+        // ① ScopeOverlay — 레퍼런스 대각선 크기로 화면 전체 덮기
+        scopeRectTransform.sizeDelta        = new Vector2(refDiagonal, refDiagonal);
+        scopeRectTransform.anchoredPosition = Vector2.zero;
+
+        // ② DonutImage — ScopeOverlay와 동일 크기, holeSize 기준 구멍 비율 계산
+        float holeRadiusPx = donutTexSize * 0.5f * (holeSize * 0.5f / (refDiagonal * 0.5f));
+        Texture2D donut = CreateDonutTexture(donutTexSize, holeRadiusPx);
+        donutImage.sprite = Sprite.Create(
+            donut,
+            new Rect(0, 0, donutTexSize, donutTexSize),
+            new Vector2(0.5f, 0.5f)
+        );
+
+        _donutRect = donutImage.GetComponent<RectTransform>();
+        _donutRect.sizeDelta        = new Vector2(refDiagonal, refDiagonal);
+        _donutRect.anchoredPosition = Vector2.zero;
+
+        // ③ ScopeImage — scopeImageSize 고정 (holeSize보다 작게 유지)
+        if (scopeImage != null)
+        {
+            RectTransform scopeRect     = scopeImage.GetComponent<RectTransform>();
+            scopeRect.sizeDelta         = new Vector2(scopeImageSize, scopeImageSize);
+            scopeRect.anchoredPosition  = Vector2.zero;
+        }
+
+        // ④ InnerGlow — holeSize * glowMultiplier
+        if (innerGlow != null)
+        {
+            float glowSize = holeSize * glowMultiplier;
+
+            _glowRect = innerGlow.GetComponent<RectTransform>();
+            _glowRect.sizeDelta        = new Vector2(glowSize, glowSize);
+            _glowRect.anchoredPosition = Vector2.zero;
+
+            Texture2D glowTex = CreateRadialGlowTexture(256, glowColor);
+            innerGlow.sprite = Sprite.Create(
+                glowTex,
+                new Rect(0, 0, 256, 256),
+                new Vector2(0.5f, 0.5f)
+            );
+
+            Color c = innerGlow.color;
+            c.a             = 0f;
+            innerGlow.color = c;
+            innerGlow.enabled = false;
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  이벤트 구독
+    // ═══════════════════════════════════════════════════════
     protected override void OnEnable()
     {
         base.OnEnable();
-        CharacterBase.OnForcedReloadStart += HandleReloadStart;
-        CharacterBase.OnForcedReloadEnd   += HandleReloadEnd;
+        CharacterBase.OnForcedReloadStart  += HandleReloadStart;
+        CharacterBase.OnForcedReloadEnd    += HandleReloadEnd;
         CharacterBase.OnBulletCountChanged += HandleBulletCountChanged;
     }
 
     protected override void OnDisable()
     {
         base.OnDisable();
-        CharacterBase.OnForcedReloadStart -= HandleReloadStart;
-        CharacterBase.OnForcedReloadEnd   -= HandleReloadEnd;
+        CharacterBase.OnForcedReloadStart  -= HandleReloadStart;
+        CharacterBase.OnForcedReloadEnd    -= HandleReloadEnd;
         CharacterBase.OnBulletCountChanged -= HandleBulletCountChanged;
     }
 
-    // [캐릭터 전환]
-
+    // ═══════════════════════════════════════════════════════
+    //  캐릭터 전환 및 이벤트 핸들링
+    // ═══════════════════════════════════════════════════════
     protected override void OnSwitchCharacter(int index)
     {
         isActive = (CM.CurrentCharacter == owner);
         crossHairImage.SetActive(isActive);
+        if (idleAmmoUI != null) idleAmmoUI.SetActive(isActive);
 
-        if (idleAmmoUI != null)
-            idleAmmoUI.SetActive(isActive);
-
-        if(!isActive)
+        if (!isActive)
         {
             isDragging = false;
             HideScope();
         }
         else
         {
-            RefreshBulletCount();
+            if (owner != null)
+                UpdateAmmoUI(owner.CurrentBulletCount, owner.MaxBulletCount);
         }
-    }
-
-    // [탄약 변경]
-    private void RefreshBulletCount()
-    {
-        if(CM != null && CM.CurrentCharacter != null && bulletCountText != null)
-            bulletCountText.text = CM.CurrentCharacter.CurrentBulletCount.ToString();
     }
 
     void HandleBulletCountChanged(CharacterBase sender, int count)
@@ -146,167 +195,165 @@ public class ScopeCrossHair : CrossHairBase
         UpdateAmmoUI(count, owner.MaxBulletCount);
     }
 
-    // [조준/미조준] - 클릭 시 스코프 표시, 기존 크로스헤어 숨김
+    // ═══════════════════════════════════════════════════════
+    //  조준 입력
+    // ═══════════════════════════════════════════════════════
     protected override void OnFirePress()
     {
-        if(!isActive || isReloading) return;
+        if (!isActive) return;
 
-        isDragging = true;
+        isDragging      = true;
         currentPosition = Input.mousePosition;
-
-        // 스코프를 현재 크로스헤어 위치에 표시
         scopeRectTransform.position = rectTransform.position;
 
-        // 기존 크로스헤어 숨기고 스코프 표시
         crossHairImage.SetActive(false);
-        idleAmmoUI.SetActive(false);
+        if (idleAmmoUI != null) idleAmmoUI.SetActive(false);
         scopeOverlay.SetActive(true);
         canvasGroup.alpha = 1f;
     }
 
-    // [조준/미조준] - 클릭 해제 시 스코프 숨김, 기존 크로스헤어 표시
     protected override void OnFireRelease()
     {
         isDragging = false;
         HideScope();
-        if(isActive)
+
+        if (isActive)
         {
-            crossHairImage.SetActive(true);  // CrossHair 다시 표시
-            idleAmmoUI.SetActive(true);
+            crossHairImage.SetActive(true);
+            if (idleAmmoUI != null) idleAmmoUI.SetActive(true);
         }
     }
 
-    // [리로드] - 강제 리로드 시작 → 조준 해제 + 스코프 숨김
+    // ═══════════════════════════════════════════════════════
+    //  강제 리로드
+    // ═══════════════════════════════════════════════════════
     void HandleReloadStart(CharacterBase sender)
     {
-        if(!isActive) return;
+        if (!isActive) return;
         if (CM == null || sender != CM.CurrentCharacter) return;
-        isReloading = true;
         isDragging = false;
         HideScope();
     }
 
-    // [리로드] - 강제 리로드 완료 → 조준 유지한 채로 리로드 완료 → 다시 스코프 표시
-    void HandleReloadEnd(CharacterBase sender) 
-    { 
-        // 조준 상태에서 강제 리로드 → 조준 유지한 채로 리로드 완료 → 다시 스코프 표시
+    void HandleReloadEnd(CharacterBase sender)
+    {
         if (CM == null || sender != CM.CurrentCharacter) return;
-        isReloading = false;
         if (Input.GetMouseButton(0))
             OnFirePress();
     }
 
-    // [스코프UI 숨김]
     void HideScope()
     {
         canvasGroup.alpha = 0f;
         scopeOverlay.SetActive(false);
     }
 
-    // [드로잉] - Scope는 별도의 UI로 처리하므로 기본 드로잉 로직은 비활성화
     protected override void DrawCrossHair() { }
 
+    // ═══════════════════════════════════════════════════════
+    //  Update
+    // ═══════════════════════════════════════════════════════
     protected override void Update()
     {
-        if (CharacterAI.IsAutoScopeMode && isActive && !IsOwnerReloading)
-        {
-            if (!scopeOverlay.activeSelf)
-            {
-                crossHairImage.SetActive(false);
-                idleAmmoUI?.SetActive(false);
-                scopeOverlay.SetActive(true);
-                canvasGroup.alpha = 1f;
-            }
-            scopeRectTransform.position = rectTransform.position;
-        }
-        else if (CharacterAI.IsAutoScopeMode && isActive && IsOwnerReloading)
-        {
-            // 자동사격 모드 + 리로딩 중 → 스코프 닫고 일반 크로스헤어
-            if (scopeOverlay.activeSelf)
-            {
-                HideScope();
-                crossHairImage.SetActive(true);
-                idleAmmoUI?.SetActive(true);
-            }
-        }
-        else if (!CharacterAI.IsAutoScopeMode && isActive && !isDragging)
-        {
-            if (scopeOverlay.activeSelf && canvasGroup.alpha > 0f)
-            {
-                HideScope();
-                crossHairImage.SetActive(true);
-                idleAmmoUI?.SetActive(true);
-            }
-        }
+        if (!isActive) return;
 
-        if(isPCMode && isActive)
-        {
-            // PC: 클릭 여부 상관없이 항상 마우스를 따라다님
-            // AutoScopeMode 중에는 CharacterAI가 위치를 제어하므로 마우스 추적 비활성
-            if (!CharacterAI.IsAutoScopeMode)
-            {
-                Vector3 newPos = Input.mousePosition;
-                newPos.x = Mathf.Clamp(newPos.x, 0f, Screen.width);
-                newPos.y = Mathf.Clamp(newPos.y, 0f, Screen.height);
-                rectTransform.position = newPos;
-            }
+        UpdateScopeVisibilityState();
+        UpdateCrosshairPosition();
 
-            // 클릭 중이면 스코프도 따라감
-            if(isDragging)
-                scopeRectTransform.position = rectTransform.position;
-        }
-        else if(!isPCMode && isActive)
-        {
-            // 모바일: 미터치 or 강제 리로딩 중 → CrossHair 드래그
-            if(!isDragging)
-            {
-                if(Input.GetMouseButton(0) && isReloading)
-                {
-                    Vector2 delta = (Vector2)Input.mousePosition - currentPosition;
-                    Vector3 newPos = rectTransform.position + (Vector3)delta;
-                    newPos.x = Mathf.Clamp(newPos.x, 0f, Screen.width);
-                    newPos.y = Mathf.Clamp(newPos.y, 0f, Screen.height);
-                    rectTransform.position = newPos;
-                }
-                currentPosition = Input.mousePosition;
-            }
-
-            // 모바일: 조준 중 → 조준경 + CrossHair 같이 이동
-            if(isDragging)
-            {
-                Vector2 touchDelta = (Vector2)Input.mousePosition - currentPosition;
-                Vector3 newPos = rectTransform.position + (Vector3)touchDelta;
-                newPos.x = Mathf.Clamp(newPos.x, 0f, Screen.width);
-                newPos.y = Mathf.Clamp(newPos.y, 0f, Screen.height);
-                rectTransform.position = newPos;
-
-                scopeRectTransform.position = rectTransform.position;
-                currentPosition = Input.mousePosition;
-            }
-        }
-
-        if(!isDragging && canvasGroup.alpha <= 0f)
+        if (!isDragging && canvasGroup.alpha <= 0f)
             scopeOverlay.SetActive(false);
     }
 
-    // [차징 UI 업데이트]
+    private void UpdateScopeVisibilityState()
+    {
+        if (CharacterAI.IsAutoScopeMode)
+        {
+            if (!IsOwnerReloading)
+            {
+                if (!scopeOverlay.activeSelf)
+                {
+                    crossHairImage.SetActive(false);
+                    if (idleAmmoUI != null) idleAmmoUI.SetActive(false);
+                    scopeOverlay.SetActive(true);
+                    canvasGroup.alpha = 1f;
+                }
+                scopeRectTransform.position = rectTransform.position;
+            }
+            else
+            {
+                if (scopeOverlay.activeSelf)
+                {
+                    HideScope();
+                    crossHairImage.SetActive(true);
+                    if (idleAmmoUI != null) idleAmmoUI.SetActive(true);
+                }
+            }
+        }
+        else
+        {
+            if (!isDragging && scopeOverlay.activeSelf && canvasGroup.alpha > 0f)
+            {
+                HideScope();
+                crossHairImage.SetActive(true);
+                if (idleAmmoUI != null) idleAmmoUI.SetActive(true);
+            }
+        }
+    }
+
+    private void UpdateCrosshairPosition()
+    {
+        if (isPCMode)
+        {
+            if (!CharacterAI.IsAutoScopeMode)
+            {
+                _targetPosition   = Input.mousePosition;
+                _targetPosition.x = Mathf.Clamp(_targetPosition.x, 0f, _screenW);
+                _targetPosition.y = Mathf.Clamp(_targetPosition.y, 0f, _screenH);
+                rectTransform.position = _targetPosition;
+            }
+
+            if (isDragging)
+                scopeRectTransform.position = rectTransform.position;
+        }
+        else
+        {
+            if (!isDragging)
+            {
+                currentPosition = Input.mousePosition;
+            }
+            else
+            {
+                _touchDelta       = (Vector2)Input.mousePosition - currentPosition;
+                _targetPosition   = rectTransform.position + (Vector3)_touchDelta;
+                _targetPosition.x = Mathf.Clamp(_targetPosition.x, 0f, _screenW);
+                _targetPosition.y = Mathf.Clamp(_targetPosition.y, 0f, _screenH);
+
+                rectTransform.position      = _targetPosition;
+                scopeRectTransform.position = _targetPosition;
+                currentPosition             = Input.mousePosition;
+            }
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  UI 데이터 갱신
+    // ═══════════════════════════════════════════════════════
     public void UpdateChargeUI(float chargeRatio)
     {
         if (chargeProgressBar == null) return;
 
         chargeProgressBar.fillAmount = chargeRatio;
-        chargePercentText.text = Mathf.RoundToInt(chargeRatio * 100f).ToString();
+        if (chargePercentText != null)
+            chargePercentText.text = Mathf.RoundToInt(chargeRatio * 100f).ToString();
 
         if (chargeRatio >= 1f && innerGlow != null && !_glowActive)
         {
-            // 완료 시 단 한 번만 실행
             _glowActive = true;
             if (_glowCoroutine != null) StopCoroutine(_glowCoroutine);
             _glowCoroutine = StartCoroutine(FadeInGlow());
         }
         else if (chargeRatio < 1f && innerGlow != null && _glowActive)
         {
-            // 차징 해제 시 즉시 초기화
             _glowActive = false;
             if (_glowCoroutine != null)
             {
@@ -316,7 +363,7 @@ public class ScopeCrossHair : CrossHairBase
             innerGlow.enabled = false;
 
             Color c = innerGlow.color;
-            c.a = 0f;
+            c.a             = 0f;
             innerGlow.color = c;
         }
     }
@@ -326,92 +373,112 @@ public class ScopeCrossHair : CrossHairBase
         innerGlow.enabled = true;
         float elapsed  = 0f;
         float duration = 0.4f; // ← 페이드인 시간 조절
-        Color c = innerGlow.color;
+        Color c        = innerGlow.color;
 
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            c.a = Mathf.Lerp(0f, 1f, elapsed / duration);
+            c.a      = Mathf.Lerp(0f, 1f, elapsed / duration);
             innerGlow.color = c;
             yield return null;
         }
 
-        c.a = 1f;
+        c.a             = 1f;
         innerGlow.color = c;
-        _glowCoroutine = null;
+        _glowCoroutine  = null;
     }
 
-    // [조준/미조준] - 조준 해제 시 스코프 숨김, 기존 크로스헤어 표시
-    Texture2D CreateRadialGlowTexture(int size)
+    public void UpdateAmmoUI(int current, int max)
     {
-        Texture2D tex = new Texture2D(size, size);
-        Vector2 center = new Vector2(size / 2f, size / 2f);
-        float maxDist = size / 2f;
+        float ratio       = (float)current / max;
+        bool  isLow       = ratio <= 0.5f;
+        Color targetColor = isLow ? warningColor : normalColor;
+        string ammoStr    = current.ToString("D3");
 
-        for (int x = 0; x < size; x++)
+        if (scopeAmmoBar  != null) { scopeAmmoBar.fillAmount  = ratio;   scopeAmmoBar.color  = targetColor; }
+        if (scopeAmmoText != null) { scopeAmmoText.text        = ammoStr; scopeAmmoText.color = targetColor; }
+        if (idleAmmoBar   != null) { idleAmmoBar.fillAmount   = ratio;   idleAmmoBar.color   = targetColor; }
+        if (idleAmmoText  != null) { idleAmmoText.text         = ammoStr; idleAmmoText.color  = targetColor; }
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  텍스처 절차적 생성 (GC 최적화 완료)
+    // ═══════════════════════════════════════════════════════
+    private Texture2D CreateDonutTexture(int size, float holeRadius)
+    {
+        Texture2D tex    = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        Color32[] pixels = new Color32[size * size];
+
+        float   cx          = size * 0.5f;
+        float   cy          = size * 0.5f;
+        float   radiusSqr   = holeRadius * holeRadius; // sqrt 제거용 제곱값 캐싱
+        Color32 clearColor  = new Color32(0, 0, 0, 0);
+        Color32 bgColor     = new Color32(0, 0, 0, 230); // alpha 0.9f ≈ 230
+
+        for (int y = 0; y < size; y++)
         {
-            for (int y = 0; y < size; y++)
+            float dy        = y - cy;
+            float dySqr     = dy * dy;
+            int   rowOffset = y * size;
+
+            for (int x = 0; x < size; x++)
             {
-                float dist = Vector2.Distance(new Vector2(x, y), center);
-
-                // 원 밖은 완전 투명 → 사각형 안 보임
-                if (dist > maxDist)
-                {
-                    tex.SetPixel(x, y, Color.clear);
-                    continue;
-                }
-
-                // 중앙 = alpha 0, 외곽 = alpha 1 (주황빛)
-                float ratio = Mathf.Clamp01(dist / maxDist);
-                tex.SetPixel(x, y, new Color(1f, 0.6f, 0.1f, ratio));
+                float dx      = x - cx;
+                float distSqr = dx * dx + dySqr;
+                pixels[rowOffset + x] = distSqr < radiusSqr ? clearColor : bgColor;
             }
         }
+
+        tex.SetPixels32(pixels);
         tex.Apply();
         return tex;
     }
 
-    // [탄약 UI 업데이트]
-    public void UpdateAmmoUI(int current, int max)
+    private Texture2D CreateRadialGlowTexture(int size, Color baseColor)
     {
-        float ratio = (float)current / max;
-        bool isLow  = ratio <= 0.5f;
+        Texture2D tex    = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        Color32[] pixels = new Color32[size * size];
 
-        // Scope 탄약 바
-        if (scopeAmmoBar != null)
-        {
-            scopeAmmoBar.fillAmount = ratio;
-            scopeAmmoBar.color      = isLow ? warningColor : normalColor;
-        }
-        if (scopeAmmoText != null)
-        {
-            scopeAmmoText.text  = current.ToString("D3");
-            scopeAmmoText.color = isLow ? warningColor : normalColor;
-        }
+        float cx          = size * 0.5f;
+        float cy          = size * 0.5f;
+        float maxRadius   = size * 0.5f;
+        float maxRadiusSqr = maxRadius * maxRadius;
 
-        // Idle 탄약 바
-        if (idleAmmoBar != null)
-        {
-            idleAmmoBar.fillAmount = ratio;
-            idleAmmoBar.color      = isLow ? warningColor : normalColor;
-        }
-        if (idleAmmoText != null)
-        {
-            idleAmmoText.text  = current.ToString("D3"); // 3자리로 표시
-            idleAmmoText.color = isLow ? warningColor : normalColor;
-        }
-    }
+        // Color → Color32 변환 루프 밖으로 추출 (반복 변환 제거)
+        byte    r          = (byte)Mathf.Clamp(baseColor.r * 255f, 0f, 255f);
+        byte    g          = (byte)Mathf.Clamp(baseColor.g * 255f, 0f, 255f);
+        byte    b          = (byte)Mathf.Clamp(baseColor.b * 255f, 0f, 255f);
+        Color32 clearColor = new Color32(0, 0, 0, 0);
 
-    // [도넛 텍스처 생성] - 스코프 배경용 도넛 모양 텍스처 생성
-    Texture2D CreateDonutTexture(int texSize, float holeRadius)
-    {
-        Texture2D tex = new Texture2D(texSize, texSize);
-        Vector2 center = new Vector2(texSize / 2f, texSize / 2f);
-        for(int x = 0; x < texSize; x++)
-            for(int y = 0; y < texSize; y++)
+        for (int y = 0; y < size; y++)
+        {
+            float dy        = y - cy;
+            float dySqr     = dy * dy;
+            int   rowOffset = y * size;
+
+            for (int x = 0; x < size; x++)
             {
-                float dist = Vector2.Distance(new Vector2(x, y), center);
-                tex.SetPixel(x, y, dist < holeRadius ? Color.clear : new Color(0,0,0,0.9f));
+                float dx      = x - cx;
+                float distSqr = dx * dx + dySqr;
+                int   index   = rowOffset + x;
+
+                if (distSqr > maxRadiusSqr)
+                {
+                    pixels[index] = clearColor;
+                    continue;
+                }
+
+                // alpha 보간 시에만 sqrt 사용 (원 밖 판정은 이미 제곱 비교로 처리)
+                float dist  = Mathf.Sqrt(distSqr);
+                float ratio = Mathf.Clamp01(dist / maxRadius);
+
+                // RoundToInt로 float → byte 캐스팅 정밀도 손실 방지
+                byte alpha    = (byte)Mathf.RoundToInt(ratio * 255f);
+                pixels[index] = new Color32(r, g, b, alpha);
             }
+        }
+
+        tex.SetPixels32(pixels);
         tex.Apply();
         return tex;
     }

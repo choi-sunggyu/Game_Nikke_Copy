@@ -28,6 +28,8 @@ public class WaveManager : MonoBehaviour
     //  이벤트
     // ═══════════════════════════════════════════════════════
     public static event Action OnStageClear;
+    public static event Action OnElitePhaseStart;   // 엘리트 웨이브 시작
+    public static event Action OnEliteDefeated;     // 엘리트 처치 완료
 
     // ═══════════════════════════════════════════════════════
     //  내부 상태
@@ -42,6 +44,16 @@ public class WaveManager : MonoBehaviour
     public IReadOnlyList<EnemyBase> ActiveEnemies => activeEnemies;
 
     public enum Difficulty { Easy, Normal, Hard , Boss}
+
+    // ═══════════════════════════════════════════════════════
+    //  프로그레스 노출 (TopUI용)
+    // ═══════════════════════════════════════════════════════
+    public float WaveProgress    { get; private set; } // 0 ~ 1
+    public bool  IsWaveBlocked   { get; private set; } // 적 미처치 정지 여부
+    public bool  IsElitePhase    { get; private set; } // 엘리트 단계 여부
+    public int   TotalWaveCount  => currentData != null ? currentData.waves.Count : 0;
+    public int   CurrentWaveIndex => currentWaveIndex;
+
 
     // ═══════════════════════════════════════════════════════
     //  인트로 이벤트 구독
@@ -107,25 +119,71 @@ public class WaveManager : MonoBehaviour
     // ═══════════════════════════════════════════════════════
     IEnumerator RunWave()
     {
+        // 엘리트 웨이브를 제외한 일반 웨이브 수 계산 (프로그레스 기준)
+        int normalWaveCount = 0;
+        foreach (var w in currentData.waves)
+            if (!w.isEliteWave) normalWaveCount++;
+
+        int normalWaveCleared = 0;
+
         while (currentWaveIndex < currentData.waves.Count)
         {
-            Debug.Log($"[WaveManager] Wave {currentWaveIndex + 1} 시작");
+            WaveData.Wave wave = currentData.waves[currentWaveIndex];
 
-            yield return StartCoroutine(SpawnWave(currentData.waves[currentWaveIndex]));
-            yield return StartCoroutine(WaitForWaveClear());
+            if (wave.isEliteWave)
+            {
+                // 프로그레스 100% 고정
+                WaveProgress = 1f;
+                IsElitePhase = true;
+                OnElitePhaseStart?.Invoke();
 
-            Debug.Log($"[WaveManager] Wave {currentWaveIndex + 1} 클리어");
+                yield return StartCoroutine(SpawnWave(wave));
+                yield return StartCoroutine(WaitForWaveClear());
+
+                OnEliteDefeated?.Invoke();
+            }
+            else
+            {
+                yield return StartCoroutine(SpawnWave(wave));
+                yield return StartCoroutine(WaitForWaveClearWithBlock()); // 블록 체크 포함
+
+                normalWaveCleared++;
+
+                // 다음이 엘리트 웨이브면 프로그레스를 1f로 올리지 않음 (엘리트 단계에서 처리)
+                bool nextIsElite = (currentWaveIndex + 1 < currentData.waves.Count)
+                                && currentData.waves[currentWaveIndex + 1].isEliteWave;
+
+                WaveProgress = nextIsElite
+                    ? 0.99f
+                    : (float)normalWaveCleared / normalWaveCount;
+            }
 
             currentWaveIndex++;
 
-            if (currentWaveIndex < currentData.waves.Count)
-            {
+            if (currentWaveIndex < currentData.waves.Count && !currentData.waves[currentWaveIndex].isEliteWave)
                 yield return new WaitForSeconds(waveClearDelay);
-            }
         }
 
         Debug.Log("[WaveManager] 모든 웨이브 클리어!");
         OnStageClear?.Invoke();
+    }
+
+    IEnumerator WaitForWaveClearWithBlock()
+    {
+        while (true)
+        {
+            activeEnemies.RemoveAll(e => e == null || !e.IsAlive);
+
+            if (activeEnemies.Count == 0)
+            {
+                IsWaveBlocked = false;
+                yield break;
+            }
+
+            // 적이 남아있으면 블록 상태
+            IsWaveBlocked = true;
+            yield return new WaitForSeconds(0.5f);
+        }
     }
 
     IEnumerator SpawnWave(WaveData.Wave wave)

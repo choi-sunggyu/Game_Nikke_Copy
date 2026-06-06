@@ -65,6 +65,7 @@ public abstract class CharacterBase : MonoBehaviour
     public Sprite CharacterPortrait => characterPortrait;
     public float AttackDamageMultiplier => attackDamageMultiplier;
     protected void SetNextFireTime(float time) => nextFireTime = time;
+    public float TotalDamageDealt { get; private set; } = 0f;
     public bool IsActiveCharacter { get; set; }
     public Transform MuzzlePoint => muzzlePoint;
     public LayerMask EnemyLayer => enemyLayer;    
@@ -397,6 +398,17 @@ public abstract class CharacterBase : MonoBehaviour
                 spriteRenderer.sprite = reloadSprite;
                 break;
         }
+    }
+
+    public void AddDamageRecord(float damage)
+    {
+        TotalDamageDealt += damage;
+    }
+
+    // 스테이지 시작 시 초기화
+    public void ResetDamageRecord()
+    {
+        TotalDamageDealt = 0f;
     }
 
     void Awake()

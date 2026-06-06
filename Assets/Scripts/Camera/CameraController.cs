@@ -15,6 +15,8 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float targetZoom = 60f;
     [SerializeField] private float zoomSpeed = 5f;
     
+    public static bool FovLocked { get; set; } = false;
+
     void Start()
     {
         // 초기 카메라 위치는 가운데 있는 캐릭터로 설정
@@ -74,5 +76,8 @@ public class CameraController : MonoBehaviour
         //     targetZoom,
         //     zoomSpeed * Time.deltaTime
         // );
+
+        if (!FovLocked)
+            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, targetZoom, zoomSpeed * Time.deltaTime);
     }
 }

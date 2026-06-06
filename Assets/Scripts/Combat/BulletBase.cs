@@ -73,12 +73,11 @@ public class BulletBase : MonoBehaviour, IPoolable
     {
         if (other.TryGetComponent<EnemyBase>(out EnemyBase enemy))
         {
+            owner?.AddDamageRecord(damage);
+
             enemy.TakeDamage(damage);
-
             BurstGaugeManager.Instance?.AddGauge(burstChargeAmount);
-
             CheckViperLastBulletHit();
-
             ownerPool.Return(gameObject);
             return;
         }
