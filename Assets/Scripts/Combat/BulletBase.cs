@@ -12,6 +12,7 @@ public class BulletBase : MonoBehaviour, IPoolable
     private float spawnTime;
     private float burstChargeAmount;
     private bool isInitialized = false;
+    private CharacterManager characterManager;
 
     //프로퍼티 추가
     public CharacterBase Owner => owner;
@@ -25,6 +26,11 @@ public class BulletBase : MonoBehaviour, IPoolable
     {
         spawnTime = Time.time;
         ownerPool = GetComponent<PoolObject>().OwnerPool;
+    }
+
+    void Start()
+    {
+        characterManager = FindFirstObjectByType<CharacterManager>();
     }
 
     public void OnGet() { isInitialized = false; }
@@ -73,9 +79,20 @@ public class BulletBase : MonoBehaviour, IPoolable
     {
         if (other.TryGetComponent<EnemyBase>(out EnemyBase enemy))
         {
-            owner?.AddDamageRecord(damage);
+            var (finalDamage, isCritical) = owner.CalculateDamage(damage);
 
-            enemy.TakeDamage(damage);
+            owner?.AddDamageRecord(finalDamage);
+            enemy.TakeDamage(finalDamage);
+
+            if (owner == characterManager.CurrentCharacter)
+            {
+                DamagePopupManager.Instance?.Show(
+                    enemy.transform.position,
+                    finalDamage,
+                    isCritical
+                );
+            }
+
             BurstGaugeManager.Instance?.AddGauge(burstChargeAmount);
             CheckViperLastBulletHit();
             ownerPool.Return(gameObject);

@@ -49,13 +49,11 @@ public abstract class EnemyBase : MonoBehaviour
     {
         if (!survive) return;
         hp -= damage;
-        
-        // 피격 모션 (빨갛게)
+
         if (hitFlashCoroutine != null) StopCoroutine(hitFlashCoroutine);
         hitFlashCoroutine = StartCoroutine(HitFlash());
 
-        // 데미지 팝업
-        DamagePopupManager.Instance?.ShowDamage(damage, transform.position);
+        // DamagePopupManager.Instance?.ShowDamage(damage, transform.position); ← 제거
 
         if (hp <= 0) Die();
     }

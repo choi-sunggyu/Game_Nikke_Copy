@@ -36,6 +36,7 @@ public abstract class CharacterBase : MonoBehaviour
     [SerializeField] private Sprite characterPortrait;
     [SerializeField] private LayerMask collisionMask;
     [SerializeField] protected float criticalRate;
+    [SerializeField] protected float criticalMultiplier = 1.5f;
     protected float bonusCriticalRate;
     public bool UsedBurstThisCycle { get; set; }
     private float nextFireTime;
@@ -45,8 +46,7 @@ public abstract class CharacterBase : MonoBehaviour
     protected float criticalRateMultiplier = 1f;
 
     // 프로퍼티
-    public float CriticalRate =>
-        criticalRate * criticalRateMultiplier;
+    public float CriticalRate => (criticalRate + bonusCriticalRate) * criticalRateMultiplier;
     public float FinalAttackDamage =>
         attackDamage * attackDamageMultiplier;
 
@@ -207,6 +207,16 @@ public abstract class CharacterBase : MonoBehaviour
         attackDamageMultiplier /= multiplier;
         if (activeBuffs.ContainsKey(buffId)) // BuffTimer 안에서 Remove 전 Contanins 체크
             activeBuffs.Remove(buffId);
+    }
+
+    public (float damage, bool isCritical) CalculateDamage(float baseDamage)
+    {
+        bool  isCritical  = UnityEngine.Random.value < CriticalRate;
+        float finalDamage = isCritical
+            ? baseDamage * criticalMultiplier
+            : baseDamage;
+
+        return (finalDamage, isCritical);
     }
 
     protected virtual void FireBullet()
@@ -475,7 +485,7 @@ public abstract class CharacterBase : MonoBehaviour
         GameObject bullet = bulletPool.Get(muzzlePoint.position, Quaternion.identity);
         if (bullet == null) return;
 
-        bullet.GetComponent<BulletBase>().Init(this, attackDamage, bulletSpeed, fireDir, chargingBurstGauge);
+        bullet.GetComponent<BulletBase>().Init(this, FinalAttackDamage, bulletSpeed, fireDir, chargingBurstGauge);
     }
 
     public virtual void StopAllSounds() { }
