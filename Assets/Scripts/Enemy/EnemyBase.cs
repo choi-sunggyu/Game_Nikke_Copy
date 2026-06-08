@@ -13,8 +13,9 @@ public abstract class EnemyBase : MonoBehaviour
     [SerializeField] protected bool survive;
     [SerializeField] protected float attackDelay;
     [SerializeField] protected int currentLayer;
-    [SerializeField] protected ObjectPool bulletPool;
+    protected ObjectPool bulletPool;
     [SerializeField] private Transform muzzlePoint;
+    [SerializeField] private GameObject deathEffectPrefab;
     private EnemyState currentState { get; set; }
     private SpriteRenderer spriteRenderer;
     protected ITargetStrategy targetStrategy;
@@ -87,13 +88,24 @@ public abstract class EnemyBase : MonoBehaviour
         OnDied?.Invoke();
         survive = false;
         currentState = EnemyState.Dead;
-        // 사망 처리: 콜라이더 비활성화 후 오브젝트 제거
+
         Collider2D col2D = GetComponent<Collider2D>();
         if (col2D != null) col2D.enabled = false;
         Collider col3D = GetComponent<Collider>();
         if (col3D != null) col3D.enabled = false;
 
-        Destroy(gameObject, 0.3f); // 약간의 딜레이 후 삭제 (사망 이펙트 여유)
+        // 사망 이펙트 생성
+        if (deathEffectPrefab != null)
+        {
+            GameObject effect = Instantiate(
+                deathEffectPrefab,
+                transform.position,
+                Quaternion.identity
+            );
+            Destroy(effect, 2f); // 이펙트 자동 제거
+        }
+
+        Destroy(gameObject, 0.3f);
     }
 
     protected void ChangeState(EnemyState newState)

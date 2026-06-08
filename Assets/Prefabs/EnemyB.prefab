@@ -56,6 +56,7 @@ MonoBehaviour:
   currentLayer: 0
   bulletPool: {fileID: 0}
   muzzlePoint: {fileID: 4273442822604503185}
+  deathEffectPrefab: {fileID: 4794043405585894037, guid: 37138c0c33167b04fa1fb90b7f5a794f, type: 3}
   slideDuration: 1
 --- !u!212 &2008209707942085011
 SpriteRenderer:
