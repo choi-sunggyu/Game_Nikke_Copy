@@ -22,7 +22,7 @@ public class WaveProgressBar : MonoBehaviour
     [Header("── 애니메이션 설정 ─────────────")]
     [SerializeField] private float blinkSpeed         = 3f;   // 반짝임 속도
     [SerializeField] private float blinkMinAlpha      = 0.4f; // 반짝임 최소 알파
-    [SerializeField] private float progressSmoothSpeed = 2f;  // 프로그레스 바 부드러운 이동 속도
+    [SerializeField] private float progressSmoothSpeed = 0.3f;  // 프로그레스 바 부드러운 이동 속도
 
     // ═══════════════════════════════════════════════════════
     //  내부 상태
@@ -90,19 +90,19 @@ public class WaveProgressBar : MonoBehaviour
     {
         float targetFill = _waveManager.WaveProgress;
 
-        // 블록 상태면 현재 위치 유지
         if (_waveManager.IsWaveBlocked)
         {
-            _currentFill = fillBar.fillAmount;
+            // 블록 시 현재 위치 유지
             return;
         }
 
-        // 부드럽게 이동
+        // 목표값을 향해 천천히 이동
         _currentFill = Mathf.MoveTowards(
             _currentFill,
             targetFill,
             progressSmoothSpeed * Time.deltaTime
         );
+
         fillBar.fillAmount = _currentFill;
     }
 

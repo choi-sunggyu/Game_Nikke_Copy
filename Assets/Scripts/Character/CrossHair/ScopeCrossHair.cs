@@ -441,13 +441,16 @@ public class ScopeCrossHair : CrossHairBase
 
         float cx          = size * 0.5f;
         float cy          = size * 0.5f;
-        float maxRadius   = size * 0.5f;
+        float maxRadius   = size * 0.5f; // 이 크기가 곧 innerGlow의 UI 크기(가장자리 변두리)가 됩니다.
         float maxRadiusSqr = maxRadius * maxRadius;
 
-        // Color → Color32 변환 루프 밖으로 추출 (반복 변환 제거)
-        byte    r          = (byte)Mathf.Clamp(baseColor.r * 255f, 0f, 255f);
-        byte    g          = (byte)Mathf.Clamp(baseColor.g * 255f, 0f, 255f);
-        byte    b          = (byte)Mathf.Clamp(baseColor.b * 255f, 0f, 255f);
+        // 빛이 안쪽으로 스며들 투명도 두께 비율 (0.1f = 가장자리에서 안쪽으로 10%만큼만 빛남)
+        // 이 값을 조절하여 불빛이 들어오는 두께를 제어할 수 있습니다.
+        float glowThicknessRatio = 0.15f; 
+
+        byte r = (byte)Mathf.Clamp(baseColor.r * 255f, 0f, 255f);
+        byte g = (byte)Mathf.Clamp(baseColor.g * 255f, 0f, 255f);
+        byte b = (byte)Mathf.Clamp(baseColor.b * 255f, 0f, 255f);
         Color32 clearColor = new Color32(0, 0, 0, 0);
 
         for (int y = 0; y < size; y++)
@@ -462,19 +465,33 @@ public class ScopeCrossHair : CrossHairBase
                 float distSqr = dx * dx + dySqr;
                 int   index   = rowOffset + x;
 
+                // 1. 최외곽 원을 벗어나면 완전히 투명 처리
                 if (distSqr > maxRadiusSqr)
                 {
                     pixels[index] = clearColor;
                     continue;
                 }
 
-                // alpha 보간 시에만 sqrt 사용 (원 밖 판정은 이미 제곱 비교로 처리)
-                float dist  = Mathf.Sqrt(distSqr);
-                float ratio = Mathf.Clamp01(dist / maxRadius);
+                float dist = Mathf.Sqrt(distSqr);
+                float normDist = dist / maxRadius; // 0(중심) ~ 1(가장자리)
 
-                // RoundToInt로 float → byte 캐스팅 정밀도 손실 방지
-                byte alpha    = (byte)Mathf.RoundToInt(ratio * 255f);
-                pixels[index] = new Color32(r, g, b, alpha);
+                // 2. 가장자리 경계선(1.0)에 가까울수록 진하고, 안쪽으로 들어올수록 흐려지게 만듦
+                if (normDist >= (1.0f - glowThicknessRatio))
+                {
+                    // 안쪽 경계선(0.85)에서 외곽(1.0)까지 0 ~ 1로 보간
+                    float alphaRatio = (normDist - (1.0f - glowThicknessRatio)) / glowThicknessRatio;
+                    
+                    // 자연스러운 스며듦을 위해 부드러운 보간(SmoothStep) 적용 가능
+                    alphaRatio = Mathf.SmoothStep(0f, 1f, alphaRatio);
+
+                    byte alpha = (byte)Mathf.RoundToInt(alphaRatio * baseColor.a * 255f);
+                    pixels[index] = new Color32(r, g, b, alpha);
+                }
+                else
+                {
+                    // 지정한 두께보다 안쪽 영역은 불빛이 들어오지 않도록 투명 처리
+                    pixels[index] = clearColor;
+                }
             }
         }
 

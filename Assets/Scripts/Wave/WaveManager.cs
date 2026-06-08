@@ -23,6 +23,8 @@ public class WaveManager : MonoBehaviour
     [Header("Overlap Prevention")]
     [SerializeField] private float minEnemyDistance    = 3f;
     [SerializeField] private int   maxPlacementAttempts = 30;
+    [Header("── 프로그레스 타이밍 ──────────")]
+    [SerializeField] private float totalProgressDuration = 60f;
 
     // ═══════════════════════════════════════════════════════
     //  이벤트
@@ -40,6 +42,13 @@ public class WaveManager : MonoBehaviour
 
     private const float waveClearDelay = 2f;
     private const float spawnInterval  = 2f;
+    private int _totalNormalEnemies  = 0;
+    private int _killedNormalEnemies = 0;
+    private float _progressTimer    = 0f;  // 경과 시간
+    private bool  _progressRunning  = false;
+    private int   _normalWaveCount  = 0;
+    private float _nextCheckpoint   = 0f; // 다음 정지 체크포인트 (0~1)
+    private int   _nextWaveToSpawn  = 0;
 
     public IReadOnlyList<EnemyBase> ActiveEnemies => activeEnemies;
 
@@ -109,9 +118,51 @@ public class WaveManager : MonoBehaviour
         };
 
         currentWaveIndex = 0;
+        WaveProgress     = 0f;
+        IsWaveBlocked    = false;
+        _progressTimer   = 0f;
+        _progressRunning = false;
+        _nextWaveToSpawn = 0;
 
-        // 인트로 중에도 적 스폰은 시작 (단, 공격은 BattleStarted 플래그로 제어)
+        // 일반 웨이브 수 계산
+        _normalWaveCount = 0;
+        foreach (var w in currentData.waves)
+            if (!w.isEliteWave) _normalWaveCount++;
+
+        // 첫 번째 체크포인트 설정 (1번 웨이브 처리 완료 시점)
+        _nextCheckpoint = _normalWaveCount > 0
+            ? 1f / _normalWaveCount
+            : 1f;
+
         StartCoroutine(RunWave());
+
+        if (currentData.waves.Count > 0 && !currentData.waves[0].isEliteWave)
+            StartCoroutine(SpawnWave(currentData.waves[0]));
+    }
+
+    void Update()
+    {
+        if (!_progressRunning || IsElitePhase) return;
+
+        float targetProgress = _nextCheckpoint;
+
+        // 체크포인트 직전까지 채워짐
+        if (WaveProgress < targetProgress - 0.01f)
+        {
+            _progressTimer += Time.deltaTime;
+            WaveProgress = Mathf.Clamp(
+                _progressTimer / totalProgressDuration,
+                0f,
+                targetProgress - 0.01f  // 체크포인트 바로 앞에서 멈춤
+            );
+            IsWaveBlocked = false;
+        }
+        else
+        {
+            // 체크포인트 도달 — 적 남아있으면 정지
+            activeEnemies.RemoveAll(e => e == null || !e.IsAlive);
+            IsWaveBlocked = activeEnemies.Count > 0;
+        }
     }
 
     // ═══════════════════════════════════════════════════════
@@ -119,7 +170,6 @@ public class WaveManager : MonoBehaviour
     // ═══════════════════════════════════════════════════════
     IEnumerator RunWave()
     {
-        // 엘리트 웨이브를 제외한 일반 웨이브 수 계산 (프로그레스 기준)
         int normalWaveCount = 0;
         foreach (var w in currentData.waves)
             if (!w.isEliteWave) normalWaveCount++;
@@ -132,7 +182,6 @@ public class WaveManager : MonoBehaviour
 
             if (wave.isEliteWave)
             {
-                // 프로그레스 100% 고정
                 WaveProgress = 1f;
                 IsElitePhase = true;
                 OnElitePhaseStart?.Invoke();
@@ -145,14 +194,14 @@ public class WaveManager : MonoBehaviour
             else
             {
                 yield return StartCoroutine(SpawnWave(wave));
-                yield return StartCoroutine(WaitForWaveClearWithBlock()); // 블록 체크 포함
+                yield return StartCoroutine(WaitForWaveClearWithBlock());
 
                 normalWaveCleared++;
 
-                // 다음이 엘리트 웨이브면 프로그레스를 1f로 올리지 않음 (엘리트 단계에서 처리)
                 bool nextIsElite = (currentWaveIndex + 1 < currentData.waves.Count)
                                 && currentData.waves[currentWaveIndex + 1].isEliteWave;
 
+                // ← WaveProgress는 목표값만 설정, 시각적 이동은 WaveProgressBar가 담당
                 WaveProgress = nextIsElite
                     ? 0.99f
                     : (float)normalWaveCleared / normalWaveCount;
@@ -160,11 +209,11 @@ public class WaveManager : MonoBehaviour
 
             currentWaveIndex++;
 
-            if (currentWaveIndex < currentData.waves.Count && !currentData.waves[currentWaveIndex].isEliteWave)
+            if (currentWaveIndex < currentData.waves.Count
+                && !currentData.waves[currentWaveIndex].isEliteWave)
                 yield return new WaitForSeconds(waveClearDelay);
         }
 
-        Debug.Log("[WaveManager] 모든 웨이브 클리어!");
         OnStageClear?.Invoke();
     }
 
@@ -200,8 +249,8 @@ public class WaveManager : MonoBehaviour
 
     void SpawnEnemy(GameObject prefab)
     {
-        Vector3   targetPos    = GetNonOverlappingPosition();
-        EnemyBase prefabEnemy  = prefab.GetComponent<EnemyBase>();
+        Vector3   targetPos   = GetNonOverlappingPosition();
+        EnemyBase prefabEnemy = prefab.GetComponent<EnemyBase>();
         Vector3   spawnPos;
 
         if (prefabEnemy is EnemyA)
@@ -220,14 +269,26 @@ public class WaveManager : MonoBehaviour
             spawnPos = targetPos;
         }
 
-        GameObject obj = Instantiate(prefab, spawnPos, Quaternion.identity);
+        GameObject obj   = Instantiate(prefab, spawnPos, Quaternion.identity);
         EnemyBase  enemy = obj.GetComponent<EnemyBase>();
 
         if (enemy != null)
         {
             enemy.SetBulletPool(enemyBulletPool);
             enemy.SetTargetPosition(targetPos);
-            enemy.OnDied += () => activeEnemies.Remove(enemy);
+            enemy.OnDied += () =>
+            {
+                activeEnemies.Remove(enemy);
+
+                // 일반 적 처치 시 프로그레스 실시간 갱신
+                if (!IsElitePhase && _totalNormalEnemies > 0)
+                {
+                    _killedNormalEnemies++;
+                    WaveProgress = Mathf.Clamp01(
+                        (float)_killedNormalEnemies / _totalNormalEnemies
+                    );
+                }
+            };
             activeEnemies.Add(enemy);
         }
     }
