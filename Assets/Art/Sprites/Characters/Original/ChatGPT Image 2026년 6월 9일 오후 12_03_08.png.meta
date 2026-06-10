@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: d8a2bb797b6107a44a7e9210b0d06776
+guid: 8189a825433e598498eb32dd551ce04b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5331073605142595231
-    second: Titan_Idle_0
+      213: 5655037755480891099
+    second: "ChatGPT Image 2026\uB144 6\uC6D4 9\uC77C \uC624\uD6C4 12_03_08_0"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Titan_Idle_0
+      name: "ChatGPT Image 2026\uB144 6\uC6D4 9\uC77C \uC624\uD6C4 12_03_08_0"
       rect:
         serializedVersion: 2
-        x: 2
-        y: 8
-        width: 1022
-        height: 1469
+        x: 95
+        y: 63
+        width: 754
+        height: 945
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f964cf9d237cbf940800000000000000
-      internalID: 5331073605142595231
+      spriteID: bde5cde70eaba7e40800000000000000
+      internalID: 5655037755480891099
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Titan_Idle_0: 5331073605142595231
+      "ChatGPT Image 2026\uB144 6\uC6D4 9\uC77C \uC624\uD6C4 12_03_08_0": 5655037755480891099
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -37,6 +37,8 @@ public abstract class CharacterBase : MonoBehaviour
     [SerializeField] private LayerMask collisionMask;
     [SerializeField] protected float criticalRate;
     [SerializeField] protected float criticalMultiplier = 1.5f;
+    [Header("── 캐릭터 이미지 ─────────────────")]
+    [SerializeField] private Sprite characterSprite;
     protected float bonusCriticalRate;
     public bool UsedBurstThisCycle { get; set; }
     private float nextFireTime;
@@ -69,6 +71,7 @@ public abstract class CharacterBase : MonoBehaviour
     public bool IsActiveCharacter { get; set; }
     public Transform MuzzlePoint => muzzlePoint;
     public LayerMask EnemyLayer => enemyLayer;    
+    public Sprite CharacterSprite => characterSprite;
 
     // sender: 이벤트를 발생시킨 캐릭터, count: 탄 수
     public static event Action<CharacterBase, int> OnBulletCountChanged;
@@ -154,8 +157,7 @@ public abstract class CharacterBase : MonoBehaviour
             if (bulletCount > 0 && Time.time >= nextFireTime) //강제 리로딩 중이 아니고 탄창이 남아 있는 경우에만 사격
             {
                 StopReload();
-                spriteRenderer.sprite = shootSprite;
-                currentState = CharacterState.Fire;
+                ChangeState(CharacterState.Fire);
 
                 bulletCount--;
                 OnBulletConsumed?.Invoke(this, 1);
@@ -338,8 +340,7 @@ public abstract class CharacterBase : MonoBehaviour
         // 리로딩 조건 체크
         if(bulletCount == maxBulletCount)
         {
-            currentState = CharacterState.Idle;
-            spriteRenderer.sprite = idleSprite;
+            ChangeState(CharacterState.Idle);
             return;
         }
         if(currentState == CharacterState.Reload) return;
@@ -356,11 +357,10 @@ public abstract class CharacterBase : MonoBehaviour
 
     private IEnumerator ReloadDelay(bool isForced = false, float duration = 0f)
     {
-        currentState = CharacterState.Reload;
-        spriteRenderer.sprite = reloadSprite;
+        ChangeState(CharacterState.Reload);
 
         if(isForced) OnForcedReloadStart?.Invoke(this);
-        
+
         float elapsed = 0f;
         while (elapsed < duration)
         {
@@ -368,10 +368,9 @@ public abstract class CharacterBase : MonoBehaviour
             OnReloadProgress?.Invoke(this, elapsed / duration); // ← UI용 이벤트
             yield return null;
         }
-        
+
         bulletCount = maxBulletCount;
-        currentState = CharacterState.Idle;
-        spriteRenderer.sprite = idleSprite;
+        ChangeState(CharacterState.Idle);
         coverReloadLocked = false; // 리로드 정상 완료 → 엄폐 잠금 해제, 사격 재개 가능
 
         OnBulletCountChanged?.Invoke(this, bulletCount);
@@ -393,10 +392,18 @@ public abstract class CharacterBase : MonoBehaviour
         return ray.GetPoint(1000f);
     }
 
-    public void ChangeState(CharacterState newState)
+    // 상태 변경의 진입점. 서브클래스가 sprite 처리 방식을 바꾸려면 ApplySprite 만 오버라이드.
+    public virtual void ChangeState(CharacterState newState)
     {
         currentState = newState;
-        switch(newState)
+        ApplySprite(newState);
+    }
+
+    // 상태별 sprite 적용. Ghost/Viper 는 기본 단일 sprite 사용,
+    // Titan 처럼 시퀀스 애니메이션이 필요한 캐릭터는 오버라이드해서 자체 시스템으로 처리.
+    protected virtual void ApplySprite(CharacterState state)
+    {
+        switch (state)
         {
             case CharacterState.Idle:
                 spriteRenderer.sprite = idleSprite;

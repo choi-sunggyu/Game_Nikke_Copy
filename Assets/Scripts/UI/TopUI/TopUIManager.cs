@@ -14,6 +14,10 @@ public class TopUIManager : MonoBehaviour
     [SerializeField] private TMP_Text        eliteWarningText;
     [SerializeField] private CanvasGroup     eliteWarningGroup;
 
+    [Header("── 보스 HP바 ─────────────────────")]
+    [SerializeField] private BossHPBar bossHPBar;
+    [SerializeField] private GameObject bossHPBarUI;
+
     [Header("── 카메라 줌 설정 ──────────────")]
     [SerializeField] private Camera          targetCamera;
     [SerializeField] private float           eliteZoomFOV      = 40f;  // 줌인 시 FOV
@@ -47,12 +51,14 @@ public class TopUIManager : MonoBehaviour
     {
         WaveManager.OnElitePhaseStart += HandleElitePhaseStart;
         WaveManager.OnEliteDefeated   += HandleEliteDefeated;
+        WaveManager.OnBossPhaseStart += HandleBossPhaseStart;
     }
 
     void OnDisable()
     {
         WaveManager.OnElitePhaseStart -= HandleElitePhaseStart;
         WaveManager.OnEliteDefeated   -= HandleEliteDefeated;
+        WaveManager.OnBossPhaseStart -= HandleBossPhaseStart;
     }
 
     // ═══════════════════════════════════════════════════════
@@ -61,6 +67,14 @@ public class TopUIManager : MonoBehaviour
     private void HandleElitePhaseStart()
     {
         StartCoroutine(ElitePhaseSequence());
+    }
+
+    // 보스 등장 처리
+    private void HandleBossPhaseStart(EnemyBase boss)
+    {
+        waveProgressBarUI.SetActive(false);
+        eliteWarningUI.SetActive(false);
+        bossHPBar.Show(boss);
     }
 
     private IEnumerator ElitePhaseSequence()

@@ -18,38 +18,24 @@ MonoBehaviour:
       count: 5
     - enemyPrefab: {fileID: 2836963592047139580, guid: c9523e780a6269e47bdc964a5e44c173, type: 3}
       count: 5
+    isEliteWave: 0
   - enemies:
     - enemyPrefab: {fileID: 3116017642917783631, guid: 75cc67f729b7bab4aa9e9c3c15ff5911, type: 3}
       count: 5
     - enemyPrefab: {fileID: 2836963592047139580, guid: c9523e780a6269e47bdc964a5e44c173, type: 3}
       count: 5
-    - enemyPrefab: {fileID: 1429774585333224684, guid: e028d235f9f1b22449469726bdd0da08, type: 3}
-      count: 5
+    isEliteWave: 0
   - enemies:
     - enemyPrefab: {fileID: 3116017642917783631, guid: 75cc67f729b7bab4aa9e9c3c15ff5911, type: 3}
       count: 10
     - enemyPrefab: {fileID: 2836963592047139580, guid: c9523e780a6269e47bdc964a5e44c173, type: 3}
       count: 10
-    - enemyPrefab: {fileID: 1429774585333224684, guid: e028d235f9f1b22449469726bdd0da08, type: 3}
-      count: 5
+    isEliteWave: 0
   - enemies:
     - enemyPrefab: {fileID: 3116017642917783631, guid: 75cc67f729b7bab4aa9e9c3c15ff5911, type: 3}
       count: 15
     - enemyPrefab: {fileID: 2836963592047139580, guid: c9523e780a6269e47bdc964a5e44c173, type: 3}
       count: 10
     - enemyPrefab: {fileID: 1429774585333224684, guid: e028d235f9f1b22449469726bdd0da08, type: 3}
-      count: 10
-  - enemies:
-    - enemyPrefab: {fileID: 3116017642917783631, guid: 75cc67f729b7bab4aa9e9c3c15ff5911, type: 3}
-      count: 20
-    - enemyPrefab: {fileID: 2836963592047139580, guid: c9523e780a6269e47bdc964a5e44c173, type: 3}
-      count: 10
-    - enemyPrefab: {fileID: 1429774585333224684, guid: e028d235f9f1b22449469726bdd0da08, type: 3}
-      count: 10
-  - enemies:
-    - enemyPrefab: {fileID: 3116017642917783631, guid: 75cc67f729b7bab4aa9e9c3c15ff5911, type: 3}
-      count: 20
-    - enemyPrefab: {fileID: 2836963592047139580, guid: c9523e780a6269e47bdc964a5e44c173, type: 3}
-      count: 20
-    - enemyPrefab: {fileID: 1429774585333224684, guid: e028d235f9f1b22449469726bdd0da08, type: 3}
-      count: 15
+      count: 1
+    isEliteWave: 1

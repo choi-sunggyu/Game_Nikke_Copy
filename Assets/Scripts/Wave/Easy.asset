@@ -24,6 +24,6 @@ MonoBehaviour:
       count: 1
     isEliteWave: 0
   - enemies:
-    - enemyPrefab: {fileID: 3116017642917783631, guid: 75cc67f729b7bab4aa9e9c3c15ff5911, type: 3}
+    - enemyPrefab: {fileID: 1429774585333224684, guid: e028d235f9f1b22449469726bdd0da08, type: 3}
       count: 1
     isEliteWave: 1

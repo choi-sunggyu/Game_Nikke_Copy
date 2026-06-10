@@ -6,6 +6,7 @@ using UnityEngine;
 public abstract class EnemyBase : MonoBehaviour
 {
     // 변수
+    [SerializeField] protected EnemyType enemyType = EnemyType.Normal;
     [SerializeField] protected float hp;
     [SerializeField] protected float maxHp;
     [SerializeField] protected float attackDamage;
@@ -24,6 +25,7 @@ public abstract class EnemyBase : MonoBehaviour
     private bool isStunned = false;
     private Coroutine stunCoroutine;
     public static bool BattleStarted = false;
+    private EnemyHPBar _hpBar;
 
     // 출현 연출 관련
     protected Vector3 targetPosition;
@@ -37,7 +39,13 @@ public abstract class EnemyBase : MonoBehaviour
     public bool IsSpawning => isSpawning;
     public bool IsStunned => isStunned;
     public Transform MuzzlePoint => muzzlePoint;
+    public EnemyType EnemyType => enemyType;
+    public float MaxHp => maxHp;
+
+    // 이벤트
     public event Action OnDied;
+    public static event Action<EnemyBase> OnBossDefeated; // 보스 사망 이벤트
+    public event Action<float, float> OnHpChanged;        // (currentHp, maxHp)
 
     // abstract 메서드
     public abstract void Initialize();
@@ -50,11 +58,12 @@ public abstract class EnemyBase : MonoBehaviour
     {
         if (!survive) return;
         hp -= damage;
+        hp  = Mathf.Max(hp, 0f);
+
+        OnHpChanged?.Invoke(hp, maxHp);
 
         if (hitFlashCoroutine != null) StopCoroutine(hitFlashCoroutine);
         hitFlashCoroutine = StartCoroutine(HitFlash());
-
-        // DamagePopupManager.Instance?.ShowDamage(damage, transform.position); ← 제거
 
         if (hp <= 0) Die();
     }
@@ -86,15 +95,18 @@ public abstract class EnemyBase : MonoBehaviour
     public virtual void Die()
     {
         OnDied?.Invoke();
-        survive = false;
+        survive      = false;
         currentState = EnemyState.Dead;
+
+        // 보스 사망 시 별도 이벤트
+        if (enemyType == EnemyType.Boss)
+            OnBossDefeated?.Invoke(this);
 
         Collider2D col2D = GetComponent<Collider2D>();
         if (col2D != null) col2D.enabled = false;
         Collider col3D = GetComponent<Collider>();
         if (col3D != null) col3D.enabled = false;
 
-        // 사망 이펙트 생성
         if (deathEffectPrefab != null)
         {
             GameObject effect = Instantiate(
@@ -102,7 +114,7 @@ public abstract class EnemyBase : MonoBehaviour
                 transform.position,
                 Quaternion.identity
             );
-            Destroy(effect, 2f); // 이펙트 자동 제거
+            Destroy(effect, 2f);
         }
 
         Destroy(gameObject, 0.3f);
@@ -155,14 +167,18 @@ public abstract class EnemyBase : MonoBehaviour
 
     private void InitBase()
     {
-        survive = true;
+        survive       = true;
         spriteRenderer = GetComponent<SpriteRenderer>();
-        
-        // characters 연결 추가
+
+        // HP바 초기화
+        _hpBar = GetComponentInChildren<EnemyHPBar>(true);
+        if (_hpBar != null)
+            _hpBar.Init(this);
+
         CharacterManager characterManager = UnityEngine.Object.FindAnyObjectByType<CharacterManager>();
-        if(characterManager != null)
+        if (characterManager != null)
         {
-            characters = characterManager.Characters;
+            characters     = characterManager.Characters;
             targetStrategy = new RandomTargetStrategy(characters);
         }
         else

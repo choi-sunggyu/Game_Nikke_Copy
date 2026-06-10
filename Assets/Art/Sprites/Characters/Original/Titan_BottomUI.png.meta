@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: adabc1dae95088945a6313eac8393f93
+guid: 893aef7b489fe8b449796a137b9c3e1f
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7228184210940912549
-    second: Titan_Standing_0
+      213: -3049679916170422243
+    second: Titan_BottomUI_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Titan_Standing_0
+      name: Titan_BottomUI_0
       rect:
         serializedVersion: 2
-        x: 289
-        y: 3
-        width: 498
-        height: 1074
+        x: 0
+        y: 0
+        width: 300
+        height: 401
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5a368384e3baf4460800000000000000
-      internalID: 7228184210940912549
+      spriteID: d18d40e264c5da5d0800000000000000
+      internalID: -3049679916170422243
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Titan_Standing_0: 7228184210940912549
+      Titan_BottomUI_0: -3049679916170422243
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

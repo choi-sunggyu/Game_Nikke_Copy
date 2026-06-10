@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: adabc1dae95088945a6313eac8393f93
+guid: 5628953d0b2b1534bb796fb75cb21c39
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7228184210940912549
-    second: Titan_Standing_0
+      213: -651762175812357474
+    second: "\uC81C\uBAA9\uC744 \uC785\uB825\uD574\uC8FC\uC138\uC694. (11)_0"
+  - first:
+      213: 4431933607261984501
+    second: "\uC81C\uBAA9\uC744 \uC785\uB825\uD574\uC8FC\uC138\uC694. (11)_1"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +129,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Titan_Standing_0
+      name: "\uC81C\uBAA9\uC744 \uC785\uB825\uD574\uC8FC\uC138\uC694. (11)_0"
       rect:
         serializedVersion: 2
-        x: 289
-        y: 3
-        width: 498
-        height: 1074
+        x: 181
+        y: 85
+        width: 271
+        height: 910
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +144,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5a368384e3baf4460800000000000000
-      internalID: 7228184210940912549
+      spriteID: e923ba811c974f6f0800000000000000
+      internalID: -651762175812357474
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "\uC81C\uBAA9\uC744 \uC785\uB825\uD574\uC8FC\uC138\uC694. (11)_1"
+      rect:
+        serializedVersion: 2
+        x: 628
+        y: 85
+        width: 271
+        height: 910
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5f657f86224618d30800000000000000
+      internalID: 4431933607261984501
       vertices: []
       indices: 
       edges: []
@@ -161,7 +186,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Titan_Standing_0: 7228184210940912549
+      "\uC81C\uBAA9\uC744 \uC785\uB825\uD574\uC8FC\uC138\uC694. (11)_0": -651762175812357474
+      "\uC81C\uBAA9\uC744 \uC785\uB825\uD574\uC8FC\uC138\uC694. (11)_1": 4431933607261984501
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

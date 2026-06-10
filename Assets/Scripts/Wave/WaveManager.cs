@@ -32,6 +32,8 @@ public class WaveManager : MonoBehaviour
     public static event Action OnStageClear;
     public static event Action OnElitePhaseStart;   // 엘리트 웨이브 시작
     public static event Action OnEliteDefeated;     // 엘리트 처치 완료
+    public static event Action<EnemyBase> OnBossPhaseStart; // 보스 등장 시 보스 참조 전달
+    public static event Action            OnBossDefeated;   // 보스 처치 → 즉시 승리
 
     // ═══════════════════════════════════════════════════════
     //  내부 상태
@@ -276,19 +278,23 @@ public class WaveManager : MonoBehaviour
         {
             enemy.SetBulletPool(enemyBulletPool);
             enemy.SetTargetPosition(targetPos);
-            enemy.OnDied += () =>
-            {
-                activeEnemies.Remove(enemy);
 
-                // 일반 적 처치 시 프로그레스 실시간 갱신
-                if (!IsElitePhase && _totalNormalEnemies > 0)
+            // 보스 등장 이벤트
+            if (enemy.EnemyType == EnemyType.Boss)
+            {
+                OnBossPhaseStart?.Invoke(enemy);
+                enemy.OnDied += () =>
                 {
-                    _killedNormalEnemies++;
-                    WaveProgress = Mathf.Clamp01(
-                        (float)_killedNormalEnemies / _totalNormalEnemies
-                    );
-                }
-            };
+                    activeEnemies.Remove(enemy);
+                    // 보스 사망 → 즉시 클리어
+                    OnEliteDefeated?.Invoke();
+                };
+            }
+            else
+            {
+                enemy.OnDied += () => activeEnemies.Remove(enemy);
+            }
+
             activeEnemies.Add(enemy);
         }
     }

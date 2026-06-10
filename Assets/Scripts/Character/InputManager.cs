@@ -52,6 +52,15 @@ public class InputManager : MonoBehaviour
         wasFiring = false;
         
     }
+
+    public static void SetInputLocked(bool locked)
+    {
+        var instance = FindObjectOfType<InputManager>();
+        if (instance != null)
+        {
+            instance._inputLocked = locked;
+        }
+    }
     
     public static void InvokeSwitchCharacter(int index)
     {

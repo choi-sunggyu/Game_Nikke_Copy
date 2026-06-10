@@ -68,6 +68,19 @@ public class BottomUI : MonoBehaviour
     {
         int gradientApplied = 0;
 
+        // character에게 있는 캐릭터 스프라이트를 characterIcon에 적용
+        for (int i = 0; i < characterBoxes.Count && i < characters.Count; i++)
+        {
+            var box = characterBoxes[i];
+            var c = characters[i];
+
+            if (box.characterIcon != null && c.CharacterSprite != null)
+            {
+                box.characterIcon.sprite = c.CharacterSprite;
+                box.characterIcon.type = Image.Type.Simple; // 스프라이트 원색이 그대로 보이도록
+            }
+        }   
+
         foreach (var box in characterBoxes)
         {
             // [4번] background 그라데이션 — 연결된 모든 박스에 동일하게 적용

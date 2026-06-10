@@ -64,12 +64,12 @@ public class CameraController : MonoBehaviour
             moveSpeed * Time.deltaTime
         );
 
-        // 확대/축소
-        cam.fieldOfView = Mathf.Lerp(
-            cam.fieldOfView,
-            targetZoom,
-            zoomSpeed * Time.deltaTime
-        );
+        // // 확대/축소
+        // cam.fieldOfView = Mathf.Lerp(
+        //     cam.fieldOfView,
+        //     targetZoom,
+        //     zoomSpeed * Time.deltaTime
+        // );
 
         // cam.orthographicSize = Mathf.Lerp(
         //     cam.orthographicSize,
