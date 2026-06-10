@@ -153,15 +153,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DamagePopup
   damageText: {fileID: 2279230357199382123}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
-  normalFontSize: 36
-  riseDuration: 0.6
+  normalFontSize: 30
+  riseDuration: 0.8
   riseHeight: 80
-  fadeDuration: 0.3
+  fadeDuration: 0.6
   criticalColor: {r: 1, g: 0.85, b: 0, a: 1}
   criticalFontSize: 52
   bounceHeight: 130
   bounceReturnRate: 0.3
   bounceDuration: 0.5
+  playerNormalColor: {r: 1, g: 1, b: 1, a: 1}
+  playerBlockColor: {r: 0.3, g: 0.6, b: 1, a: 1}
+  playerFontSize: 40
 --- !u!114 &543712402677646504
 MonoBehaviour:
   m_ObjectHideFlags: 0

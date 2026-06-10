@@ -3,6 +3,7 @@ using UnityEngine;
 public class DamagePopupManager : MonoBehaviour
 {
     public static DamagePopupManager Instance { get; private set; }
+    public enum DamagePopupType { Enemy, PlayerNormal, PlayerBlock }
 
     [SerializeField] private ObjectPool popupPool;
     [SerializeField] private Canvas     targetCanvas;
@@ -62,5 +63,24 @@ public class DamagePopupManager : MonoBehaviour
         obj.transform.SetParent(_canvasRect, false);
         rt.localPosition = canvasPos;
         popup.Init(damage, isCritical);
+    }
+
+    public void ShowPlayerDamage(float damage, Vector3 worldPos, bool isBlock)
+    {
+        Vector2 screenPos = Camera.main.WorldToScreenPoint(worldPos);
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            _canvasRect, screenPos, null, out Vector2 canvasPos);
+
+        GameObject obj = popupPool.Get(Vector3.zero, Quaternion.identity);
+        if (obj == null) return;
+
+        RectTransform rt    = obj.GetComponent<RectTransform>();
+        DamagePopup   popup = obj.GetComponent<DamagePopup>();
+
+        if (popup == null) { popupPool.Return(obj); return; }
+
+        obj.transform.SetParent(_canvasRect, false);
+        rt.localPosition = canvasPos;
+        popup.InitPlayer(damage, isBlock); // ← 새 메서드
     }
 }

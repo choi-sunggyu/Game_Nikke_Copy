@@ -102,14 +102,18 @@ public abstract class CharacterBase : MonoBehaviour
         if (buff) damage *= 0.75f;
         if (debuff) damage *= 1.25f;
 
+        bool isBlock = false;
+
         // 1. idle일 때는 쉴드가 먼저 깎이고, 쉴드가 깨지면 남은 데미지가 hp에 적용
         // 2. fire일 때는 바로 hp에 데미지 적용
         // 3. 리로딩 중일 때는 fire와 동일하게 shield에 데미지 적용 (리로딩이 엄폐 상태라고 가정)
         switch(currentState)
         {
             case CharacterState.Idle:
+            case CharacterState.Reload:
                 if(shield > 0) //쉴드가 남아 있음
                 {
+                    isBlock = true;
                     shield -= damage;
                     //체력 감소
                     if(shield < 0) //쉴드 깨짐 남은 데미지 받음
@@ -126,15 +130,12 @@ public abstract class CharacterBase : MonoBehaviour
             case CharacterState.Fire:
                 hp -= damage;
                 break;
-            case CharacterState.Reload:
-                shield -= damage;
-                if (shield < 0)
-                {
-                    hp += shield;
-                    shield = 0;
-                }
-                break;
         }
+
+        BurstGaugeManager.Instance?.AddGauge(damage * 0.1f);
+
+        if (IsActiveCharacter)
+            DamagePopupManager.Instance?.ShowPlayerDamage(damage, transform.position, isBlock);
         
         //사망 여부   
         if(hp <= 0)

@@ -11,10 +11,10 @@ public class DamagePopup : MonoBehaviour
 
     [Header("── 일반 설정 ──────────────────")]
     [SerializeField] private Color normalColor    = Color.white;
-    [SerializeField] private float normalFontSize = 36f;
-    [SerializeField] private float riseDuration   = 0.6f;
+    [SerializeField] private float normalFontSize = 30f;
+    [SerializeField] private float riseDuration   = 0.8f;
     [SerializeField] private float riseHeight     = 80f;
-    [SerializeField] private float fadeDuration   = 0.3f;
+    [SerializeField] private float fadeDuration   = 0.8f;
 
     [Header("── 크리티컬 설정 ──────────────")]
     [SerializeField] private Color criticalColor    = new Color(1f, 0.85f, 0f, 1f);
@@ -22,6 +22,11 @@ public class DamagePopup : MonoBehaviour
     [SerializeField] private float bounceHeight     = 130f;
     [SerializeField] private float bounceReturnRate = 0.3f;
     [SerializeField] private float bounceDuration   = 0.5f;
+
+    [Header("── 플레이어 피격 설정 ──────────")]
+    [SerializeField] private Color playerNormalColor = Color.white;
+    [SerializeField] private Color playerBlockColor  = new Color(0.3f, 0.6f, 1f, 1f); // 파란색
+    [SerializeField] private float playerFontSize    = 40f;
 
     // ═══════════════════════════════════════════════════════
     //  내부 상태
@@ -243,5 +248,24 @@ public class DamagePopup : MonoBehaviour
     {
         _animCoroutine = null;
         _ownerPool?.Return(gameObject);
+    }
+
+    public void InitPlayer(float damage, bool isBlock)
+    {
+        damageText.fontSize = playerFontSize;
+
+        if (isBlock)
+        {
+            damageText.text  = $"{Mathf.RoundToInt(damage)}\nBLOCK!";
+            damageText.color = playerBlockColor;
+        }
+        else
+        {
+            damageText.text  = Mathf.RoundToInt(damage).ToString();
+            damageText.color = playerNormalColor;
+        }
+
+        if (_animCoroutine != null) StopCoroutine(_animCoroutine);
+        _animCoroutine = StartCoroutine(NormalAnim());
     }
 }
