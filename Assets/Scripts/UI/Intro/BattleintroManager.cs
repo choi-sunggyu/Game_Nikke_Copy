@@ -275,8 +275,6 @@ public class BattleIntroManager : MonoBehaviour
     void OnIntroFinished()
     {
         IsComplete = true;
-        // CameraController 에게 통제권 반환 (이벤트 + 직접 enable 양쪽 안전망)
-        // if (cameraController != null) cameraController.enabled = true;
         OnBattleIntroComplete?.Invoke();
         gameObject.SetActive(false);
     }

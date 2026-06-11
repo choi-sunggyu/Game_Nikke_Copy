@@ -10,8 +10,8 @@ public class EnemyC : EnemyBase
 
     public override void Initialize()
     {
-        hp = 300f;
-        maxHp = 300f;
+        hp = 1000f;
+        maxHp = 1000f;
         attackDamage = 12f;
         survive = true;
 

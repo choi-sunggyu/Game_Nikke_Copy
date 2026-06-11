@@ -1,33 +1,58 @@
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
+using System.Collections;
 using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameOverUI : MonoBehaviour
 {
-    [SerializeField] private GameObject gameOverRoot;  // 전체 패널
-    [SerializeField] private GameObject stageClearRoot;
-    [SerializeField] private Button restartButton;
-    [SerializeField] private Button mainMenuButton;    
-    [SerializeField] private Button clearRestartButton;
-    [SerializeField] private Button clearMainMenuButton;
+    public static GameOverUI Instance { get; private set; }
+
+    [Header("── 공통 ───────────────────────")]
+    [SerializeField] private CanvasGroup rootGroup;
+
+    [Header("── 게임오버 ─────────────────")]
+    [SerializeField] private GameObject  gameOverRoot;
+    [SerializeField] private TMP_Text    failedText;
+    [SerializeField] private Button      restartButton;
+    [SerializeField] private Button      mainMenuButton;
+
+    [Header("── 미션 클리어 ──────────────")]
+    [SerializeField] private GameObject      stageClearRoot;
+    [SerializeField] private TMP_Text        completedText;
+    [SerializeField] private Image           characterImage;
+    [SerializeField] private CharacterBase[] characters;
+    [SerializeField] private Button          clearRestartButton;
+    [SerializeField] private Button          clearMainMenuButton;
+
+    [Header("── 연출 ─────────────────────")]
+    [SerializeField] private float fadeInDuration    = 0.5f;
+    [SerializeField] private float textPunchScale    = 1.3f;
+    [SerializeField] private float textPunchDuration = 0.3f;
 
     void Awake()
     {
+        if (Instance != null) { Destroy(gameObject); return; }
+        Instance = this;
+
         gameOverRoot.SetActive(false);
         stageClearRoot.SetActive(false);
+
+        rootGroup.alpha          = 0f;
+        rootGroup.interactable   = false;
+        rootGroup.blocksRaycasts = false;
     }
 
     void OnEnable()
     {
         CharacterManager.OnGameOver += ShowGameOver;
-        WaveManager.OnStageClear += ShowStageClear;
+        GameTimerManager.OnTimeUp   += ShowGameOver;
     }
 
     void OnDisable()
     {
         CharacterManager.OnGameOver -= ShowGameOver;
-        WaveManager.OnStageClear -= ShowStageClear;
+        GameTimerManager.OnTimeUp   -= ShowGameOver;
     }
 
     void Start()
@@ -38,23 +63,112 @@ public class GameOverUI : MonoBehaviour
         clearMainMenuButton.onClick.AddListener(OnClickMainMenu);
     }
 
-    private void ShowGameOver()
+    // ─────────────────────────────────────────
+    //  외부 호출
+    // ─────────────────────────────────────────
+    public void ShowGameOver()
     {
         gameOverRoot.SetActive(true);
+        failedText.color = Color.red;
+        failedText.text  = "FAILED";
+        StartCoroutine(ShowSequence(failedText));
     }
 
-    private void ShowStageClear()
+    // BossCinematicManager에서 호출
+    public void ShowMissionComplete()
     {
+        SetMVPCharacter();
         stageClearRoot.SetActive(true);
+        completedText.color = new Color(0.3f, 0.6f, 1f, 1f);
+        completedText.text  = "MISSION COMPLETED";
+        StartCoroutine(ShowSequence(completedText));
     }
 
-    public void OnClickRestart()
+    // ─────────────────────────────────────────
+    //  공통 연출
+    // ─────────────────────────────────────────
+    private IEnumerator ShowSequence(TMP_Text target)
     {
+        yield return StartCoroutine(FadeIn());
+        yield return StartCoroutine(PunchText(target));
+
+        rootGroup.interactable   = true;
+        rootGroup.blocksRaycasts = true;
+    }
+
+    private IEnumerator FadeIn()
+    {
+        float elapsed   = 0f;
+        rootGroup.alpha = 0f;
+
+        while (elapsed < fadeInDuration)
+        {
+            elapsed        += Time.deltaTime;
+            rootGroup.alpha = Mathf.Clamp01(elapsed / fadeInDuration);
+            yield return null;
+        }
+
+        rootGroup.alpha = 1f;
+    }
+
+    private IEnumerator PunchText(TMP_Text target)
+    {
+        Transform t       = target.transform;
+        float     elapsed = 0f;
+        float     half    = textPunchDuration * 0.5f;
+
+        while (elapsed < half)
+        {
+            elapsed      += Time.deltaTime;
+            t.localScale  = Vector3.one * Mathf.Lerp(1f, textPunchScale, elapsed / half);
+            yield return null;
+        }
+
+        elapsed = 0f;
+
+        while (elapsed < half)
+        {
+            elapsed      += Time.deltaTime;
+            t.localScale  = Vector3.one * Mathf.Lerp(textPunchScale, 1f, elapsed / half);
+            yield return null;
+        }
+
+        t.localScale = Vector3.one;
+    }
+
+    // ─────────────────────────────────────────
+    //  MVP 캐릭터
+    // ─────────────────────────────────────────
+    private void SetMVPCharacter()
+    {
+        CharacterBase mvp    = null;
+        float         maxDmg = float.MinValue;
+
+        foreach (var c in characters)
+        {
+            if (c.TotalDamageDealt > maxDmg)
+            {
+                maxDmg = c.TotalDamageDealt;
+                mvp    = c;
+            }
+        }
+
+        if (mvp != null)
+            characterImage.sprite = mvp.CharacterPortrait;
+    }
+
+    // ─────────────────────────────────────────
+    //  버튼
+    // ─────────────────────────────────────────
+    private void OnClickRestart()
+    {
+        Time.timeScale = 1f;
         SceneManager.LoadScene("LoadingScene");
     }
 
-    public void OnClickMainMenu()
+    private void OnClickMainMenu()
     {
+        Time.timeScale = 1f;
         SceneManager.LoadScene("MainMenuScene");
     }
 }

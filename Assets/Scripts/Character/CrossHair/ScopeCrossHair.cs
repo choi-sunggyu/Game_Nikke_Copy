@@ -340,6 +340,7 @@ public class ScopeCrossHair : CrossHairBase
     // ═══════════════════════════════════════════════════════
     public void UpdateChargeUI(float chargeRatio)
     {
+        if (!gameObject.activeInHierarchy) return;
         if (chargeProgressBar == null) return;
 
         chargeProgressBar.fillAmount = chargeRatio;

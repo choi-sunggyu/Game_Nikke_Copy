@@ -55,7 +55,7 @@ public class InputManager : MonoBehaviour
 
     public static void SetInputLocked(bool locked)
     {
-        var instance = FindObjectOfType<InputManager>();
+        var instance = FindAnyObjectByType<InputManager>();
         if (instance != null)
         {
             instance._inputLocked = locked;
