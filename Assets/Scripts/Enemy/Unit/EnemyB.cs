@@ -22,13 +22,9 @@ public class EnemyB : EnemyBase
 
     public override void Initialize()
     {
-        hp = 150f;
-        maxHp = 150f;
-        attackDamage = 8f;
-        attackDelay = 2f;
-        survive = true;
+        // 능력치는 EnemyBase.InitBase 의 ApplyEnemyData 가 SO 에서 주입함.
         nextAttackTime = 0f;
-        nextMoveTime = moveInterval;
+        nextMoveTime   = moveInterval;
 
         // 출현 연출 시작
         isSpawning = true;

@@ -32,11 +32,11 @@ public class BottomUI : MonoBehaviour
     [Header("애니메이션")]
     [SerializeField] private float heightAnimDuration = 0.2f; // 박스 높이 전환 시간
     [SerializeField] private float coverFadeDuration = 0.25f; // 엄폐 인디케이터 페이드 시간
-    [SerializeField] public Button buster1Button;
-    [SerializeField] public Button buster2Button;
-    [SerializeField] public Button buster3Button;
-    // [SerializeField] public Button buster4Button;
-    // [SerializeField] public Button buster5Button;
+    [SerializeField] public Button characterButton1;
+    [SerializeField] public Button characterButton2;
+    [SerializeField] public Button characterButton3;
+    [SerializeField] public Button characterButton4;
+    [SerializeField] public Button characterButton5;
 
     private List<CharacterBase> characters;
 
@@ -84,10 +84,11 @@ public class BottomUI : MonoBehaviour
         foreach (var box in characterBoxes)
         {
             // [4번] background 그라데이션 — 연결된 모든 박스에 동일하게 적용
+            // 검정 그라데이션은 재사용 유틸리티(Black_Gradation)로 위임.
             if (box.background != null)
             {
                 box.background.type = Image.Type.Simple; // 인스펙터에서 Sliced/Filled로 바뀌어도 강제 통일
-                box.background.sprite = CreateGradientSprite(64, 128, Color.black, 1f, 0f);
+                box.background.sprite = Black_Gradation.Create();
                 gradientApplied++;
             }
             else
@@ -157,6 +158,10 @@ public class BottomUI : MonoBehaviour
 
     private void UpdateBox(int index, bool isActive) // index 번째 박스를 isActive 상태에 맞게 업데이트
     {
+        // 안전망: 인스펙터 슬롯 크기 부족 시 무시
+        if (characterBoxes == null || index < 0 || index >= characterBoxes.Count) return;
+        if (characters == null || index >= characters.Count) return;
+
         var box = characterBoxes[index];
         var c = characters[index];
 
@@ -341,15 +346,31 @@ public class BottomUI : MonoBehaviour
         }
     }
 
-    // public void OnBuster4ButtonClicked()
-    // {
-    //     Debug.Log($"4번 캐릭터로 조작 캐릭터 변경");
-    //     InputManager.InvokeSwitchCharacter(3);
-    // }
+    public void OnBuster4ButtonClicked()
+    {
+        Debug.Log($"4번 캐릭터로 조작 캐릭터 변경");
+        if (characterManager.CurrentCharacter == characterManager.Characters[3])
+        {
+            characterManager.ToggleCover();
+            HandleCoverToggle();
+        }
+        else
+        {
+            InputManager.InvokeSwitchCharacter(3);
+        }
+    }
 
-    // public void OnBuster5ButtonClicked()
-    // {
-    //     Debug.Log($"5번 캐릭터로 조작 캐릭터 변경");
-    //     InputManager.InvokeSwitchCharacter(4);
-    // }
+    public void OnBuster5ButtonClicked()
+    {
+        Debug.Log($"5번 캐릭터로 조작 캐릭터 변경");
+        if (characterManager.CurrentCharacter == characterManager.Characters[4])
+        {
+            characterManager.ToggleCover();
+            HandleCoverToggle();
+        }
+        else
+        {
+            InputManager.InvokeSwitchCharacter(4);
+        }
+    }
 }

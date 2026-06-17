@@ -6,6 +6,32 @@ using UnityEngine;
 
 public abstract class CharacterBase : MonoBehaviour
 {
+    [Header("── 데이터 (ScriptableObject) ─────")]
+    [Tooltip("능력치/스프라이트 정체성 데이터. 할당하면 Initialize() 안의 ApplyData() 로 자동 적용됨.")]
+    [SerializeField] protected CharacterData data;
+    public CharacterData Data => data;
+
+    [Header("── 시트 애니메이션 (15장 = 5+5+5) ─")]
+    [Tooltip("애니메이션을 적용할 SpriteRenderer. 비우면 GetComponent 로 자동 탐색.")]
+    [SerializeField] protected SpriteRenderer animSpriteRenderer;
+    [Tooltip("Sprite Editor 로 자른 15장 슬라이스. 인덱스 0~4: idle→shoot, 5~9: shoot→reload, 10~14: reload→idle")]
+    [SerializeField] protected Sprite[] animSprites;
+    [Tooltip("한 프레임당 표시 시간 (초). 20fps = 0.05")]
+    [SerializeField] protected float frameDuration = 0.05f;
+
+    // ─ 기본 시퀀스 (15장 5+5+5 구조 기준) ─────────────────────
+    //   서브클래스가 다른 시퀀스를 원하면 GetTransitionSequence / GetLoopForState 오버라이드
+    protected static readonly int[] DEFAULT_IDLE_LOOP       = { 14 };               // ReloadToIdle 마지막
+    protected static readonly int[] DEFAULT_SHOOT_LOOP      = { 4, 5 };             // 사격 자세 ↔ 사격 직후 (왕복)
+    protected static readonly int[] DEFAULT_RELOAD_LOOP     = { 9 };                // ShootToReload 마지막
+    protected static readonly int[] DEFAULT_IDLE_TO_SHOOT   = { 0, 1, 2, 3, 4 };    // 5장
+    protected static readonly int[] DEFAULT_SHOOT_TO_RELOAD = { 5, 6, 7, 8, 9 };    // 5장
+    protected static readonly int[] DEFAULT_RELOAD_TO_IDLE  = { 10, 11, 12, 13, 14 }; // 5장
+
+    private CharacterState? animPrevState = null;
+    private Coroutine        animCoroutine;
+    public CameraShake cameraShake;
+
     [Header("변경 값")]
     [SerializeField] protected float hp;
     [SerializeField] protected float maxHp;
@@ -32,6 +58,8 @@ public abstract class CharacterBase : MonoBehaviour
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] protected float bulletSpeed;
     [SerializeField] protected int burstNumber; // Ghost=1, Titan=2, Viper=3
+    [SerializeField] protected WeaponType weaponType = WeaponType.AR; // 사거리 보너스 계산용 (CharacterData 가 덮어씀)
+    public WeaponType WeaponType => weaponType;
     [SerializeField] protected float burstCutsceneDuration = 0f; // 버스트 컷씬 지속 시간 (초) - 이 시간 동안 플레이어 조작 잠금, AI는 TryFireAtTarget로 공격
     [SerializeField] private Sprite characterPortrait;
     [SerializeField] private LayerMask collisionMask;
@@ -89,6 +117,51 @@ public abstract class CharacterBase : MonoBehaviour
     public abstract void UseBurst();
     public static event Action<CharacterBase> OnForcedReloadStart;
     public static event Action<CharacterBase> OnForcedReloadEnd;
+
+    /// <summary>
+    /// CharacterData(SO)의 값으로 자신의 능력치/스프라이트를 채워 넣는다.
+    /// 캐릭터별 Initialize() 의 첫 줄에서 호출하면 됨.
+    /// data 가 비어있으면 인스펙터에 직접 입력된 값이 그대로 유지됨 (점진적 마이그레이션).
+    /// </summary>
+    protected void ApplyData()
+    {
+        if (data == null) return;
+
+        // 체력 / 방어
+        maxHp     = data.maxHp;
+        hp        = maxHp;
+        maxShield = data.maxShield;
+        shield    = maxShield;
+
+        // 사격
+        maxBulletCount = data.maxBulletCount;
+        bulletCount    = maxBulletCount;
+        reloadTime     = data.reloadTime;
+        attackDamage   = data.attackDamage;
+        fireRate       = data.fireRate;
+        bulletSpeed    = data.bulletSpeed;
+
+        // 버스트 / 스킬
+        chargingBurstGauge    = data.chargingBurstGauge;
+        burstCoolTime         = data.burstCoolTime;
+        skillCoolTime         = data.skillCoolTime;
+        burstCutsceneDuration = data.burstCutsceneDuration;
+        burstNumber           = data.burstNumber;
+        weaponType            = data.weaponType;
+
+        // 크리티컬
+        criticalRate       = data.criticalRate;
+        criticalMultiplier = data.criticalMultiplier;
+
+        // 시각 (SO 에 비어있는 슬롯은 인스펙터 직접 할당값 유지)
+        if (data.idleSprite        != null) idleSprite        = data.idleSprite;
+        if (data.shootSprite       != null) shootSprite       = data.shootSprite;
+        if (data.reloadSprite      != null) reloadSprite      = data.reloadSprite;
+        if (data.characterPortrait != null) characterPortrait = data.characterPortrait;
+        if (data.characterSprite   != null) characterSprite   = data.characterSprite;
+
+        survive = true;
+    }
 
     public static void InvokeBulletCountChanged(CharacterBase sender, int count)
     {
@@ -161,6 +234,10 @@ public abstract class CharacterBase : MonoBehaviour
                 ChangeState(CharacterState.Fire);
 
                 bulletCount--;
+
+                // 사격 시 카메라 흔들림
+                StartCoroutine(cameraShake.Shake(0.15f, 0.2f));
+                
                 OnBulletConsumed?.Invoke(this, 1);
                 nextFireTime = Time.time + fireRate;
 
@@ -242,18 +319,49 @@ public abstract class CharacterBase : MonoBehaviour
         // Step 2: muzzlePoint → worldTarget 방향으로 총알 발사
         Vector3 fireDir = (worldTarget - muzzlePoint.position).normalized;
 
-        GameObject bullet = bulletPool.Get(muzzlePoint.position, Quaternion.identity);
+        // ── SG(샷건): 산탄 발사 분기 — 1발 트리거로 N개 탄환이 약간 분산되어 발사 ──
+        if (weaponType == WeaponType.SG)
+        {
+            SpawnShotgunSpread(fireDir);
+            return;
+        }
+
+        // ── 그 외 무기: 단발 발사 ──
+        SpawnSingleBullet(muzzlePoint.position, fireDir, FinalAttackDamage);
+    }
+
+    // 단일 탄환 생성 헬퍼 (단발 무기 + 산탄 펠릿 공용)
+    private void SpawnSingleBullet(Vector3 originPos, Vector3 dir, float damage)
+    {
+        GameObject bullet = bulletPool.Get(originPos, Quaternion.identity);
         if (bullet == null) return;
 
         BulletBase bulletBase = bullet.GetComponent<BulletBase>();
+        bulletBase.Init(this, damage, bulletSpeed, dir, chargingBurstGauge);
+    }
 
-        bulletBase.Init(
-            this,
-            FinalAttackDamage,
-            bulletSpeed,
-            fireDir,
-            chargingBurstGauge
-        );
+    // SG 산탄: cone 분포로 N개 펠릿 발사. 탄당 데미지는 attackDamage/N 으로 분산.
+    private void SpawnShotgunSpread(Vector3 baseDir)
+    {
+        float perPelletDamage = FinalAttackDamage / WeaponSpecs.SG_PELLET_COUNT;
+        for (int i = 0; i < WeaponSpecs.SG_PELLET_COUNT; i++)
+        {
+            Vector3 spreadDir = ApplyConeSpread(baseDir, WeaponSpecs.SG_SPREAD_ANGLE);
+            SpawnSingleBullet(muzzlePoint.position, spreadDir, perPelletDamage);
+        }
+    }
+
+    // baseDir 을 중심으로 ±maxAngleDeg cone 내 무작위 방향 반환
+    private Vector3 ApplyConeSpread(Vector3 baseDir, float maxAngleDeg)
+    {
+        // 무작위 yaw / pitch 각도
+        float yaw   = UnityEngine.Random.Range(-maxAngleDeg, maxAngleDeg);
+        float pitch = UnityEngine.Random.Range(-maxAngleDeg, maxAngleDeg);
+
+        // baseDir 기준 회전 — 카메라 정렬이 아닌 월드 yaw/pitch 적용 (단순화)
+        Quaternion spreadRot = Quaternion.AngleAxis(yaw, Vector3.up)
+                             * Quaternion.AngleAxis(pitch, Vector3.right);
+        return spreadRot * baseDir;
     }
 
     public void ApplyCriticalRateBuff(
@@ -400,10 +508,26 @@ public abstract class CharacterBase : MonoBehaviour
         ApplySprite(newState);
     }
 
-    // 상태별 sprite 적용. Ghost/Viper 는 기본 단일 sprite 사용,
-    // Titan 처럼 시퀀스 애니메이션이 필요한 캐릭터는 오버라이드해서 자체 시스템으로 처리.
+    // 상태별 sprite 적용. 두 가지 경로:
+    //   1) animSprites 가 할당되어 있으면 → 시트 시퀀스 애니메이션 (전환 → 본 상태 루프)
+    //   2) 비어있으면 → 단일 sprite 시스템 (idleSprite/shootSprite/reloadSprite) 폴백
+    // 서브클래스가 더 특수한 처리가 필요하면 오버라이드 가능.
     protected virtual void ApplySprite(CharacterState state)
     {
+        // 시트 애니메이션 경로 (animSprites 우선)
+        if (animSprites != null && animSprites.Length > 0)
+        {
+            if (animSpriteRenderer == null)
+                animSpriteRenderer = GetComponent<SpriteRenderer>();
+
+            if (animSpriteRenderer != null)
+            {
+                PlaySpriteSequence(state);
+                return;
+            }
+        }
+
+        // 단일 sprite 폴백 (기존 동작)
         switch (state)
         {
             case CharacterState.Idle:
@@ -416,6 +540,92 @@ public abstract class CharacterBase : MonoBehaviour
                 spriteRenderer.sprite = reloadSprite;
                 break;
         }
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  시트 시퀀스 애니메이션 — 코루틴 기반 전환→루프 재생
+    // ═══════════════════════════════════════════════════════
+    private void PlaySpriteSequence(CharacterState state)
+    {
+        // Fire 는 매 발마다 사격 모션을 1회 새로 재생해야 하므로 가드 우회.
+        // Idle / Reload 는 무한 루프 중이므로 같은 상태 재진입 시 재시작 비용 절약.
+        bool isFire = state == CharacterState.Fire;
+        if (!isFire && animPrevState == state && animCoroutine != null) return;
+
+        int[] transition = GetTransitionSequence(animPrevState, state);
+        int[] loop       = GetLoopForState(state);
+
+        if (animCoroutine != null) StopCoroutine(animCoroutine);
+        // Fire 는 ShootLoop 1회 재생 후 정지 (사격 후 자세 유지).
+        // Idle / Reload 는 무한 반복.
+        animCoroutine = StartCoroutine(PlayTransitionAndLoop(transition, loop, loopForever: !isFire));
+
+        animPrevState = state;
+    }
+
+    /// <summary>
+    /// 상태 전환 시 재생할 시퀀스. 정의되지 않은 전환은 null → 즉시 본 상태 루프 진입.
+    /// 서브클래스가 다른 시트 구조를 쓰면 오버라이드.
+    /// </summary>
+    protected virtual int[] GetTransitionSequence(CharacterState? from, CharacterState to)
+    {
+        if (from == CharacterState.Idle   && to == CharacterState.Fire)   return DEFAULT_IDLE_TO_SHOOT;
+        if (from == CharacterState.Fire   && to == CharacterState.Reload) return DEFAULT_SHOOT_TO_RELOAD;
+        if (from == CharacterState.Reload && to == CharacterState.Idle)   return DEFAULT_RELOAD_TO_IDLE;
+        return null;
+    }
+
+    /// <summary>본 상태의 무한 루프 시퀀스. 서브클래스가 다른 시트 구조를 쓰면 오버라이드.</summary>
+    protected virtual int[] GetLoopForState(CharacterState state)
+    {
+        switch (state)
+        {
+            case CharacterState.Idle:   return DEFAULT_IDLE_LOOP;
+            case CharacterState.Fire:   return DEFAULT_SHOOT_LOOP;
+            case CharacterState.Reload: return DEFAULT_RELOAD_LOOP;
+            default: return null;
+        }
+    }
+
+    private IEnumerator PlayTransitionAndLoop(int[] transition, int[] loop, bool loopForever = true)
+    {
+        // ── 전환 시퀀스 (있을 때만, 1회 재생) ──
+        if (transition != null)
+        {
+            for (int i = 0; i < transition.Length; i++)
+            {
+                int idx = transition[i];
+                if (idx >= 0 && idx < animSprites.Length)
+                    animSpriteRenderer.sprite = animSprites[idx];
+                yield return new WaitForSeconds(frameDuration);
+            }
+        }
+
+        // ── 본 상태 루프 ──
+        //   loopForever = true  → Idle / Reload (무한 반복)
+        //   loopForever = false → Fire (1회만 재생 후 정지, 마지막 프레임에 머무름)
+        if (loop == null || loop.Length == 0) yield break;
+
+        do
+        {
+            for (int i = 0; i < loop.Length; i++)
+            {
+                int idx = loop[i];
+                if (idx >= 0 && idx < animSprites.Length)
+                    animSpriteRenderer.sprite = animSprites[idx];
+                yield return new WaitForSeconds(frameDuration);
+            }
+        } while (loopForever);
+
+        // 1회 재생 후 종료. 마지막 sprite 가 화면에 그대로 유지됨.
+        animCoroutine = null;
+    }
+
+    /// <summary>OnDisable 등에서 호출 — 시트 애니메이션 코루틴 정리.</summary>
+    protected void StopSpriteAnimation()
+    {
+        if (animCoroutine != null) { StopCoroutine(animCoroutine); animCoroutine = null; }
+        animPrevState = null;
     }
 
     public void AddDamageRecord(float damage)
@@ -441,7 +651,11 @@ public abstract class CharacterBase : MonoBehaviour
 
     protected virtual void OnEnable() {}
 
-    protected virtual void OnDisable() {}
+    protected virtual void OnDisable()
+    {
+        // 시트 애니메이션 코루틴 정리 (서브클래스가 base.OnDisable() 호출 시 자동 처리)
+        StopSpriteAnimation();
+    }
 
     // 캐릭터 AI용 사격 (CrossHair 우회)
     public virtual void TryFireAtTarget(Vector3 worldTarget)
@@ -488,12 +702,17 @@ public abstract class CharacterBase : MonoBehaviour
     protected virtual void FireBulletAtTarget(Vector3 worldTarget)
     {
         if (bulletPool == null || muzzlePoint == null) return;
-        
-        Vector3 fireDir = (worldTarget - muzzlePoint.position).normalized;
-        GameObject bullet = bulletPool.Get(muzzlePoint.position, Quaternion.identity);
-        if (bullet == null) return;
 
-        bullet.GetComponent<BulletBase>().Init(this, FinalAttackDamage, bulletSpeed, fireDir, chargingBurstGauge);
+        Vector3 fireDir = (worldTarget - muzzlePoint.position).normalized;
+
+        // SG: 산탄 발사 (AI 도 동일 패턴 적용)
+        if (weaponType == WeaponType.SG)
+        {
+            SpawnShotgunSpread(fireDir);
+            return;
+        }
+
+        SpawnSingleBullet(muzzlePoint.position, fireDir, FinalAttackDamage);
     }
 
     public virtual void StopAllSounds() { }

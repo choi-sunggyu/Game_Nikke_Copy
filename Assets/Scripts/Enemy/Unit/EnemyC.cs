@@ -3,18 +3,13 @@ using UnityEngine;
 
 public class EnemyC : EnemyBase
 {
-    private float attackDelaySelf = 1.5f;
     private float nextAttackTime;
     private float nextJumpTime;
     private bool isJumping = false;
 
     public override void Initialize()
     {
-        hp = 1000f;
-        maxHp = 1000f;
-        attackDamage = 12f;
-        survive = true;
-
+        // 능력치(hp/maxHp/attackDamage/attackDelay)는 EnemyBase.InitBase 의 ApplyEnemyData 가 SO 에서 주입함.
         ScheduleNextJump();
     }
 
@@ -26,7 +21,7 @@ public class EnemyC : EnemyBase
         if (Time.time >= nextAttackTime)
         {
             Attack();
-            nextAttackTime = Time.time + attackDelaySelf;
+            nextAttackTime = Time.time + attackDelay; // base.attackDelay (SO 주입값) 사용
         }
 
         if (Time.time >= nextJumpTime)

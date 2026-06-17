@@ -60,11 +60,21 @@ public class CharacterManager : MonoBehaviour
 
     void HandleFire()
     {
+        // RL(런처) 캐릭터는 OnFire 매 프레임 발화로 TryFire 가 호출되면 fireRate 우회 때문에
+        // 매 프레임 발사 → 탄창 즉시 소진. LauncherCrossHair 의 차지 시스템이 발사 시점을 단독 제어해야 함.
+        // 따라서 RL 의 경우 HandleFire 는 무시하고, LauncherCrossHair.Update 가 ratio>=1 시점에만 owner.TryFire() 호출.
+        if (currentCharacter != null && currentCharacter.WeaponType == WeaponType.RL) return;
+
         currentCharacter.TryFire();
     }
 
     void HandleIdle()
     {
+        // RL(런처) 캐릭터는 마우스 떼는 순간마다 강제 reload 가 발생하면 탄창이 남아도 발사 불가가 됨.
+        // RL 의 reload 시점은 Ghost.TryFire 내부의 "bulletCount==0 시 TryReload" 가 단독 결정.
+        // LauncherCrossHair 는 reload 중에는 차지 시작을 막아 자연스럽게 사이클이 끊김.
+        if (currentCharacter != null && currentCharacter.WeaponType == WeaponType.RL) return;
+
         currentCharacter.TryReload();
     }
 
@@ -94,7 +104,13 @@ public class CharacterManager : MonoBehaviour
 
     public void SwitchCharacter(int index)
     {
-        // 조건 체크 3가지 먼저
+        // 안전망: 인스펙터의 characters 리스트가 호출 인덱스보다 작으면 무시
+        if (characters == null || index < 0 || index >= characters.Count)
+        {
+            Debug.LogWarning($"[CharacterManager] SwitchCharacter({index}) — characters 리스트 크기 부족 ({characters?.Count ?? 0}). 인스펙터 할당 확인 필요.");
+            return;
+        }
+        // 조건 체크 3가지
         // 1. 전환 중이면 무시
         // 2. 요청한 캐릭터가 사망했으면 무시
         // 3. 요청한 캐릭터가 현재 캐릭터면 무시

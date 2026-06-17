@@ -82,7 +82,18 @@ public class BulletBase : MonoBehaviour, IPoolable
             var (finalDamage, isCritical) = owner.CalculateDamage(damage);
 
             owner?.AddDamageRecord(finalDamage);
-            enemy.TakeDamage(finalDamage);
+
+            // 직격 데미지 — 적정 사거리 보너스 적용 (owner 가 있으면 무기 타입 전달)
+            if (owner != null)
+                enemy.TakeDamage(finalDamage, owner.WeaponType);
+            else
+                enemy.TakeDamage(finalDamage);
+
+            // ── RL(런처): 스플래시 데미지 — 직격 지점 주변 적에게 추가 피해 ──
+            if (owner != null && owner.WeaponType == WeaponType.RL)
+            {
+                ApplyRocketSplash(enemy, finalDamage);
+            }
 
             if (owner == characterManager.CurrentCharacter)
             {
@@ -124,5 +135,42 @@ public class BulletBase : MonoBehaviour, IPoolable
             return;
 
         OnLastBulletHit?.Invoke(owner);
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  RL 스플래시 데미지
+    //   직격 적의 위치를 중심으로 SPLASH_RADIUS 내 적 탐색.
+    //   직격 적은 이미 별도 처리되었으므로 제외.
+    //   주변 적은 directDamage × SPLASH_DAMAGE_RATIO 받음 (사거리 보너스 없이 단순 피해 — RL 거리 무관 컨셉).
+    // ═══════════════════════════════════════════════════════
+    private void ApplyRocketSplash(EnemyBase directHit, float directDamage)
+    {
+        float splashDamage = directDamage * WeaponSpecs.RL_SPLASH_DAMAGE_RATIO;
+
+        // OverlapSphere — 폭발 반경 내 모든 콜라이더 탐색
+        Collider[] hits = Physics.OverlapSphere(
+            directHit.transform.position,
+            WeaponSpecs.RL_SPLASH_RADIUS,
+            collisionMask);
+
+        foreach (var col in hits)
+        {
+            // 직격 적은 제외 (이미 풀데미지 적용됨)
+            if (col == null) continue;
+            if (!col.TryGetComponent<EnemyBase>(out EnemyBase splashEnemy)) continue;
+            if (splashEnemy == directHit) continue;
+            if (!splashEnemy.IsAlive) continue;
+
+            splashEnemy.TakeDamage(splashDamage); // 사거리 보너스 무관 단순 피해
+
+            // 스플래시 피해 팝업 (작게 표시)
+            if (owner == characterManager.CurrentCharacter)
+            {
+                DamagePopupManager.Instance?.Show(
+                    splashEnemy.transform.position,
+                    splashDamage,
+                    isCritical: false);
+            }
+        }
     }
 }

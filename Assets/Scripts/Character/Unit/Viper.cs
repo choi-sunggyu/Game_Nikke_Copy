@@ -30,6 +30,7 @@ public class Viper : CharacterBase
 
     public override void Initialize()
     {
+        // [점진적 마이그레이션] 하드코딩 폴백 — CharacterData(SO) 미할당 시 그대로 사용됨.
         maxHp = 100;
         hp = maxHp;
         maxBulletCount = 5;
@@ -43,6 +44,10 @@ public class Viper : CharacterBase
         attackDamage = 50;
         survive = true;
         bulletSpeed = 800f;
+
+        // SO 가 할당되어 있으면 위 값들을 덮어쓰며 적용.
+        // Viper 고유 maxChargeTime 은 클래스 SerializeField 그대로 유지 (SO 가 다루지 않음).
+        ApplyData();
 
         singleShotSource = gameObject.AddComponent<AudioSource>();
         singleShotSource.loop = false;

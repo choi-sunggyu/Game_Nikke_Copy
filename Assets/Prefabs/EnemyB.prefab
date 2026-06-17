@@ -271,7 +271,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d551d28f582fb6e4c9e84fed61d6dbfa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyB
-  enemyType: 1
+  data: {fileID: 11400000, guid: bb49d83b282b56b469d90b7e5d94f220, type: 2}
+  enemyType: 0
   hp: 0
   maxHp: 0
   attackDamage: 0
@@ -497,7 +498,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0.5, y: 5.8}
+  m_AnchoredPosition: {x: 0, y: 5.8}
   m_SizeDelta: {x: 1, y: 3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &813175738226990726
@@ -684,7 +685,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1283405752786461207
 RectTransform:
   m_ObjectHideFlags: 0

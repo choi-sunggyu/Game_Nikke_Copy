@@ -89,11 +89,23 @@ public class InputManager : MonoBehaviour
         wasFiring = isFiring;
         if(Input.GetKeyDown(KeyCode.Space))
             OnCoverToggle?.Invoke();
-        if(Input.GetKeyDown(KeyCode.Alpha1))
+
+        // 5명 캐릭터 전환 키 — CharacterManager.Characters 의 인덱스 순서(= Burst 순서)
+        // Z X C V B 는 키보드 왼손 아래쪽 한 줄 → 한 손으로 빠른 전환 가능
+        //   Z(0): Ghost  (1버스트)
+        //   X(1): Trend  (2버스트)
+        //   C(2): Titan  (2버스트)
+        //   V(3): Viper  (3버스트)
+        //   B(4): Astro  (3버스트)
+        if(Input.GetKeyDown(KeyCode.Z))
             OnSwitchCharacter?.Invoke(0);
-        if(Input.GetKeyDown(KeyCode.Alpha2))
+        if(Input.GetKeyDown(KeyCode.X))
             OnSwitchCharacter?.Invoke(1);
-        if(Input.GetKeyDown(KeyCode.Alpha3))
+        if(Input.GetKeyDown(KeyCode.C))
             OnSwitchCharacter?.Invoke(2);
+        if(Input.GetKeyDown(KeyCode.V))
+            OnSwitchCharacter?.Invoke(3);
+        if(Input.GetKeyDown(KeyCode.B))
+            OnSwitchCharacter?.Invoke(4);
     }
 }

@@ -19,6 +19,8 @@ public class GameOverUI : MonoBehaviour
 
     [Header("── 미션 클리어 ──────────────")]
     [SerializeField] private GameObject      stageClearRoot;
+    [SerializeField] private Image           background;
+    [SerializeField] private Image           forwardground;
     [SerializeField] private TMP_Text        completedText;
     [SerializeField] private Image           characterImage;
     [SerializeField] private CharacterBase[] characters;
@@ -61,6 +63,8 @@ public class GameOverUI : MonoBehaviour
         mainMenuButton.onClick.AddListener(OnClickMainMenu);
         clearRestartButton.onClick.AddListener(OnClickRestart);
         clearMainMenuButton.onClick.AddListener(OnClickMainMenu);
+        background.sprite = Black_Gradation.Create(topAlpha: 0.7f);
+        forwardground.sprite = Black_Gradation.Create();
     }
 
     // ─────────────────────────────────────────

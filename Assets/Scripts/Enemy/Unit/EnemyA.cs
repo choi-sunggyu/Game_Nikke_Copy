@@ -23,11 +23,8 @@ public class EnemyA : EnemyBase
 
     public override void Initialize()
     {
-        hp = 100f;
-        maxHp = 100f;
-        attackDamage = 30f; // 레이저는 높은 데미지
-        attackDelay = 4f;
-        survive = true;
+        // 능력치(hp/maxHp/attackDamage/attackDelay)는 EnemyBase.InitBase 의 ApplyEnemyData 가 SO 에서 주입함.
+        // 여기서는 적 고유 셋업만 처리.
         nextAttackTime = 0f;
 
         SetupLineRenderers();

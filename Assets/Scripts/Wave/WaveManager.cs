@@ -8,9 +8,8 @@ public class WaveManager : MonoBehaviour
 {
     [Header("Wave Settings")]
     [SerializeField] private ObjectPool enemyBulletPool;
-    [SerializeField] private WaveData easyData;
-    [SerializeField] private WaveData normalData;
-    [SerializeField] private WaveData hardData;
+    [Tooltip("EnemyD (보스) 미사일 풀. 보스 스폰 시 자동 주입.")]
+    [SerializeField] private ObjectPool enemyMissilePool;
 
     [Header("Spawn Range")]
     [SerializeField] private float minZ = 10f;
@@ -23,8 +22,29 @@ public class WaveManager : MonoBehaviour
     [Header("Overlap Prevention")]
     [SerializeField] private float minEnemyDistance    = 3f;
     [SerializeField] private int   maxPlacementAttempts = 30;
-    [Header("── 프로그레스 타이밍 ──────────")]
-    [SerializeField] private float totalProgressDuration = 60f;
+
+    [Header("── 새 Queue 시스템 ──────────")]
+    [Tooltip("Queue 에 채울 일반 적 프리팹들 (EnemyA/B). EnemyC(Elite)/EnemyD(Boss)는 별도 슬롯 사용.")]
+    [SerializeField] private GameObject[] regularEnemyPrefabs;
+    [Tooltip("Elite 적 프리팹. EnemyC 처럼 일반보다 등장 비율이 낮은 강한 적.")]
+    [SerializeField] private GameObject   elitePrefab;
+    [Tooltip("Elite 등장 확률 (0~1). 0.1 = 10%. 기본 0.1")]
+    [Range(0f, 1f)]
+    [SerializeField] private float        eliteSpawnRatio = 0.1f;
+    [Tooltip("마지막에 등장하는 보스 1마리. EnemyD 프리팹 할당.")]
+    [SerializeField] private GameObject   bossPrefab;
+    [Tooltip("일반 적 모두 처치 후 보스 등장까지 대기 시간 (초)")]
+    [SerializeField] private float bossSpawnDelay = 1.5f;
+    [Tooltip("게임 한 판에 등장할 총 적 수")]
+    [SerializeField] private int totalEnemyTarget = 60;
+    [Tooltip("그룹 등장 후 다음 그룹까지 대기 시간 (적 모두 처치 시 즉시 다음 그룹)")]
+    [SerializeField] private float groupWaitDuration = 2f;
+    [Tooltip("쪼르르 패턴(Lateral/DualSide/TopRandom) 의 시간차")]
+    [SerializeField] private float trickleDelay = 0.3f;
+
+    [Header("── 프로그레스 ────────────────")]
+    [Tooltip("게임 시작 → 보스 등장까지의 총 시간 (초). progress 가 이 시간 동안 0→1 로 일정 속도 진행.")]
+    [SerializeField] private float stageDuration = 75f;
 
     // ═══════════════════════════════════════════════════════
     //  이벤트
@@ -38,32 +58,22 @@ public class WaveManager : MonoBehaviour
     // ═══════════════════════════════════════════════════════
     //  내부 상태
     // ═══════════════════════════════════════════════════════
-    private WaveData        currentData;
-    private int             currentWaveIndex = 0;
-    private List<EnemyBase> activeEnemies    = new List<EnemyBase>();
+    private List<EnemyBase> activeEnemies = new List<EnemyBase>();
 
-    private const float waveClearDelay = 2f;
-    private const float spawnInterval  = 2f;
-    private int _totalNormalEnemies  = 0;
-    private int _killedNormalEnemies = 0;
-    private float _progressTimer    = 0f;  // 경과 시간
-    private bool  _progressRunning  = false;
-    private int   _normalWaveCount  = 0;
-    private float _nextCheckpoint   = 0f; // 다음 정지 체크포인트 (0~1)
-    private int   _nextWaveToSpawn  = 0;
+    // 시간 기반 progress (일정 속도)
+    private float _stageElapsed = 0f;
+    private bool  _stageProgressRunning = false;
 
     public IReadOnlyList<EnemyBase> ActiveEnemies => activeEnemies;
 
+    // 외부(GameSettings/MainMenu) 가 참조하는 enum — 매핑은 큐 시스템 안에서 (현재는 enemy 체력 분기로 처리 예정)
     public enum Difficulty { Easy, Normal, Hard , Boss}
 
     // ═══════════════════════════════════════════════════════
     //  프로그레스 노출 (TopUI용)
     // ═══════════════════════════════════════════════════════
     public float WaveProgress    { get; private set; } // 0 ~ 1
-    public bool  IsWaveBlocked   { get; private set; } // 적 미처치 정지 여부
-    public bool  IsElitePhase    { get; private set; } // 엘리트 단계 여부
-    public int   TotalWaveCount  => currentData != null ? currentData.waves.Count : 0;
-    public int   CurrentWaveIndex => currentWaveIndex;
+    public bool  IsWaveBlocked   { get; private set; } // 적 미처치 시 progress 멈춤 신호 (WaveProgressBar 사용)
 
 
     // ═══════════════════════════════════════════════════════
@@ -101,6 +111,9 @@ public class WaveManager : MonoBehaviour
         // 인트로 중에는 적이 공격 안 함 (초기값 false)
         EnemyBase.BattleStarted = false;
 
+        // 적 거리 구역(Close/Mid/Far) 분류 기준을 EnemyBase 에 전달.
+        EnemyBase.SetSpawnRange(minZ, maxZ);
+
         BattleManager.Instance.InitBulletConsumption(); // 총알 소비 초기화
 
         AudioManager.Instance.PlayBattleBGM();
@@ -109,116 +122,45 @@ public class WaveManager : MonoBehaviour
         StartGame(GameSettings.SelectedDifficulty);
     }
 
+    /// <summary>
+    /// 게임 시작 — 큐 시스템 한 경로로 단일화.
+    /// Difficulty 는 EnemyBase.HpMultiplier 정적 변수에 매핑되어 모든 적의 maxHp 에 곱셈 적용.
+    /// 적 스폰은 StartGame 호출 이후 이루어지므로 신규 적은 자동 배율 반영.
+    /// </summary>
     public void StartGame(Difficulty difficulty)
     {
-        currentData = difficulty switch
+        // ── 난이도 → HP 배율 매핑 ──
+        EnemyBase.HpMultiplier = difficulty switch
         {
-            Difficulty.Easy   => easyData,
-            Difficulty.Normal => normalData,
-            Difficulty.Hard   => hardData,
-            _                 => easyData
+            Difficulty.Easy   => 1.0f,
+            Difficulty.Normal => 1.5f,
+            Difficulty.Hard   => 2.5f,
+            Difficulty.Boss   => 4.0f,
+            _                 => 1.0f
         };
+        Debug.Log($"[WaveManager] 난이도 {difficulty} → HpMultiplier {EnemyBase.HpMultiplier}");
 
-        currentWaveIndex = 0;
-        WaveProgress     = 0f;
-        IsWaveBlocked    = false;
-        _progressTimer   = 0f;
-        _progressRunning = false;
-        _nextWaveToSpawn = 0;
+        WaveProgress          = 0f;
+        IsWaveBlocked         = false;
+        _stageElapsed         = 0f;
+        _stageProgressRunning = true;  // ← Update 가 progress 갱신 시작
 
-        // 일반 웨이브 수 계산
-        _normalWaveCount = 0;
-        foreach (var w in currentData.waves)
-            if (!w.isEliteWave) _normalWaveCount++;
-
-        // 첫 번째 체크포인트 설정 (1번 웨이브 처리 완료 시점)
-        _nextCheckpoint = _normalWaveCount > 0
-            ? 1f / _normalWaveCount
-            : 1f;
-
-        StartCoroutine(RunWave());
-
-        if (currentData.waves.Count > 0 && !currentData.waves[0].isEliteWave)
-            StartCoroutine(SpawnWave(currentData.waves[0]));
+        StartCoroutine(RunWaveQueue());
     }
 
+    /// <summary>
+    /// 시간 기반 progress — stageDuration 동안 0→1 일정 속도.
+    /// 보스 등장 직전에 _stageProgressRunning = false 로 멈춤.
+    /// </summary>
     void Update()
     {
-        if (!_progressRunning || IsElitePhase) return;
+        if (!_stageProgressRunning) return;
 
-        float targetProgress = _nextCheckpoint;
-
-        // 체크포인트 직전까지 채워짐
-        if (WaveProgress < targetProgress - 0.01f)
-        {
-            _progressTimer += Time.deltaTime;
-            WaveProgress = Mathf.Clamp(
-                _progressTimer / totalProgressDuration,
-                0f,
-                targetProgress - 0.01f  // 체크포인트 바로 앞에서 멈춤
-            );
-            IsWaveBlocked = false;
-        }
-        else
-        {
-            // 체크포인트 도달 — 적 남아있으면 정지
-            activeEnemies.RemoveAll(e => e == null || !e.IsAlive);
-            IsWaveBlocked = activeEnemies.Count > 0;
-        }
+        _stageElapsed += Time.deltaTime;
+        WaveProgress   = Mathf.Clamp01(_stageElapsed / stageDuration);
     }
 
-    // ═══════════════════════════════════════════════════════
-    //  웨이브 진행
-    // ═══════════════════════════════════════════════════════
-    IEnumerator RunWave()
-    {
-        int normalWaveCount = 0;
-        foreach (var w in currentData.waves)
-            if (!w.isEliteWave) normalWaveCount++;
-
-        int normalWaveCleared = 0;
-
-        while (currentWaveIndex < currentData.waves.Count)
-        {
-            WaveData.Wave wave = currentData.waves[currentWaveIndex];
-
-            if (wave.isEliteWave)
-            {
-                WaveProgress = 1f;
-                IsElitePhase = true;
-                OnElitePhaseStart?.Invoke();
-
-                yield return StartCoroutine(SpawnWave(wave));
-                yield return StartCoroutine(WaitForWaveClear());
-
-                OnEliteDefeated?.Invoke();
-            }
-            else
-            {
-                yield return StartCoroutine(SpawnWave(wave));
-                yield return StartCoroutine(WaitForWaveClearWithBlock());
-
-                normalWaveCleared++;
-
-                bool nextIsElite = (currentWaveIndex + 1 < currentData.waves.Count)
-                                && currentData.waves[currentWaveIndex + 1].isEliteWave;
-
-                // ← WaveProgress는 목표값만 설정, 시각적 이동은 WaveProgressBar가 담당
-                WaveProgress = nextIsElite
-                    ? 0.99f
-                    : (float)normalWaveCleared / normalWaveCount;
-            }
-
-            currentWaveIndex++;
-
-            if (currentWaveIndex < currentData.waves.Count
-                && !currentData.waves[currentWaveIndex].isEliteWave)
-                yield return new WaitForSeconds(waveClearDelay);
-        }
-
-        OnStageClear?.Invoke();
-    }
-
+    // 잔여 적 처치 대기 — 큐 시스템 그룹 사이 / 보스 단계에서 사용
     IEnumerator WaitForWaveClearWithBlock()
     {
         while (true)
@@ -231,21 +173,9 @@ public class WaveManager : MonoBehaviour
                 yield break;
             }
 
-            // 적이 남아있으면 블록 상태
+            // 적이 남아있으면 블록 상태 — WaveProgressBar 가 진행 멈춤 표시
             IsWaveBlocked = true;
             yield return new WaitForSeconds(0.5f);
-        }
-    }
-
-    IEnumerator SpawnWave(WaveData.Wave wave)
-    {
-        foreach (var spawnInfo in wave.enemies)
-        {
-            for (int i = 0; i < spawnInfo.count; i++)
-            {
-                SpawnEnemy(spawnInfo.enemyPrefab);
-                yield return new WaitForSeconds(spawnInterval);
-            }
         }
     }
 
@@ -282,6 +212,13 @@ public class WaveManager : MonoBehaviour
             // 보스 등장 이벤트
             if (enemy.EnemyType == EnemyType.Boss)
             {
+                // EnemyD 라면 미사일 풀 주입 — 프리팹/씬 결합 차단 (씬 풀 → 프리팹 보스로 전달)
+                if (enemy is EnemyD bossD)
+                {
+                    if (enemyMissilePool != null) bossD.SetMissilePool(enemyMissilePool);
+                    else                          Debug.LogWarning("[WaveManager] enemyMissilePool 미할당 — 보스가 미사일을 발사할 수 없음");
+                }
+
                 OnBossPhaseStart?.Invoke(enemy);
                 enemy.OnDied += () =>
                 {
@@ -357,13 +294,226 @@ public class WaveManager : MonoBehaviour
         return Mathf.Abs(rightWorld.x) + 5f;
     }
 
-    IEnumerator WaitForWaveClear()
+    // ═══════════════════════════════════════════════════════
+    //  ★ 새 Queue 기반 스폰 시스템
+    //   - Ｎ마리 적을 6종 패턴으로 분할해 큐에 적재
+    //   - 그룹 등장 후 2초 또는 모든 적 처치 시 다음 그룹
+    //   - WaveProgress = 처치된 적 / 전체 타겟
+    // ═══════════════════════════════════════════════════════
+    private Queue<SpawnGroup> _spawnQueue = new Queue<SpawnGroup>();
+    private int _enemiesKilled = 0;
+
+    void GenerateSpawnQueue()
     {
-        while (true)
+        _spawnQueue.Clear();
+        _enemiesKilled = 0;
+
+        if (regularEnemyPrefabs == null || regularEnemyPrefabs.Length == 0)
         {
-            activeEnemies.RemoveAll(e => e == null || !e.IsAlive);
-            if (activeEnemies.Count == 0) yield break;
-            yield return new WaitForSeconds(0.5f);
+            Debug.LogError("[WaveManager] regularEnemyPrefabs 미할당 — 인스펙터에 EnemyA/B/C 프리팹 드래그 필요.");
+            return;
         }
+
+        int remaining = totalEnemyTarget;
+        int safety    = 200; // 무한 루프 방지 (보스만 가득한 슬롯일 때)
+        while (remaining > 0 && safety-- > 0)
+        {
+            SpawnPattern pattern = PickRandomPattern();
+            int count            = Mathf.Min(GetPatternCount(pattern), remaining);
+            GameObject prefab    = PickRandomPrefab();
+
+            // ⚠ 안전망 — regularEnemyPrefabs 에 보스가 잘못 들어가 있어도 큐에서 배제
+            EnemyBase eb = prefab.GetComponent<EnemyBase>();
+            if (eb != null && eb.EnemyType == EnemyType.Boss)
+            {
+                Debug.LogWarning($"[WaveManager] regularEnemyPrefabs 에 보스({prefab.name}) 가 포함됨 — 큐에서 제외. bossPrefab 슬롯으로 옮길 것.");
+                continue;
+            }
+
+            _spawnQueue.Enqueue(new SpawnGroup(pattern, prefab, count, trickleDelay));
+            remaining -= count;
+        }
+    }
+
+    /// <summary>
+    /// 큐에 들어갈 적 프리팹 1개 선택.
+    /// Elite 가 등록돼 있으면 eliteSpawnRatio 확률로 Elite, 나머지는 일반 균등.
+    /// </summary>
+    GameObject PickRandomPrefab()
+    {
+        if (elitePrefab != null && Random.value < eliteSpawnRatio)
+            return elitePrefab;
+        return regularEnemyPrefabs[Random.Range(0, regularEnemyPrefabs.Length)];
+
+        Debug.Log($"[WaveManager] 스폰 큐 생성 — {_spawnQueue.Count} 그룹, 총 {totalEnemyTarget} 마리");
+    }
+
+    SpawnPattern PickRandomPattern()
+    {
+        float r = Random.value;
+        if (r < 0.25f) return SpawnPattern.Single;       // 25% — 단독
+        if (r < 0.45f) return SpawnPattern.Trio;         // 20% — 3마리 동시
+        if (r < 0.60f) return SpawnPattern.LateralLeft;  // 15% — 왼쪽 쪼르르
+        if (r < 0.75f) return SpawnPattern.LateralRight; // 15% — 오른쪽 쪼르르
+        if (r < 0.88f) return SpawnPattern.DualSide;     // 13% — 양쪽 동시
+        return SpawnPattern.TopRandom;                   // 12% — 위 쪼르르
+    }
+
+    int GetPatternCount(SpawnPattern p)
+    {
+        switch (p)
+        {
+            case SpawnPattern.Single:       return 1;
+            case SpawnPattern.Trio:         return 3;
+            case SpawnPattern.LateralLeft:  return Random.Range(2, 4); // 2~3
+            case SpawnPattern.LateralRight: return Random.Range(2, 4);
+            case SpawnPattern.DualSide:     return Random.Range(4, 7); // 4~6 (양쪽 합쳐서)
+            case SpawnPattern.TopRandom:    return Random.Range(2, 5); // 2~4
+            default:                        return 1;
+        }
+    }
+
+    IEnumerator RunWaveQueue()
+    {
+        GenerateSpawnQueue();
+        int totalGroups = _spawnQueue.Count;
+        int processedGroups = 0;
+
+        while (_spawnQueue.Count > 0)
+        {
+            SpawnGroup group = _spawnQueue.Dequeue();
+            yield return StartCoroutine(SpawnGroupRoutine(group));
+            processedGroups++;
+
+            // ── 다음 그룹까지 대기: 2초 또는 모든 적 처치 (둘 중 먼저 일어나는 것) ──
+            // WaveProgress 는 Update 가 시간 기반으로 갱신 — 여기서 손대지 않음.
+            float elapsed = 0f;
+            while (elapsed < groupWaitDuration)
+            {
+                activeEnemies.RemoveAll(e => e == null || !e.IsAlive);
+                if (activeEnemies.Count == 0) break; // 모두 처치 → 즉시 다음 그룹
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+        }
+
+        // 마지막 그룹 후 잔여 적 처치 대기
+        yield return StartCoroutine(WaitForWaveClearWithBlock());
+
+        // 시간 기반 progress 종료 → 1f 로 고정 (이후 Update 가 손대지 않음)
+        _stageProgressRunning = false;
+        WaveProgress          = 1f;
+
+        // ── 보스 단계 ──
+        if (bossPrefab != null)
+        {
+            yield return new WaitForSeconds(bossSpawnDelay);
+            SpawnEnemy(bossPrefab);
+            // 보스 처치 대기 — OnEliteDefeated/OnStageClear 는 보스 OnDied 람다에서 발화하므로 추가 처리 불필요.
+            yield return StartCoroutine(WaitForWaveClearWithBlock());
+        }
+        else
+        {
+            Debug.LogWarning("[WaveManager] bossPrefab 미할당 — 보스 단계 건너뜀");
+        }
+
+        OnStageClear?.Invoke();
+    }
+
+    IEnumerator SpawnGroupRoutine(SpawnGroup group)
+    {
+        switch (group.Pattern)
+        {
+            case SpawnPattern.Single:
+                SpawnEnemy(group.EnemyPrefab);
+                break;
+
+            case SpawnPattern.Trio:
+                for (int i = 0; i < group.Count; i++)
+                    SpawnEnemy(group.EnemyPrefab);
+                break;
+
+            case SpawnPattern.LateralLeft:
+                for (int i = 0; i < group.Count; i++)
+                {
+                    SpawnEnemyFromSide(group.EnemyPrefab, leftSide: true);
+                    yield return new WaitForSeconds(group.TrickleDelay);
+                }
+                break;
+
+            case SpawnPattern.LateralRight:
+                for (int i = 0; i < group.Count; i++)
+                {
+                    SpawnEnemyFromSide(group.EnemyPrefab, leftSide: false);
+                    yield return new WaitForSeconds(group.TrickleDelay);
+                }
+                break;
+
+            case SpawnPattern.DualSide:
+                int half     = group.Count / 2;
+                int rightCnt = group.Count - half;
+                // 양쪽 동시 코루틴 시작
+                StartCoroutine(SpawnSideTrickle(group.EnemyPrefab, true,  half,     group.TrickleDelay));
+                StartCoroutine(SpawnSideTrickle(group.EnemyPrefab, false, rightCnt, group.TrickleDelay));
+                // 둘 중 긴 쪽이 끝날 때까지 대기
+                yield return new WaitForSeconds(Mathf.Max(half, rightCnt) * group.TrickleDelay);
+                break;
+
+            case SpawnPattern.TopRandom:
+                for (int i = 0; i < group.Count; i++)
+                {
+                    SpawnEnemyFromTop(group.EnemyPrefab);
+                    yield return new WaitForSeconds(group.TrickleDelay);
+                }
+                break;
+        }
+    }
+
+    IEnumerator SpawnSideTrickle(GameObject prefab, bool leftSide, int count, float delay)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            SpawnEnemyFromSide(prefab, leftSide);
+            yield return new WaitForSeconds(delay);
+        }
+    }
+
+    // ─ 측면(좌/우)에서 스폰 ─ EnemyB 의 옆 등장 흐름을 명시적으로 호출
+    void SpawnEnemyFromSide(GameObject prefab, bool leftSide)
+    {
+        Vector3 targetPos  = GetNonOverlappingPosition();
+        float   offScreenX = GetOffScreenX(targetPos.z);
+        Vector3 spawnPos   = new Vector3(offScreenX * (leftSide ? -1f : 1f), targetPos.y, targetPos.z);
+        InstantiateEnemyAt(prefab, spawnPos, targetPos);
+    }
+
+    // ─ 상단에서 스폰 ─ EnemyA 의 낙하 흐름을 명시적으로 호출
+    void SpawnEnemyFromTop(GameObject prefab)
+    {
+        Vector3 targetPos  = GetNonOverlappingPosition();
+        float   offScreenY = GetOffScreenY(targetPos.z);
+        // X 좌표 살짝 랜덤화 (쪼르르 효과)
+        float   randomX    = targetPos.x + Random.Range(-2f, 2f);
+        Vector3 spawnPos   = new Vector3(randomX, offScreenY, targetPos.z);
+        InstantiateEnemyAt(prefab, spawnPos, targetPos);
+    }
+
+    // ─ 명시 위치 인스턴스화 + 이벤트 구독 (SpawnEnemy 의 핵심 로직 재사용) ─
+    void InstantiateEnemyAt(GameObject prefab, Vector3 spawnPos, Vector3 targetPos)
+    {
+        GameObject obj   = Instantiate(prefab, spawnPos, Quaternion.identity);
+        EnemyBase  enemy = obj.GetComponent<EnemyBase>();
+        if (enemy == null) return;
+
+        enemy.SetBulletPool(enemyBulletPool);
+        enemy.SetTargetPosition(targetPos);
+
+        // 처치 카운트 + 활성 리스트 정리
+        enemy.OnDied += () =>
+        {
+            activeEnemies.Remove(enemy);
+            _enemiesKilled++;
+        };
+        activeEnemies.Add(enemy);
     }
 }

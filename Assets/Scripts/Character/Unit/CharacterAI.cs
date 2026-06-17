@@ -9,6 +9,10 @@ public class CharacterAI : MonoBehaviour
     [SerializeField] private float viperFireThreshold = 30f; // Viper 발사 오차 허용 픽셀
     [SerializeField] private float lineEndMoveSpeed = 3f;    // 가이드라인 정속도 이동 속도
 
+    [Header("RL(런처) 자동 사격 설정")]
+    [Tooltip("RL 캐릭터(weaponType=RL)의 차지 시간. LauncherCrossHair.maxChargeTime 과 일치시킬 것")]
+    [SerializeField] private float launcherChargeTime = 1.0f;
+
     private CharacterBase owner;
     private CharacterManager characterManager;
     private WaveManager waveManager;
@@ -17,6 +21,9 @@ public class CharacterAI : MonoBehaviour
     private RectTransform crossHairRect;
     private LineRenderer lineRenderer;
     private bool isViper;
+    private bool isLauncher;                  // weaponType == RL 인 캐릭터인가
+    private float launcherChargeStart = -1f;  // 차지 시작 시각 (-1 = 차지 안 함)
+    private Vector3 launcherChargedTarget;    // 차지 시작 시점에 잠근 worldTarget
     private Vector2 lineEndScreenPos; 
     private bool lineEndInitialized = false;
     private bool _battleStarted = false;
@@ -44,7 +51,8 @@ public class CharacterAI : MonoBehaviour
         characterManager = FindAnyObjectByType<CharacterManager>();
         waveManager = FindAnyObjectByType<WaveManager>();
 
-        isViper = owner is Viper;
+        isViper    = owner is Viper;
+        isLauncher = owner.WeaponType == WeaponType.RL;
     }
 
     void OnEnable()
@@ -216,9 +224,9 @@ public class CharacterAI : MonoBehaviour
         Vector3 worldTarget = owner.GetWorldTargetFromScreenPos(mousePos);
         lastFireScreenPos = mousePos;
 
-        // Viper는 자체 입력 이벤트(HandleFirePress/HandleFireRelease)로 차지-발사를 처리하므로
-        // CharacterAI에서 직접 발사 호출 시 차지 없이 즉발 사격되는 문제를 방지
-        if (!isViper)
+        // Viper 는 자체 차지샷 이벤트(HandleFirePress/HandleFireRelease)로 처리,
+        // RL 캐릭터는 LauncherCrossHair 의 차지 시스템이 처리 → CharacterAI 는 두 경우 모두 우회.
+        if (!isViper && !isLauncher)
             FireWeapon(worldTarget, mousePos);
     }
 
@@ -323,6 +331,14 @@ public class CharacterAI : MonoBehaviour
 
     private void FireWeapon(Vector3 worldTarget, Vector2 targetScreenPos)
     {
+        // ── RL 캐릭터: 차지 시간 시뮬레이션 후 자동 발사 ──
+        if (isLauncher)
+        {
+            HandleLauncherCharge(worldTarget);
+            return;
+        }
+
+        // ── Viper: 차지샷 + 정확도 임계치 분기 ──
         if (isViper)
         {
             float dist = Vector2.Distance(crossHairRect.position, targetScreenPos);
@@ -331,11 +347,48 @@ public class CharacterAI : MonoBehaviour
                 owner.TryFireAtTarget(worldTarget);
             }
             else owner.TryFire();
+            return;
         }
-        else
+
+        // ── 일반 (AR/SG/SMG/MG): 즉시 단발 사격 ──
+        owner.TryFireAtTarget(worldTarget);
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  RL 차지 시뮬레이션
+    //   - FireWeapon 이 매 프레임 호출되는 동안 시간을 누적.
+    //   - 첫 진입 시 차지 시작 시각 기록 + 발사 방향 잠금.
+    //   - launcherChargeTime 경과 시 자동 발사 후 리셋.
+    //   - 캐릭터가 리로드/사망 시 자동 리셋 (이중 안전망: Update 별도 체크 없이 진입점에서 가드).
+    // ═══════════════════════════════════════════════════════
+    private void HandleLauncherCharge(Vector3 worldTarget)
+    {
+        // 사격 불가 상태 → 차지 취소
+        if (!owner.IsAlive || owner.CurrentState == CharacterState.Reload || owner.CurrentBulletCount <= 0)
         {
-            owner.TryFireAtTarget(worldTarget);
+            launcherChargeStart = -1f;
+            return;
         }
+
+        // 첫 진입: 차지 시작 + 발사 방향 잠금
+        if (launcherChargeStart < 0f)
+        {
+            launcherChargeStart    = Time.time;
+            launcherChargedTarget  = worldTarget;
+            return;
+        }
+
+        // 차지 진행 중 — 시간 누적 확인
+        float elapsed = Time.time - launcherChargeStart;
+        if (elapsed >= launcherChargeTime)
+        {
+            // ★ 자동 발사 — 차지 시작 시점에 잠근 방향으로
+            owner.TryFireAtTarget(launcherChargedTarget);
+
+            // 다음 차지 사이클을 위해 리셋
+            launcherChargeStart = -1f;
+        }
+        // (else: 아직 차지 중 — 다음 프레임 대기)
     }
 
     private void MoveAimToward(Vector2 targetScreenPos)

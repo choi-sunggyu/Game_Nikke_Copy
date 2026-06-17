@@ -17,7 +17,7 @@ public class BurstGaugeManager : MonoBehaviour
 {
     public static BurstGaugeManager Instance { get; private set; }
 
-    [SerializeField] private float maxGauge = 500f;
+    [SerializeField] private float maxGauge = 600f;
     [SerializeField] private float stepReadyTime = 20f;
     [SerializeField] private float focusFireDuration = 15f; // 집중사격 지속 시간
     [SerializeField] private float autoDelay = 0.7f;

@@ -1,0 +1,533 @@
+fileFormatVersion: 2
+guid: 713a72d444cc45043a0323b9543fac3b
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 3984428927159268675
+    second: Astro_ani_sheet_0
+  - first:
+      213: -7515840229908792115
+    second: Astro_ani_sheet_1
+  - first:
+      213: -4763644322232864710
+    second: Astro_ani_sheet_2
+  - first:
+      213: 42444490862082257
+    second: Astro_ani_sheet_3
+  - first:
+      213: -5769887789152548119
+    second: Astro_ani_sheet_4
+  - first:
+      213: -5999895211059294293
+    second: Astro_ani_sheet_5
+  - first:
+      213: 2668400852324545593
+    second: Astro_ani_sheet_6
+  - first:
+      213: 4936219861877338119
+    second: Astro_ani_sheet_7
+  - first:
+      213: 198989405804902021
+    second: Astro_ani_sheet_8
+  - first:
+      213: -6099202100272335828
+    second: Astro_ani_sheet_9
+  - first:
+      213: 2887832825573852995
+    second: Astro_ani_sheet_10
+  - first:
+      213: 6338490364100252376
+    second: Astro_ani_sheet_11
+  - first:
+      213: 6056410190563893222
+    second: Astro_ani_sheet_12
+  - first:
+      213: -3477336211157494119
+    second: Astro_ani_sheet_13
+  - first:
+      213: 4350987728340520577
+    second: Astro_ani_sheet_14
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 65
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Astro_ani_sheet_0
+      rect:
+        serializedVersion: 2
+        x: 27
+        y: 458
+        width: 127
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3457e14bff88b4730800000000000000
+      internalID: 3984428927159268675
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Astro_ani_sheet_1
+      rect:
+        serializedVersion: 2
+        x: 259
+        y: 462
+        width: 161
+        height: 189
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dcc32bba12f52b790800000000000000
+      internalID: -7515840229908792115
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Astro_ani_sheet_2
+      rect:
+        serializedVersion: 2
+        x: 493
+        y: 458
+        width: 150
+        height: 200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a30f0015ab224edb0800000000000000
+      internalID: -4763644322232864710
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Astro_ani_sheet_3
+      rect:
+        serializedVersion: 2
+        x: 731
+        y: 458
+        width: 146
+        height: 199
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1d8b1802a0bc69000800000000000000
+      internalID: 42444490862082257
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Astro_ani_sheet_4
+      rect:
+        serializedVersion: 2
+        x: 961
+        y: 458
+        width: 149
+        height: 199
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9eac2bd30ad3defa0800000000000000
+      internalID: -5769887789152548119
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Astro_ani_sheet_5
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 229
+        width: 143
+        height: 193
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: baf4e3728171cbca0800000000000000
+      internalID: -5999895211059294293
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Astro_ani_sheet_6
+      rect:
+        serializedVersion: 2
+        x: 263
+        y: 228
+        width: 143
+        height: 195
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9347729ff60180520800000000000000
+      internalID: 2668400852324545593
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Astro_ani_sheet_7
+      rect:
+        serializedVersion: 2
+        x: 509
+        y: 232
+        width: 147
+        height: 189
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7003d68afc9f08440800000000000000
+      internalID: 4936219861877338119
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Astro_ani_sheet_8
+      rect:
+        serializedVersion: 2
+        x: 752
+        y: 232
+        width: 123
+        height: 193
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 586311f6fc3f2c200800000000000000
+      internalID: 198989405804902021
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Astro_ani_sheet_9
+      rect:
+        serializedVersion: 2
+        x: 965
+        y: 231
+        width: 131
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c2473f731084b5ba0800000000000000
+      internalID: -6099202100272335828
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Astro_ani_sheet_10
+      rect:
+        serializedVersion: 2
+        x: 18
+        y: 8
+        width: 129
+        height: 193
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 347ca0b87a4a31820800000000000000
+      internalID: 2887832825573852995
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Astro_ani_sheet_11
+      rect:
+        serializedVersion: 2
+        x: 266
+        y: 8
+        width: 146
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8d29e644767d6f750800000000000000
+      internalID: 6338490364100252376
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Astro_ani_sheet_12
+      rect:
+        serializedVersion: 2
+        x: 510
+        y: 7
+        width: 119
+        height: 193
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6efdd96eaf0bc0450800000000000000
+      internalID: 6056410190563893222
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Astro_ani_sheet_13
+      rect:
+        serializedVersion: 2
+        x: 745
+        y: 8
+        width: 126
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 996da51c3250ebfc0800000000000000
+      internalID: -3477336211157494119
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Astro_ani_sheet_14
+      rect:
+        serializedVersion: 2
+        x: 974
+        y: 6
+        width: 121
+        height: 194
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 18e02d15940d16c30800000000000000
+      internalID: 4350987728340520577
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Astro_ani_sheet_0: 3984428927159268675
+      Astro_ani_sheet_1: -7515840229908792115
+      Astro_ani_sheet_10: 2887832825573852995
+      Astro_ani_sheet_11: 6338490364100252376
+      Astro_ani_sheet_12: 6056410190563893222
+      Astro_ani_sheet_13: -3477336211157494119
+      Astro_ani_sheet_14: 4350987728340520577
+      Astro_ani_sheet_2: -4763644322232864710
+      Astro_ani_sheet_3: 42444490862082257
+      Astro_ani_sheet_4: -5769887789152548119
+      Astro_ani_sheet_5: -5999895211059294293
+      Astro_ani_sheet_6: 2668400852324545593
+      Astro_ani_sheet_7: 4936219861877338119
+      Astro_ani_sheet_8: 198989405804902021
+      Astro_ani_sheet_9: -6099202100272335828
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -34,16 +34,16 @@ public class BossHPBar : MonoBehaviour
         rootUI.SetActive(false);
     }
 
+    // 보스 등장은 TopUIManager 가 전권으로 제어 (TopUIManager → bossHPBar.Show()).
+    // BossHPBar 는 자체 UI 갱신과 처치 처리만 담당.
     void OnEnable()
     {
-        WaveManager.OnBossPhaseStart += HandleBossPhaseStart;
-        EnemyBase.OnBossDefeated     += HandleBossDefeated;
+        EnemyBase.OnBossDefeated += HandleBossDefeated;
     }
 
     void OnDisable()
     {
-        WaveManager.OnBossPhaseStart -= HandleBossPhaseStart;
-        EnemyBase.OnBossDefeated     -= HandleBossDefeated;
+        EnemyBase.OnBossDefeated -= HandleBossDefeated;
 
         if (_boss != null)
             _boss.OnHpChanged -= HandleHpChanged;
@@ -51,6 +51,13 @@ public class BossHPBar : MonoBehaviour
 
     public void Show(EnemyBase boss)
     {
+        // ⚠ 안전망 — 이전 보스 구독이 살아있으면 먼저 해제 (다중 Show 누수 차단)
+        if (_boss != null && _boss != boss)
+        {
+            _boss.OnHpChanged -= HandleHpChanged;
+            _boss.OnDied      -= HandleBossDied;
+        }
+
         _boss = boss;
         _boss.OnHpChanged += HandleHpChanged;
         _boss.OnDied      += HandleBossDied;
@@ -76,28 +83,15 @@ public class BossHPBar : MonoBehaviour
     }
 
     // ═══════════════════════════════════════════════════════
-    //  보스 등장
-    // ═══════════════════════════════════════════════════════
-    private void HandleBossPhaseStart(EnemyBase boss)
-    {
-        _boss = boss;
-        _boss.OnHpChanged += HandleHpChanged;
-
-        hpFill.color    = hpColor;
-        delayFill.color = delayColor;
-
-        _targetFill          = 1f;
-        hpFill.fillAmount    = 1f;
-        delayFill.fillAmount = 1f;
-
-        rootUI.SetActive(true);
-    }
-
-    // ═══════════════════════════════════════════════════════
     //  HP 변경
     // ═══════════════════════════════════════════════════════
     private void HandleHpChanged(float currentHp, float maxHp)
     {
+        // ⚠ 안전망 — 비활성 상태에서 코루틴 시도 시 Unity 가 던지는 에러 방지.
+        //   보스 사망 후 잔존 구독(구독 해제 직전 한 프레임)이나, 다른 보스의 미정리 구독에서 호출될 때 진입.
+        if (!isActiveAndEnabled) return;
+        if (rootUI == null || !rootUI.activeInHierarchy) return;
+
         _targetFill       = currentHp / maxHp;
         hpFill.fillAmount = _targetFill;
 

@@ -5,23 +5,19 @@ public class BossCinematicManager : MonoBehaviour
 {
     public static BossCinematicManager Instance { get; private set; }
 
-    [Header("보스 출현")]
-    [SerializeField] private float appearZoomFov   = 10f;
-    [SerializeField] private float appearDuration  = 2f;
+    // [DEPRECATED] 카메라 컷씬 파라미터는 UIManager 로 이전됨.
+    //   기존 appearZoomFov / appearDuration / deathZoomFov / deathZoomDuration
+    //   → UIManager 인스펙터의 같은 이름 필드에서 설정.
 
-    [Header("보스 사망")]
-    [SerializeField] private float deathZoomFov    = 35f;
-    [SerializeField] private float deathZoomDuration = 0.4f;
+    [Header("슬로우 모션")]
     [SerializeField] private float slowMotionScale = 0.2f;
     [SerializeField] private float slowDuration    = 1.5f;
 
-    private CameraController _camController;
-
+    // 카메라 직접 참조 제거 — UIManager.Instance.Trigger*() 통해서만 호출 (월권 차단)
     void Awake()
     {
         if (Instance != null) { Destroy(gameObject); return; }
         Instance = this;
-        _camController = FindAnyObjectByType<CameraController>();
     }
 
     void OnEnable()
@@ -39,7 +35,9 @@ public class BossCinematicManager : MonoBehaviour
     private void HandleBossAppear(EnemyBase boss)
     {
         InputManager.SetInputLocked(true);
-        _camController.StartBossAppearCinematic(boss, appearDuration, appearZoomFov, () =>
+
+        // 카메라 컷씬은 UIManager facade 를 통해 호출 — 직접 CameraController 호출 금지.
+        UIManager.Instance?.TriggerBossAppearCinematic(boss, () =>
         {
             InputManager.SetInputLocked(false);
         });
@@ -47,14 +45,12 @@ public class BossCinematicManager : MonoBehaviour
 
     private void HandleBossDeath(EnemyBase boss)
     {
-        // 모든 UI 비활성화
-        
         InputManager.SetInputLocked(true);
         GameTimerManager.Instance?.StopTimer();
 
         Vector3 bossPos = boss.transform.position;
 
-        _camController.StartBossDeathCinematic(deathZoomFov, deathZoomDuration, bossPos, () =>
+        UIManager.Instance?.TriggerBossDeathCinematic(bossPos, () =>
         {
             StartCoroutine(SlowMotionThenResult());
         });

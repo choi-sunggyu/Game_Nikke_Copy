@@ -19,7 +19,7 @@ public class TopUIManager : MonoBehaviour
     [SerializeField] private GameObject bossHPBarUI;
 
     [Header("── 카메라 줌 설정 ──────────────")]
-    [SerializeField] private Camera          targetCamera;
+    // CameraController 직접 참조 제거 — UIManager.Instance facade 만 사용
     [SerializeField] private float           eliteZoomFOV      = 40f;  // 줌인 시 FOV
     [SerializeField] private float           normalFOV         = 60f;  // 기본 FOV
     [SerializeField] private float           eliteZoomDuration = 1.0f; // 줌인 지속 시간
@@ -30,20 +30,10 @@ public class TopUIManager : MonoBehaviour
     [SerializeField] private float           warningDuration    = 2f;  // 경고 UI 표시 시간
 
     // ═══════════════════════════════════════════════════════
-    //  내부 상태
-    // ═══════════════════════════════════════════════════════
-    private float _originalFOV;
-
-    // ═══════════════════════════════════════════════════════
     //  초기화
     // ═══════════════════════════════════════════════════════
     void Awake()
     {
-        if (targetCamera == null)
-            targetCamera = Camera.main;
-
-        _originalFOV = targetCamera.fieldOfView;
-
         eliteWarningUI.SetActive(false);
     }
 
@@ -74,6 +64,10 @@ public class TopUIManager : MonoBehaviour
     {
         waveProgressBarUI.SetActive(false);
         eliteWarningUI.SetActive(false);
+
+        // 보스 HP바가 붙어있는 GameObject 자체를 먼저 활성화해야
+        // 그 안의 컴포넌트가 OnEnable → 이벤트 구독 → Show() 동작 가능.
+        bossHPBarUI.SetActive(true);
         bossHPBar.Show(boss);
     }
 
@@ -142,30 +136,28 @@ public class TopUIManager : MonoBehaviour
     }
 
     // ═══════════════════════════════════════════════════════
-    //  카메라 줌 코루틴
+    //  카메라 줌 — UIManager facade 를 통해서만 호출 (월권 차단)
+    //   직접 CameraController 참조 없음. UIManager.Instance 가 단일 진입점.
     // ═══════════════════════════════════════════════════════
     private IEnumerator ZoomCamera(float fromFOV, float toFOV, float duration)
     {
-        CameraController.FovLocked = true;
+        if (UIManager.Instance == null) yield break;
 
         float elapsed = 0f;
-
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(elapsed / duration);
 
-            // EaseInOutCubic — 자연스러운 줌
-            t = t < 0.5f
+            // EaseInOutCubic
+            float eased = t < 0.5f
                 ? 4f * t * t * t
                 : 1f - Mathf.Pow(-2f * t + 2f, 3f) * 0.5f;
 
-            targetCamera.fieldOfView = Mathf.Lerp(fromFOV, toFOV, t);
+            UIManager.Instance.TriggerCameraZoom(Mathf.Lerp(fromFOV, toFOV, eased));
             yield return null;
         }
-
-        targetCamera.fieldOfView = toFOV;
-        CameraController.FovLocked = false;
+        UIManager.Instance.TriggerCameraZoom(toFOV);
     }
 
     // ═══════════════════════════════════════════════════════

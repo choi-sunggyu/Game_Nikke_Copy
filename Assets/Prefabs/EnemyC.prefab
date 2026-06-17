@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 2322900647983445322}
   - component: {fileID: 2538077186958342307}
   - component: {fileID: 6389847104433349456}
-  - component: {fileID: 1147399769713935270}
   m_Layer: 8
   m_Name: EnemyC
   m_TagString: Untagged
@@ -49,7 +48,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe775f7e2556c7c43a591f0bee249166, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyC
-  enemyType: 2
+  data: {fileID: 11400000, guid: 77a4285c92fa48d478a65cd5689d8488, type: 2}
+  enemyType: 1
   hp: 0
   maxHp: 0
   attackDamage: 0
@@ -139,30 +139,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 8.839999, y: 10.209999, z: 0.1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1147399769713935270
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1429774585333224684}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 60bb32cd94722264b913a058e7384ff4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnemyHPBar
-  hpBarRoot: {fileID: 2671886445165809151}
-  hpFill: {fileID: 684276948589433180}
-  delayFill: {fileID: 618847203577001615}
-  hexIconRoot: {fileID: 3021074600164517070}
-  normalHpColor: {r: 1, g: 1, b: 1, a: 1}
-  eliteHpColor: {r: 1, g: 1, b: 1, a: 1}
-  bossHpColor: {r: 1, g: 1, b: 1, a: 1}
-  delayColor: {r: 1, g: 0.2, b: 0.2, a: 1}
-  delaySpeed: 1.5
-  delayWait: 0.4
-  eliteIconSprite: {fileID: -3070911838279463047, guid: 0534d3b403839514882f5285b498c8a8, type: 3}
-  bossIconSprite: {fileID: 1019286434645749810, guid: 24b3f37934a40d14bb9ab56557790531, type: 3}
 --- !u!1 &1628253980322239323
 GameObject:
   m_ObjectHideFlags: 0
@@ -518,7 +494,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1019286434645749810, guid: 24b3f37934a40d14bb9ab56557790531, type: 3}
+  m_Sprite: {fileID: -3070911838279463047, guid: 0534d3b403839514882f5285b498c8a8, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

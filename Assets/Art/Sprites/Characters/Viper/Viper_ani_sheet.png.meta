@@ -1,0 +1,585 @@
+fileFormatVersion: 2
+guid: f8e431c68fbd72c409a524144f4bb2ce
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 3859844817874455582
+    second: Viper_ani_sheet_0
+  - first:
+      213: -1188758045937813593
+    second: Viper_ani_sheet_1
+  - first:
+      213: 9072176163017859228
+    second: Viper_ani_sheet_2
+  - first:
+      213: 4025365800026121394
+    second: Viper_ani_sheet_3
+  - first:
+      213: 4092874493829468004
+    second: Viper_ani_sheet_4
+  - first:
+      213: -5810436957559602042
+    second: Viper_ani_sheet_5
+  - first:
+      213: -3039995729148567020
+    second: Viper_ani_sheet_6
+  - first:
+      213: 1213663369924039657
+    second: Viper_ani_sheet_7
+  - first:
+      213: 7369566741062989030
+    second: Viper_ani_sheet_8
+  - first:
+      213: -2312835106322050878
+    second: Viper_ani_sheet_9
+  - first:
+      213: -7433222830332097761
+    second: Viper_ani_sheet_10
+  - first:
+      213: -3561007741900923793
+    second: Viper_ani_sheet_11
+  - first:
+      213: 3613284714207094135
+    second: Viper_ani_sheet_12
+  - first:
+      213: -3536338512432262056
+    second: Viper_ani_sheet_13
+  - first:
+      213: -1670338760286753580
+    second: Viper_ani_sheet_14
+  - first:
+      213: 4544687198314348548
+    second: Viper_ani_sheet_15
+  - first:
+      213: 8792060764882259841
+    second: Viper_ani_sheet_16
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Viper_ani_sheet_0
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 726
+        width: 297
+        height: 301
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e1c0a89596ce09530800000000000000
+      internalID: 3859844817874455582
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Viper_ani_sheet_1
+      rect:
+        serializedVersion: 2
+        x: 392
+        y: 727
+        width: 207
+        height: 297
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a73df30bdea08fe0800000000000000
+      internalID: -1188758045937813593
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Viper_ani_sheet_2
+      rect:
+        serializedVersion: 2
+        x: 745
+        y: 734
+        width: 181
+        height: 288
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c9022706728d6ed70800000000000000
+      internalID: 9072176163017859228
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Viper_ani_sheet_3
+      rect:
+        serializedVersion: 2
+        x: 1074
+        y: 734
+        width: 204
+        height: 289
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b420992ed8fcd730800000000000000
+      internalID: 4025365800026121394
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Viper_ani_sheet_4
+      rect:
+        serializedVersion: 2
+        x: 1416
+        y: 936
+        width: 13
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46f46facaafccc830800000000000000
+      internalID: 4092874493829468004
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Viper_ani_sheet_5
+      rect:
+        serializedVersion: 2
+        x: 1417
+        y: 733
+        width: 207
+        height: 289
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 684cbd24f5e2d5fa0800000000000000
+      internalID: -5810436957559602042
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Viper_ani_sheet_6
+      rect:
+        serializedVersion: 2
+        x: 1071
+        y: 854
+        width: 8
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 412256dadf3cfc5d0800000000000000
+      internalID: -3039995729148567020
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Viper_ani_sheet_7
+      rect:
+        serializedVersion: 2
+        x: 10
+        y: 388
+        width: 201
+        height: 279
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9e3d939976cc7d010800000000000000
+      internalID: 1213663369924039657
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Viper_ani_sheet_8
+      rect:
+        serializedVersion: 2
+        x: 387
+        y: 391
+        width: 197
+        height: 271
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e4b795c7e5f54660800000000000000
+      internalID: 7369566741062989030
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Viper_ani_sheet_9
+      rect:
+        serializedVersion: 2
+        x: 711
+        y: 385
+        width: 207
+        height: 282
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2c01f9789b827efd0800000000000000
+      internalID: -2312835106322050878
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Viper_ani_sheet_10
+      rect:
+        serializedVersion: 2
+        x: 1076
+        y: 384
+        width: 301
+        height: 289
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f1b4bbdf733e7d890800000000000000
+      internalID: -7433222830332097761
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Viper_ani_sheet_11
+      rect:
+        serializedVersion: 2
+        x: 1422
+        y: 384
+        width: 273
+        height: 287
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f6c54956352c49ec0800000000000000
+      internalID: -3561007741900923793
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Viper_ani_sheet_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 52
+        width: 271
+        height: 288
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 775a9a6bd47f42230800000000000000
+      internalID: 3613284714207094135
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Viper_ani_sheet_13
+      rect:
+        serializedVersion: 2
+        x: 372
+        y: 51
+        width: 284
+        height: 286
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 85411f8fbd66ceec0800000000000000
+      internalID: -3536338512432262056
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Viper_ani_sheet_14
+      rect:
+        serializedVersion: 2
+        x: 716
+        y: 51
+        width: 274
+        height: 285
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4dcaa825fb3c1d8e0800000000000000
+      internalID: -1670338760286753580
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Viper_ani_sheet_15
+      rect:
+        serializedVersion: 2
+        x: 1067
+        y: 52
+        width: 285
+        height: 286
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 400cac69de8f11f30800000000000000
+      internalID: 4544687198314348548
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Viper_ani_sheet_16
+      rect:
+        serializedVersion: 2
+        x: 1422
+        y: 51
+        width: 278
+        height: 287
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 18fc47eeeaca30a70800000000000000
+      internalID: 8792060764882259841
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Viper_ani_sheet_0: 3859844817874455582
+      Viper_ani_sheet_1: -1188758045937813593
+      Viper_ani_sheet_10: -7433222830332097761
+      Viper_ani_sheet_11: -3561007741900923793
+      Viper_ani_sheet_12: 3613284714207094135
+      Viper_ani_sheet_13: -3536338512432262056
+      Viper_ani_sheet_14: -1670338760286753580
+      Viper_ani_sheet_15: 4544687198314348548
+      Viper_ani_sheet_16: 8792060764882259841
+      Viper_ani_sheet_2: 9072176163017859228
+      Viper_ani_sheet_3: 4025365800026121394
+      Viper_ani_sheet_4: 4092874493829468004
+      Viper_ani_sheet_5: -5810436957559602042
+      Viper_ani_sheet_6: -3039995729148567020
+      Viper_ani_sheet_7: 1213663369924039657
+      Viper_ani_sheet_8: 7369566741062989030
+      Viper_ani_sheet_9: -2312835106322050878
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

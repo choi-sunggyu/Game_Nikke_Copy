@@ -1,0 +1,533 @@
+fileFormatVersion: 2
+guid: 867ea450353900f4b885528c00c05b63
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -4178773850853658766
+    second: Trend_ani_sheet_0
+  - first:
+      213: 573657947343718326
+    second: Trend_ani_sheet_1
+  - first:
+      213: 858752847863231013
+    second: Trend_ani_sheet_2
+  - first:
+      213: 1536616499716061245
+    second: Trend_ani_sheet_3
+  - first:
+      213: -6263627085284989236
+    second: Trend_ani_sheet_4
+  - first:
+      213: 906970183595960460
+    second: Trend_ani_sheet_5
+  - first:
+      213: -6615921713169241994
+    second: Trend_ani_sheet_6
+  - first:
+      213: -44631322444066454
+    second: Trend_ani_sheet_7
+  - first:
+      213: -8447491935182644650
+    second: Trend_ani_sheet_8
+  - first:
+      213: 2348435326663070250
+    second: Trend_ani_sheet_9
+  - first:
+      213: -6469341521067206446
+    second: Trend_ani_sheet_10
+  - first:
+      213: 4459466647510321836
+    second: Trend_ani_sheet_11
+  - first:
+      213: 5222847219068898617
+    second: Trend_ani_sheet_12
+  - first:
+      213: -1562719567073867733
+    second: Trend_ani_sheet_13
+  - first:
+      213: 3658644839327099259
+    second: Trend_ani_sheet_14
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Trend_ani_sheet_0
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 723
+        width: 211
+        height: 339
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 27f2d2f92530206c0800000000000000
+      internalID: -4178773850853658766
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trend_ani_sheet_1
+      rect:
+        serializedVersion: 2
+        x: 426
+        y: 717
+        width: 272
+        height: 342
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6b7800e1dda06f700800000000000000
+      internalID: 573657947343718326
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trend_ani_sheet_2
+      rect:
+        serializedVersion: 2
+        x: 794
+        y: 715
+        width: 269
+        height: 332
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5223ebe4a27eaeb00800000000000000
+      internalID: 858752847863231013
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trend_ani_sheet_3
+      rect:
+        serializedVersion: 2
+        x: 1143
+        y: 715
+        width: 232
+        height: 323
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d38749da098235510800000000000000
+      internalID: 1536616499716061245
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trend_ani_sheet_4
+      rect:
+        serializedVersion: 2
+        x: 1474
+        y: 715
+        width: 257
+        height: 324
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cc6a2102a502319a0800000000000000
+      internalID: -6263627085284989236
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trend_ani_sheet_5
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 369
+        width: 247
+        height: 310
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c88ab1f9394369c00800000000000000
+      internalID: 906970183595960460
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trend_ani_sheet_6
+      rect:
+        serializedVersion: 2
+        x: 430
+        y: 369
+        width: 259
+        height: 306
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 678e0c821468f24a0800000000000000
+      internalID: -6615921713169241994
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trend_ani_sheet_7
+      rect:
+        serializedVersion: 2
+        x: 811
+        y: 369
+        width: 230
+        height: 309
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a619dd77c00716ff0800000000000000
+      internalID: -44631322444066454
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trend_ani_sheet_8
+      rect:
+        serializedVersion: 2
+        x: 1135
+        y: 369
+        width: 286
+        height: 307
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 65a167877da74ca80800000000000000
+      internalID: -8447491935182644650
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trend_ani_sheet_9
+      rect:
+        serializedVersion: 2
+        x: 1483
+        y: 369
+        width: 267
+        height: 309
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a221bbfac71579020800000000000000
+      internalID: 2348435326663070250
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trend_ani_sheet_10
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 15
+        width: 279
+        height: 320
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2d89a12a9284836a0800000000000000
+      internalID: -6469341521067206446
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trend_ani_sheet_11
+      rect:
+        serializedVersion: 2
+        x: 403
+        y: 15
+        width: 257
+        height: 318
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: caa0e84e94533ed30800000000000000
+      internalID: 4459466647510321836
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trend_ani_sheet_12
+      rect:
+        serializedVersion: 2
+        x: 765
+        y: 19
+        width: 225
+        height: 315
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 93d0db8bfd74b7840800000000000000
+      internalID: 5222847219068898617
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trend_ani_sheet_13
+      rect:
+        serializedVersion: 2
+        x: 1130
+        y: 19
+        width: 214
+        height: 319
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b28820955da105ae0800000000000000
+      internalID: -1562719567073867733
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trend_ani_sheet_14
+      rect:
+        serializedVersion: 2
+        x: 1545
+        y: 25
+        width: 193
+        height: 309
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b796867d81e16c230800000000000000
+      internalID: 3658644839327099259
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Trend_ani_sheet_0: -4178773850853658766
+      Trend_ani_sheet_1: 573657947343718326
+      Trend_ani_sheet_10: -6469341521067206446
+      Trend_ani_sheet_11: 4459466647510321836
+      Trend_ani_sheet_12: 5222847219068898617
+      Trend_ani_sheet_13: -1562719567073867733
+      Trend_ani_sheet_14: 3658644839327099259
+      Trend_ani_sheet_2: 858752847863231013
+      Trend_ani_sheet_3: 1536616499716061245
+      Trend_ani_sheet_4: -6263627085284989236
+      Trend_ani_sheet_5: 906970183595960460
+      Trend_ani_sheet_6: -6615921713169241994
+      Trend_ani_sheet_7: -44631322444066454
+      Trend_ani_sheet_8: -8447491935182644650
+      Trend_ani_sheet_9: 2348435326663070250
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

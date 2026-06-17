@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f4d3d6e796b2054c8aa444c55a2f9cd, type: 3}
+  m_Name: Viper_Data
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterData
+  characterId: 2
+  displayName: Viper
+  burstNumber: 1
+  weaponType: 4
+  maxHp: 800
+  maxShield: 50
+  maxBulletCount: 6
+  reloadTime: 2
+  attackDamage: 250
+  fireRate: 1
+  bulletSpeed: 1000
+  chargingBurstGauge: 80
+  burstCoolTime: 40
+  skillCoolTime: 10
+  burstCutsceneDuration: 0
+  criticalRate: 0.15
+  criticalMultiplier: 1.5
+  characterPortrait: {fileID: 0}
+  characterSprite: {fileID: 0}
+  idleSprite: {fileID: 0}
+  shootSprite: {fileID: 0}
+  reloadSprite: {fileID: 0}

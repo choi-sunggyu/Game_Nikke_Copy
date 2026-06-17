@@ -32,24 +32,8 @@ public class Titan : CharacterBase
     [SerializeField] private GameObject buffStarPrefab;    // 버프 별 스프라이트 프리팹
     [SerializeField] private GameObject attackStarPrefab;  // 공격 별 프리팹
 
-    [Header("── 스프라이트 애니메이션 ──────────")]
-    [Tooltip("Titan 본체의 SpriteRenderer. 비워두면 GetComponent 로 자동 탐색")]
-    [SerializeField] private SpriteRenderer titanSpriteRenderer;
-    [Tooltip("Sprite Editor 로 잘라낸 10개 슬라이스 (프레임 01 → 인덱스 0, 프레임 10 → 인덱스 9)")]
-    [SerializeField] private Sprite[] animSprites;
-    [Tooltip("한 프레임당 표시 시간 (20fps = 0.05s)")]
-    [SerializeField] private float frameDuration = 0.05f;
-
-    // 시퀀스 정의 (배열 인덱스 = 프레임 번호 - 1)
-    private static readonly int[] IdleLoop      = { 9 };                          // 10
-    private static readonly int[] ShootLoop     = { 0, 1 };                       // 1 ↔ 2
-    private static readonly int[] ReloadLoop    = { 7 };                          // 7
-    private static readonly int[] IdleToShoot   = { 9, 5, 4, 3, 2, 0, 1 };        // 10 → 6 → 5 → 4 → 3 → 1 → 2
-    private static readonly int[] ShootToReload = { 0, 1, 2, 3, 4, 5, 6, 7 };     // 1/2 → 3 → 4 → 5 → 6 → 7 → 8
-    private static readonly int[] ReloadToIdle  = { 7, 8, 9 };                    // 8 → 9 → 10
-
-    private CharacterState? animPrevState = null;
-    private Coroutine        animCoroutine;
+    // 시트 애니메이션(animSprites/animSpriteRenderer/frameDuration) 은 CharacterBase 로 일반화됨.
+    // 인스펙터의 「시트 애니메이션 (15장 = 5+5+5)」 섹션에 15장 슬라이스 할당.
 
     private AudioSource singleShotSource;
     private AudioSource spinUpSource;
@@ -67,6 +51,7 @@ public class Titan : CharacterBase
 
     public override void Initialize()
     {
+        // [점진적 마이그레이션] 하드코딩 폴백 — CharacterData(SO) 미할당 시 그대로 사용됨.
         maxHp = 200;
         hp = maxHp;
         maxBulletCount = 400;
@@ -79,16 +64,19 @@ public class Titan : CharacterBase
         skillCoolTime = 10.0f;
         attackDamage = 10;
         survive = true;
+        bulletSpeed = 500f;
+
+        // SO 가 할당되어 있으면 위 값들을 덮어쓰며 적용.
+        ApplyData();
+
+        // Titan 고유 — 스핀업 시스템 (SO 가 처리하지 않는 특수 필드)
         minFireRate = 1f / 70f;
         maxFireRate = 1f / 3f;
         currentFireRate = maxFireRate;
         shotsFired = 0;
         nextTitanFireTime = 0;
-        bulletSpeed = 500f;
 
-        // 스프라이트 애니메이션용 SR 자동 탐색
-        if (titanSpriteRenderer == null)
-            titanSpriteRenderer = GetComponent<SpriteRenderer>();
+        // (시트 애니메이션 SR 자동 탐색은 CharacterBase.ApplySprite 안에서 처리됨)
 
         singleShotSource = gameObject.AddComponent<AudioSource>();
         singleShotSource.loop = false;
@@ -118,13 +106,9 @@ public class Titan : CharacterBase
 
     protected override void OnDisable()
     {
-        base.OnDisable();
+        base.OnDisable(); // ← 시트 애니메이션 코루틴 정리도 base 에서 처리됨
         InputManager.OnFireRelease -= ResetFireRate;
         StopAllSounds(); // ← 비활성화 시 모든 사운드 즉시 정지
-
-        // 애니메이션 코루틴 정리
-        if (animCoroutine != null) { StopCoroutine(animCoroutine); animCoroutine = null; }
-        animPrevState = null;
     }
 
     public override void TryFire()
@@ -314,82 +298,7 @@ public class Titan : CharacterBase
         StartCoroutine(StarAttackRoutine());
     }
 
-    // ═══════════════════════════════════════════════════════
-    //  스프라이트 시퀀스 애니메이션
-    //  - 본 상태(idle/shoot/reload) 진입 시 ChangeState → ApplySprite 가 호출되면
-    //    이전 상태와의 전환 시퀀스를 먼저 1회 재생한 뒤 본 상태 루프를 무한 재생.
-    //  - 정의되지 않은 전환은 즉시 본 상태로 점프 (예: bullet 가득 상태에서 Shoot→Idle 등 드문 케이스)
-    // ═══════════════════════════════════════════════════════
-    protected override void ApplySprite(CharacterState state)
-    {
-        // 스프라이트 배열 미할당 시 부모의 단일-스프라이트 시스템으로 폴백
-        if (animSprites == null || animSprites.Length == 0)
-        {
-            base.ApplySprite(state);
-            return;
-        }
-        if (titanSpriteRenderer == null)
-        {
-            Debug.LogWarning("[Titan] titanSpriteRenderer 가 비어있음 → ApplySprite 스킵");
-            return;
-        }
-        // 같은 상태로 재진입하는 경우 코루틴 재시작 비용 절약
-        if (animPrevState == state && animCoroutine != null) return;
-
-        int[] transition = GetTransitionSequence(animPrevState, state);
-        int[] loop       = GetLoopForState(state);
-
-        if (animCoroutine != null) StopCoroutine(animCoroutine);
-        animCoroutine = StartCoroutine(PlayTransitionAndLoop(transition, loop));
-
-        animPrevState = state;
-    }
-
-    private int[] GetTransitionSequence(CharacterState? from, CharacterState to)
-    {
-        if (from == CharacterState.Idle   && to == CharacterState.Fire)   return IdleToShoot;
-        if (from == CharacterState.Fire   && to == CharacterState.Reload) return ShootToReload;
-        if (from == CharacterState.Reload && to == CharacterState.Idle)   return ReloadToIdle;
-        return null; // 정의되지 않은 전환 → 즉시 본 상태
-    }
-
-    private int[] GetLoopForState(CharacterState state)
-    {
-        switch (state)
-        {
-            case CharacterState.Idle:   return IdleLoop;
-            case CharacterState.Fire:   return ShootLoop;
-            case CharacterState.Reload: return ReloadLoop;
-            default: return null;
-        }
-    }
-
-    private IEnumerator PlayTransitionAndLoop(int[] transition, int[] loop)
-    {
-        // ── 전환 시퀀스 (있을 때만, 1회 재생) ──
-        if (transition != null)
-        {
-            for (int i = 0; i < transition.Length; i++)
-            {
-                int idx = transition[i];
-                if (idx >= 0 && idx < animSprites.Length)
-                    titanSpriteRenderer.sprite = animSprites[idx];
-                yield return new WaitForSeconds(frameDuration);
-            }
-        }
-
-        // ── 본 상태 루프 (무한) ──
-        if (loop == null || loop.Length == 0) yield break;
-
-        while (true)
-        {
-            for (int i = 0; i < loop.Length; i++)
-            {
-                int idx = loop[i];
-                if (idx >= 0 && idx < animSprites.Length)
-                    titanSpriteRenderer.sprite = animSprites[idx];
-                yield return new WaitForSeconds(frameDuration);
-            }
-        }
-    }
+    // 시트 애니메이션(ApplySprite 오버라이드, 시퀀스 선택, 코루틴) 은 CharacterBase 로 이전됨.
+    // Titan 은 기본 시퀀스(15장 5+5+5)를 그대로 사용. 다른 시퀀스가 필요하면
+    // GetTransitionSequence / GetLoopForState 오버라이드.
 }

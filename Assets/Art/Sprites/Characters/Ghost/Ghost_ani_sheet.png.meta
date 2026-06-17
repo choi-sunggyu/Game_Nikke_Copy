@@ -1,0 +1,533 @@
+fileFormatVersion: 2
+guid: e51763cfb4f6a7847ae566f45feb78a2
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -2879148732286091496
+    second: Ghost_ani_sheet_0
+  - first:
+      213: 8742273759829758085
+    second: Ghost_ani_sheet_1
+  - first:
+      213: -5611716910791196307
+    second: Ghost_ani_sheet_2
+  - first:
+      213: 743443289524347857
+    second: Ghost_ani_sheet_3
+  - first:
+      213: -261570110699752768
+    second: Ghost_ani_sheet_4
+  - first:
+      213: -8879933351411479398
+    second: Ghost_ani_sheet_5
+  - first:
+      213: -3463892377243944496
+    second: Ghost_ani_sheet_6
+  - first:
+      213: 2552239260332150432
+    second: Ghost_ani_sheet_7
+  - first:
+      213: 8833744437551389162
+    second: Ghost_ani_sheet_8
+  - first:
+      213: 4514374797411630261
+    second: Ghost_ani_sheet_9
+  - first:
+      213: 5730855122939236171
+    second: Ghost_ani_sheet_10
+  - first:
+      213: -5127016933879480304
+    second: Ghost_ani_sheet_11
+  - first:
+      213: 2005159672850281469
+    second: Ghost_ani_sheet_12
+  - first:
+      213: -2829973234445725748
+    second: Ghost_ani_sheet_13
+  - first:
+      213: 3989260020269822556
+    second: Ghost_ani_sheet_14
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Ghost_ani_sheet_0
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 723
+        width: 319
+        height: 306
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 81f329c7b753b08d0800000000000000
+      internalID: -2879148732286091496
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Ghost_ani_sheet_1
+      rect:
+        serializedVersion: 2
+        x: 361
+        y: 718
+        width: 308
+        height: 311
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5801fdf7aabc25970800000000000000
+      internalID: 8742273759829758085
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Ghost_ani_sheet_2
+      rect:
+        serializedVersion: 2
+        x: 694
+        y: 715
+        width: 329
+        height: 308
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d610d38a33d2f12b0800000000000000
+      internalID: -5611716910791196307
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Ghost_ani_sheet_3
+      rect:
+        serializedVersion: 2
+        x: 1060
+        y: 718
+        width: 321
+        height: 308
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1d32fbe9bbd315a00800000000000000
+      internalID: 743443289524347857
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Ghost_ani_sheet_4
+      rect:
+        serializedVersion: 2
+        x: 1416
+        y: 718
+        width: 316
+        height: 308
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0c2b1e3ce57be5cf0800000000000000
+      internalID: -261570110699752768
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Ghost_ani_sheet_5
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 382
+        width: 301
+        height: 283
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a9c89ff2aa324c480800000000000000
+      internalID: -8879933351411479398
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Ghost_ani_sheet_6
+      rect:
+        serializedVersion: 2
+        x: 357
+        y: 383
+        width: 310
+        height: 280
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0d9f0324c38cdefc0800000000000000
+      internalID: -3463892377243944496
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Ghost_ani_sheet_7
+      rect:
+        serializedVersion: 2
+        x: 693
+        y: 382
+        width: 340
+        height: 288
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0ae47edb5106b6320800000000000000
+      internalID: 2552239260332150432
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Ghost_ani_sheet_8
+      rect:
+        serializedVersion: 2
+        x: 1063
+        y: 383
+        width: 315
+        height: 284
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae955d443c3c79a70800000000000000
+      internalID: 8833744437551389162
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Ghost_ani_sheet_9
+      rect:
+        serializedVersion: 2
+        x: 1414
+        y: 384
+        width: 336
+        height: 286
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5bc32b6c5f746ae30800000000000000
+      internalID: 4514374797411630261
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Ghost_ani_sheet_10
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 53
+        width: 331
+        height: 277
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b4f4506fe56188f40800000000000000
+      internalID: 5730855122939236171
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Ghost_ani_sheet_11
+      rect:
+        serializedVersion: 2
+        x: 352
+        y: 57
+        width: 306
+        height: 276
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 01083b2434d29d8b0800000000000000
+      internalID: -5127016933879480304
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Ghost_ani_sheet_12
+      rect:
+        serializedVersion: 2
+        x: 696
+        y: 49
+        width: 334
+        height: 285
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: df3fd224912c3db10800000000000000
+      internalID: 2005159672850281469
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Ghost_ani_sheet_13
+      rect:
+        serializedVersion: 2
+        x: 1065
+        y: 50
+        width: 299
+        height: 284
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ccfcffc465ae9b8d0800000000000000
+      internalID: -2829973234445725748
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Ghost_ani_sheet_14
+      rect:
+        serializedVersion: 2
+        x: 1424
+        y: 51
+        width: 293
+        height: 280
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c52b9d83ad2bc5730800000000000000
+      internalID: 3989260020269822556
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Ghost_ani_sheet_0: -2879148732286091496
+      Ghost_ani_sheet_1: 8742273759829758085
+      Ghost_ani_sheet_10: 5730855122939236171
+      Ghost_ani_sheet_11: -5127016933879480304
+      Ghost_ani_sheet_12: 2005159672850281469
+      Ghost_ani_sheet_13: -2829973234445725748
+      Ghost_ani_sheet_14: 3989260020269822556
+      Ghost_ani_sheet_2: -5611716910791196307
+      Ghost_ani_sheet_3: 743443289524347857
+      Ghost_ani_sheet_4: -261570110699752768
+      Ghost_ani_sheet_5: -8879933351411479398
+      Ghost_ani_sheet_6: -3463892377243944496
+      Ghost_ani_sheet_7: 2552239260332150432
+      Ghost_ani_sheet_8: 8833744437551389162
+      Ghost_ani_sheet_9: 4514374797411630261
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
