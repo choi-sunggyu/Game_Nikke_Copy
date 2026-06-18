@@ -31,12 +31,12 @@ public class CameraController : MonoBehaviour
     [Header("── 캐릭터 추적 ──────────────")]
     [SerializeField] private List<CharacterBase> characters;
     [SerializeField] private float moveSpeed = 5f;
-    [SerializeField] private Vector3 cameraOffset = new Vector3(0f, -3.5f, -8f);
+    [SerializeField] private Vector3 cameraOffset = new Vector3(0f, 2f, 0f);
     [SerializeField] private float cameraZOffset = -10f;
 
     [Header("── FOV ──────────────────────")]
     [SerializeField] private Camera cam;
-    [SerializeField] private float defaultFov = 40f;
+    [SerializeField] private float defaultFov = 34f;
     [SerializeField] private float zoomSpeed = 5f;
 
     [Header("── 엄폐물 회전 ───────────────")]
@@ -280,6 +280,7 @@ public class CameraController : MonoBehaviour
 
     private IEnumerator BossAppearRoutine(EnemyBase boss, float duration, float zoomFov, Action onComplete)
     {
+        Debug.Log($"[DIAG-3a] CameraController.BossAppearRoutine 시작 — boss={boss?.name}, bossPos={boss?.transform.position}, duration={duration}, fov={zoomFov}");
         EnterCinematic();
 
         // duration 을 2등분 — 절반은 줌인, 절반은 줌아웃.
@@ -327,6 +328,7 @@ public class CameraController : MonoBehaviour
         // 캐릭터 추적 모드로 복귀 — 카메라가 이미 캐릭터 위치에 있으므로 점프 없음
         ExitCinematic(resumeCharacterFollow: true);
 
+        Debug.Log("[DIAG-3b] CameraController.BossAppearRoutine 종료 — onComplete 호출 직전");
         onComplete?.Invoke();
     }
 

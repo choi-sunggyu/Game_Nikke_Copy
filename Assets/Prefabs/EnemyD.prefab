@@ -472,17 +472,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00fa40fb5c7feae468034c3c5bd2715e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyD
-  enemyType: 2
-  hp: 0
-  maxHp: 0
-  attackDamage: 0
-  speed: 0
-  survive: 0
-  attackDelay: 0
-  currentLayer: 0
-  muzzlePoint: {fileID: 4273442822604503185}
-  deathEffectPrefab: {fileID: 6192724089161036641, guid: e17d9a3f04750764c8c0a7a0461e4c3b, type: 3}
   data: {fileID: 11400000, guid: be098ba65d32ffb469fc5b24baa9ec1a, type: 2}
+  dieSoundClip: {fileID: 8300000, guid: 07d86f38d24ec394398898718fd5e4fb, type: 3}
+  muzzlePoint: {fileID: 4273442822604503185}
+  deathEffectPrefab: {fileID: 4794043405585894037, guid: 37138c0c33167b04fa1fb90b7f5a794f, type: 3}
   muzzlePoint1: {fileID: 6840546315786150864}
   muzzlePoint2: {fileID: 7340211544874111452}
   muzzlePoint3: {fileID: 3307264623153478204}

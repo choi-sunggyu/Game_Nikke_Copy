@@ -16,14 +16,24 @@ public class BottomUI : MonoBehaviour
         public GameObject coverIndicator; // 엄폐 중 표시
         public GameObject disconnectedOverlay; // 사망 표시
 
+        // ── 위험 타게팅 경고 (레이저/미사일 조준) ─────────────
+        public GameObject alertRoot;       // 경고 루트 (box + icon 묶음) — 스케일/페이드 대상
+        public Image      alertBoxImage;   // outline 박스 이미지
+        public Image      alertIconImage;  // 느낌표 아이콘 이미지
+
         // --- 런타임 전용(직렬화 X) ---
         [System.NonSerialized] public Coroutine heightCoroutine; // 박스 높이 애니메이션
         [System.NonSerialized] public Coroutine coverCoroutine;  // 엄폐 인디케이터 페이드
         [System.NonSerialized] public CanvasGroup coverGroup;    // 엄폐 인디케이터 페이드용
+        [System.NonSerialized] public CanvasGroup alertGroup;    // 경고 페이드용
+        [System.NonSerialized] public Coroutine   alertCoroutine; // 경고 시퀀스
     }
 
     [SerializeField] private List<CharacterBox> characterBoxes;
     [SerializeField] private CharacterManager characterManager;
+
+    [SerializeField] private Sprite alertBox;
+    [SerializeField] private Sprite alertIcon;
 
     // 현재 캐릭터 박스 크기
     [SerializeField] private float activeBoxHeight = 130f;   // 조작 중인 캐릭터 박스 높이
@@ -32,6 +42,16 @@ public class BottomUI : MonoBehaviour
     [Header("애니메이션")]
     [SerializeField] private float heightAnimDuration = 0.2f; // 박스 높이 전환 시간
     [SerializeField] private float coverFadeDuration = 0.25f; // 엄폐 인디케이터 페이드 시간
+
+    [Header("위험 경고 애니메이션")]
+    [Tooltip("등장 페이드+축소 시간 (초)")]
+    [SerializeField] private float alertEnterDuration = 0.2f;
+    [Tooltip("사라짐 페이드+확대 시간 (초)")]
+    [SerializeField] private float alertExitDuration  = 0.25f;
+    [Tooltip("등장 시작 스케일 (커진 상태 → 1.0 으로 작아짐)")]
+    [SerializeField] private float alertEnterStartScale = 1.5f;
+    [Tooltip("사라짐 끝 스케일 (1.0 → 이 값으로 커짐)")]
+    [SerializeField] private float alertExitEndScale   = 1.6f;
     [SerializeField] public Button characterButton1;
     [SerializeField] public Button characterButton2;
     [SerializeField] public Button characterButton3;
@@ -53,6 +73,7 @@ public class BottomUI : MonoBehaviour
         CharacterBase.OnStatChanged += HandleStatChanged;
         CharacterBase.OnCharacterDied += HandleCharacterDied;
         InputManager.OnCoverToggle += HandleCoverToggle;
+        EnemyBase.OnHighDamageTargeting += HandleHighDamageTargeting;
     }
 
     void OnDisable()
@@ -61,6 +82,7 @@ public class BottomUI : MonoBehaviour
         CharacterBase.OnStatChanged -= HandleStatChanged;
         CharacterBase.OnCharacterDied -= HandleCharacterDied;
         InputManager.OnCoverToggle -= HandleCoverToggle;
+        EnemyBase.OnHighDamageTargeting -= HandleHighDamageTargeting;
     }
 
     // ── 초기화: 모든 박스의 배경/엄폐 인디케이터를 동일하게 세팅 ──
@@ -100,6 +122,27 @@ public class BottomUI : MonoBehaviour
             if (box.disconnectedOverlay != null)
                 box.disconnectedOverlay.SetActive(false);
 
+            // ── 경고(alert) 초기화: 박스/아이콘 숨김 + CanvasGroup alpha=0 + scale 1 ──
+            if (box.alertRoot != null)
+            {
+                box.alertGroup = box.alertRoot.GetComponent<CanvasGroup>();
+                if (box.alertGroup == null)
+                    box.alertGroup = box.alertRoot.AddComponent<CanvasGroup>();
+                box.alertGroup.alpha = 0f;
+                box.alertGroup.blocksRaycasts = false;
+                box.alertGroup.interactable   = false;
+
+                box.alertRoot.transform.localScale = Vector3.one;
+
+                // alertBox / alertIcon 스프라이트는 인스펙터에 alertBox/alertIcon SerializeField 로 들어있는 것을 사용
+                if (box.alertBoxImage != null && alertBox != null)
+                    box.alertBoxImage.sprite = alertBox;
+                if (box.alertIconImage != null && alertIcon != null)
+                    box.alertIconImage.sprite = alertIcon;
+
+                box.alertRoot.SetActive(false); // 안 보이게 시작
+            }
+
             // [2번] 엄폐 인디케이터: 하늘색 그라데이션 + 페이드용 CanvasGroup
             if (box.coverIndicator != null)
             {
@@ -120,8 +163,6 @@ public class BottomUI : MonoBehaviour
                 box.coverIndicator.SetActive(false);
             }
         }
-
-        //Debug.Log($"[BottomUI] 그라데이션 적용 박스: {gradientApplied}/{characterBoxes.Count}");
     }
 
     // 세로 방향 알파 그라데이션 스프라이트 생성
@@ -372,5 +413,73 @@ public class BottomUI : MonoBehaviour
         {
             InputManager.InvokeSwitchCharacter(4);
         }
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  위험 타게팅 경고 — EnemyBase.OnHighDamageTargeting 구독자
+    //  target 캐릭터의 박스에 alertRoot 활성화 + scale/fade 애니메이션.
+    // ═══════════════════════════════════════════════════════
+    private void HandleHighDamageTargeting(CharacterBase target, float duration)
+    {
+        if (target == null) return;
+        int idx = characters.IndexOf(target);
+        if (idx < 0 || idx >= characterBoxes.Count) return;
+
+        var box = characterBoxes[idx];
+        if (box.alertRoot == null) return;
+
+        // 이전 시퀀스가 살아있으면 끊고 새로 시작 (연속 조준 시 깜빡임 방지)
+        if (box.alertCoroutine != null) StopCoroutine(box.alertCoroutine);
+        box.alertCoroutine = StartCoroutine(AlertSequence(box, duration));
+    }
+
+    /// <summary>
+    /// 경고 시퀀스: 등장(작아지며 fade in) → 표시 유지 → 사라짐(커지며 fade out).
+    /// 전체 길이 = duration. 등장/사라짐 애니가 duration 의 일정 비율을 차지.
+    /// </summary>
+    private IEnumerator AlertSequence(CharacterBox box, float duration)
+    {
+        // 셋업
+        box.alertRoot.SetActive(true);
+        box.alertGroup.alpha = 0f;
+        box.alertRoot.transform.localScale = Vector3.one * alertEnterStartScale;
+
+        // ── 등장: scale 큰값 → 1, alpha 0 → 1 ──
+        float enter = Mathf.Min(alertEnterDuration, duration * 0.4f);
+        float elapsed = 0f;
+        while (elapsed < enter)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / enter);
+            float eased = Mathf.SmoothStep(0f, 1f, t);
+            box.alertGroup.alpha = eased;
+            box.alertRoot.transform.localScale = Vector3.one * Mathf.Lerp(alertEnterStartScale, 1f, eased);
+            yield return null;
+        }
+        box.alertGroup.alpha = 1f;
+        box.alertRoot.transform.localScale = Vector3.one;
+
+        // ── 표시 유지 ──
+        float hold = duration - enter - alertExitDuration;
+        if (hold > 0f) yield return new WaitForSeconds(hold);
+
+        // ── 사라짐: scale 1 → 큰값, alpha 1 → 0 ──
+        float exit = alertExitDuration;
+        elapsed = 0f;
+        while (elapsed < exit)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / exit);
+            float eased = Mathf.SmoothStep(0f, 1f, t);
+            box.alertGroup.alpha = 1f - eased;
+            box.alertRoot.transform.localScale = Vector3.one * Mathf.Lerp(1f, alertExitEndScale, eased);
+            yield return null;
+        }
+
+        // 종료
+        box.alertGroup.alpha = 0f;
+        box.alertRoot.transform.localScale = Vector3.one;
+        box.alertRoot.SetActive(false);
+        box.alertCoroutine = null;
     }
 }

@@ -13,6 +13,11 @@ public abstract class EnemyBase : MonoBehaviour
     [Tooltip("적 능력치 SO. 미할당 시 폴백 값(아래) 사용.")]
     [SerializeField] protected EnemyData data;
 
+    [Header("── sound ─────────────────")]
+    [SerializeField] public AudioClip dieSoundClip;
+
+    private AudioSource dieSoundSource;
+
     // 능력치 변수 — ApplyEnemyData 가 SO 에서 채움. 인스펙터 노출 X (SerializeField 의도적으로 제거).
     // SO 가 누락되면 ApplyEnemyData 가 비활성화 처리하므로 폴백 입력은 더 이상 필요 없음.
     protected EnemyType enemyType = EnemyType.Normal;
@@ -60,6 +65,14 @@ public abstract class EnemyBase : MonoBehaviour
     public event Action OnDied;
     public static event Action<EnemyBase> OnBossDefeated; // 보스 사망 이벤트
     public event Action<float, float> OnHpChanged;        // (currentHp, maxHp)
+
+    /// <summary>
+    /// 위험 데미지 공격(레이저/미사일 등)을 캐릭터에게 조준한 순간 발화.
+    /// duration = 발사까지 남은 시간(초). BottomUI 가 이 시간 동안 경고 표시.
+    /// </summary>
+    public static event Action<CharacterBase, float> OnHighDamageTargeting;
+    public static void RaiseHighDamageTargeting(CharacterBase target, float duration)
+        => OnHighDamageTargeting?.Invoke(target, duration);
 
     // abstract 메서드
     public abstract void Initialize();
@@ -162,6 +175,9 @@ public abstract class EnemyBase : MonoBehaviour
         if (col2D != null) col2D.enabled = false;
         Collider col3D = GetComponent<Collider>();
         if (col3D != null) col3D.enabled = false;
+
+        dieSoundSource = gameObject.AddComponent<AudioSource>();
+        dieSoundSource.PlayOneShot(dieSoundClip);
 
         if (deathEffectPrefab != null)
         {

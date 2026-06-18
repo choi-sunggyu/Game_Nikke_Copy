@@ -12,12 +12,12 @@ public class WaveManager : MonoBehaviour
     [SerializeField] private ObjectPool enemyMissilePool;
 
     [Header("Spawn Range")]
+    [Tooltip("스폰 z 범위 (카메라 forward 거리). 카메라 가까운 쪽 / 먼 쪽.")]
     [SerializeField] private float minZ = 10f;
     [SerializeField] private float maxZ = 50f;
-    [SerializeField] private float minXAtMinZ = 13f;
-    [SerializeField] private float maxXAtMaxZ = 30f;
-    [SerializeField] private float minYAtMinZ = -2f;
-    [SerializeField] private float maxYAtMaxZ = 10f;
+    [Tooltip("화면 가장자리에서 안쪽으로 얼마나 들여놓고 스폰할지 (0~0.5). 0.1 = 10% 들여놓음.")]
+    [Range(0f, 0.5f)]
+    [SerializeField] private float viewportMargin = 0.1f;
 
     [Header("Overlap Prevention")]
     [SerializeField] private float minEnemyDistance    = 3f;
@@ -219,6 +219,7 @@ public class WaveManager : MonoBehaviour
                     else                          Debug.LogWarning("[WaveManager] enemyMissilePool 미할당 — 보스가 미사일을 발사할 수 없음");
                 }
 
+                Debug.Log($"[DIAG-0] WaveManager: OnBossPhaseStart 발화 — boss={enemy.name}, 구독자 수={(OnBossPhaseStart?.GetInvocationList()?.Length ?? 0)}");
                 OnBossPhaseStart?.Invoke(enemy);
                 enemy.OnDied += () =>
                 {
@@ -263,17 +264,31 @@ public class WaveManager : MonoBehaviour
         return GetRandomSpawnPosition();
     }
 
+    /// <summary>
+    /// 카메라 viewport 기반 스폰 좌표 — z 평면에서 화면 안쪽에 들어오는 지점만 선택.
+    /// fov / 카메라 위치가 바뀌어도 자동 대응. viewportMargin 만큼 가장자리에서 안쪽.
+    /// </summary>
     Vector3 GetRandomSpawnPosition()
     {
         float z = Random.Range(minZ, maxZ);
-        float t = (z - minZ) / (maxZ - minZ);
 
-        float maxX = Mathf.Lerp(minXAtMinZ, maxXAtMaxZ, t);
-        float x    = Random.Range(-maxX, maxX);
+        Camera cam = Camera.main;
+        if (cam == null)
+        {
+            // 카메라 없으면 원점 (이론상 발생 X)
+            return new Vector3(0f, 0f, z);
+        }
 
-        float minY = Mathf.Lerp(minYAtMinZ, 0f, t);
-        float maxY = Mathf.Lerp(minYAtMinZ, maxYAtMaxZ, t);
-        float y    = Random.Range(minY, maxY);
+        float distFromCam = z - cam.transform.position.z;
+
+        // 화면 안쪽 네 모서리의 월드 좌표 — viewportMargin 만큼 들여놓음.
+        Vector3 leftBottom = cam.ViewportToWorldPoint(
+            new Vector3(viewportMargin,       viewportMargin,       distFromCam));
+        Vector3 rightTop   = cam.ViewportToWorldPoint(
+            new Vector3(1f - viewportMargin,  1f - viewportMargin,  distFromCam));
+
+        float x = Random.Range(leftBottom.x, rightTop.x);
+        float y = Random.Range(leftBottom.y, rightTop.y);
 
         return new Vector3(x, y, z);
     }
@@ -344,8 +359,6 @@ public class WaveManager : MonoBehaviour
         if (elitePrefab != null && Random.value < eliteSpawnRatio)
             return elitePrefab;
         return regularEnemyPrefabs[Random.Range(0, regularEnemyPrefabs.Length)];
-
-        Debug.Log($"[WaveManager] 스폰 큐 생성 — {_spawnQueue.Count} 그룹, 총 {totalEnemyTarget} 마리");
     }
 
     SpawnPattern PickRandomPattern()

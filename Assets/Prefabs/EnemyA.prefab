@@ -259,14 +259,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyA
   data: {fileID: 11400000, guid: 407acce0d08803f4783ed45258d9fe06, type: 2}
-  enemyType: 0
-  hp: 0
-  maxHp: 0
-  attackDamage: 0
-  speed: 0
-  survive: 0
-  attackDelay: 0
-  currentLayer: 0
+  dieSoundClip: {fileID: 8300000, guid: 07d86f38d24ec394398898718fd5e4fb, type: 3}
   muzzlePoint: {fileID: 2189811233369315048}
   deathEffectPrefab: {fileID: 4794043405585894037, guid: 37138c0c33167b04fa1fb90b7f5a794f, type: 3}
   fallDuration: 0.8

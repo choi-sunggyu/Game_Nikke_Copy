@@ -153,6 +153,15 @@ public class EnemyD : EnemyBase
     // ═══════════════════════════════════════════════════════
     //  미사일 일제 사격 — muzzlePoint1~4 동시 발사
     // ═══════════════════════════════════════════════════════
+    [Header("── 미사일 조준 경고 ──────────")]
+    [Tooltip("미사일 발사 전 BottomUI 경고가 떠 있는 시간 (초). 캐릭터 엄폐 시간.")]
+    [SerializeField] private float missileWarningDuration = 1.0f;
+
+    /// <summary>
+    /// 미사일 일제 사격 — 코루틴 진입점.
+    /// 타겟 확보 즉시 BottomUI 경고 발화 → missileWarningDuration 대기 → 실제 발사.
+    /// 그 동안 플레이어는 캐릭터 전환/엄폐로 회피 가능.
+    /// </summary>
     public void Missile()
     {
         if (missilePool == null)
@@ -160,17 +169,28 @@ public class EnemyD : EnemyBase
             Debug.LogWarning("[EnemyD] missilePool 미할당 — 미사일 발사 불가");
             return;
         }
-
         CharacterBase target = GetTarget();
         if (target == null || !target.IsAlive) return;
 
-        Transform[] muzzles = { muzzlePoint1, muzzlePoint2, muzzlePoint3, muzzlePoint4 };
+        StartCoroutine(MissileWithWarning(target));
+    }
 
-        // missileCountPerSalvo 만큼만 발사 (최대 4)
-        int count = data != null ? Mathf.Min(data.missileCountPerSalvo, muzzles.Length) : muzzles.Length;
-        float missileSpeed    = data != null ? data.missileSpeed    : 10f;
-        float missileDamage   = data != null ? data.missileDamage   : 15f;
-        float missileHoming   = data != null ? data.missileHoming   : 0.5f;
+    IEnumerator MissileWithWarning(CharacterBase target)
+    {
+        // 1) BottomUI 경고 즉시 발화
+        RaiseHighDamageTargeting(target, missileWarningDuration);
+
+        // 2) 경고 시간 동안 대기 — 캐릭터가 회피/엄폐할 시간
+        yield return new WaitForSeconds(missileWarningDuration);
+
+        // 3) 실제 미사일 4발 발사 — 타겟 재확인 (그동안 사망/교체 가능)
+        if (target == null || !target.IsAlive) yield break;
+
+        Transform[] muzzles = { muzzlePoint1, muzzlePoint2, muzzlePoint3, muzzlePoint4 };
+        int   count         = data != null ? Mathf.Min(data.missileCountPerSalvo, muzzles.Length) : muzzles.Length;
+        float missileSpeed  = data != null ? data.missileSpeed  : 10f;
+        float missileDamage = data != null ? data.missileDamage : 15f;
+        float missileHoming = data != null ? data.missileHoming : 0.5f;
 
         for (int i = 0; i < count; i++)
         {

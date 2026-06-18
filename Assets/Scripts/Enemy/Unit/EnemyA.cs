@@ -130,6 +130,9 @@ public class EnemyA : EnemyBase
             yield break;
         }
 
+        // ── BottomUI 경고 발화 — 캐릭터가 엄폐 가능한 시간 = warningDuration ──
+        RaiseHighDamageTargeting(target, warningDuration);
+
         // ── 1단계: 경고 Circle (점점 좁아짐) ──
         warningCircle.enabled = true;
         float elapsed = 0f;
