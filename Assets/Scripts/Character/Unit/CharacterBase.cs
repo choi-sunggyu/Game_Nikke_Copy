@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public abstract class CharacterBase : MonoBehaviour
+public abstract class CharacterBase : MonoBehaviour, ITargetable
 {
     [Header("── 데이터 (ScriptableObject) ─────")]
     [Tooltip("능력치/스프라이트 정체성 데이터. 할당하면 Initialize() 안의 ApplyData() 로 자동 적용됨.")]

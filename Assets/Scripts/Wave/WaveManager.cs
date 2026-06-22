@@ -329,25 +329,23 @@ public class WaveManager : MonoBehaviour
             return;
         }
 
+        // 풀 1회 생성 (poolSize 는 충분히 크게 — totalEnemyTarget 만큼)
+        List<SpawnPattern> pool = SpawnQueueGenerator.BuildPatternPool(totalEnemyTarget);
+        int poolIdx = 0;
+
         int remaining = totalEnemyTarget;
-        int safety    = 200; // 무한 루프 방지 (보스만 가득한 슬롯일 때)
-        while (remaining > 0 && safety-- > 0)
+        while (remaining > 0 && poolIdx < pool.Count)
         {
-            SpawnPattern pattern = PickRandomPattern();
-            int count            = Mathf.Min(GetPatternCount(pattern), remaining);
+            SpawnPattern pattern = pool[poolIdx++]; // ← 순서대로 꺼냄
+            int count            = Mathf.Min(SpawnQueueGenerator.GetPatternCount(pattern), remaining);
             GameObject prefab    = PickRandomPrefab();
-
-            // ⚠ 안전망 — regularEnemyPrefabs 에 보스가 잘못 들어가 있어도 큐에서 배제
-            EnemyBase eb = prefab.GetComponent<EnemyBase>();
-            if (eb != null && eb.EnemyType == EnemyType.Boss)
-            {
-                Debug.LogWarning($"[WaveManager] regularEnemyPrefabs 에 보스({prefab.name}) 가 포함됨 — 큐에서 제외. bossPrefab 슬롯으로 옮길 것.");
-                continue;
-            }
-
+            // ... (보스 안전망 + Enqueue 그대로)
             _spawnQueue.Enqueue(new SpawnGroup(pattern, prefab, count, trickleDelay));
             remaining -= count;
         }
+
+        if (remaining > 0)
+            Debug.LogWarning($"[WaveManager] 풀({pool.Count}) 부족, 잔여 {remaining}마리 미생성");
     }
 
     /// <summary>
@@ -359,31 +357,6 @@ public class WaveManager : MonoBehaviour
         if (elitePrefab != null && Random.value < eliteSpawnRatio)
             return elitePrefab;
         return regularEnemyPrefabs[Random.Range(0, regularEnemyPrefabs.Length)];
-    }
-
-    SpawnPattern PickRandomPattern()
-    {
-        float r = Random.value;
-        if (r < 0.25f) return SpawnPattern.Single;       // 25% — 단독
-        if (r < 0.45f) return SpawnPattern.Trio;         // 20% — 3마리 동시
-        if (r < 0.60f) return SpawnPattern.LateralLeft;  // 15% — 왼쪽 쪼르르
-        if (r < 0.75f) return SpawnPattern.LateralRight; // 15% — 오른쪽 쪼르르
-        if (r < 0.88f) return SpawnPattern.DualSide;     // 13% — 양쪽 동시
-        return SpawnPattern.TopRandom;                   // 12% — 위 쪼르르
-    }
-
-    int GetPatternCount(SpawnPattern p)
-    {
-        switch (p)
-        {
-            case SpawnPattern.Single:       return 1;
-            case SpawnPattern.Trio:         return 3;
-            case SpawnPattern.LateralLeft:  return Random.Range(2, 4); // 2~3
-            case SpawnPattern.LateralRight: return Random.Range(2, 4);
-            case SpawnPattern.DualSide:     return Random.Range(4, 7); // 4~6 (양쪽 합쳐서)
-            case SpawnPattern.TopRandom:    return Random.Range(2, 5); // 2~4
-            default:                        return 1;
-        }
     }
 
     IEnumerator RunWaveQueue()

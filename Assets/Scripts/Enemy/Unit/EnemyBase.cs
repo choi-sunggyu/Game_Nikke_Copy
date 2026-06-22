@@ -194,8 +194,8 @@ public abstract class EnemyBase : MonoBehaviour
 
     protected CharacterBase GetTarget()
     {
-        if (targetStrategy == null) return null;
-        return targetStrategy.GetTarget();
+        if (targetStrategy == null) return null; // 초기화 실패 (CharacterManager 부재)
+        return targetStrategy.GetTarget() as CharacterBase; // 타겟 후보 0 명이면 null하여 ???
     }
 
     void Start()
@@ -282,7 +282,9 @@ public abstract class EnemyBase : MonoBehaviour
         if (characterManager != null)
         {
             characters     = characterManager.Characters;
-            targetStrategy = new RandomTargetStrategy(characters);
+            targetStrategy = new RandomTargetStrategy( 
+                characters.ConvertAll(c => (ITargetable)c)
+            );
         }
         else
         {
@@ -293,5 +295,5 @@ public abstract class EnemyBase : MonoBehaviour
 
 public interface ITargetStrategy
 {
-    CharacterBase GetTarget();
+    ITargetable GetTarget();
 }
