@@ -17,7 +17,7 @@ MonoBehaviour:
   burstNumber: 2
   weaponType: 2
   maxHp: 1100
-  maxShield: 50
+  maxShield: 500
   maxBulletCount: 30
   reloadTime: 1
   attackDamage: 25

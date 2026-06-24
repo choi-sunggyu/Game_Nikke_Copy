@@ -98,8 +98,7 @@ public class UIManager : MonoBehaviour
     /// <summary>보스 등장 컷씬 트리거 — 줌인 → 줌아웃 2단계 자동 처리.</summary>
     public void TriggerBossAppearCinematic(EnemyBase boss, Action onComplete = null)
     {
-        Debug.Log($"[DIAG-2] UIManager.TriggerBossAppearCinematic — cameraController={(cameraController == null ? "NULL" : "OK")}, duration={bossAppearDuration}, fov={bossAppearZoomFov}");
-        if (!ValidateCameraController()) { Debug.LogError("[DIAG-2] ValidateCameraController 실패 — 컷씬 스킵, 콜백 즉시 호출"); onComplete?.Invoke(); return; }
+        if (!ValidateCameraController()) { onComplete?.Invoke(); return; }
         cameraController.StartBossAppearCinematic(boss, bossAppearDuration, bossAppearZoomFov, onComplete);
     }
 

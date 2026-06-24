@@ -137,9 +137,20 @@ public class CharacterAI : MonoBehaviour
         OnAutoScopeModeChanged?.Invoke(isAutoScopeMode);
     }
 
+    private bool _diagUpdateLogged = false;
+
     void Update()
     {
-        if (!_battleStarted) return;
+        // _battleStarted 가 false 인 캐릭터가 있으면 진단 로그 1회
+        if (!_battleStarted)
+        {
+            if (!_diagUpdateLogged)
+            {
+                _diagUpdateLogged = true;
+                Debug.Log($"[DIAG-AI-UPDATE] {owner.name} _battleStarted=false — Update 진입 차단됨");
+            }
+            return;
+        }
         if (characterManager.CurrentCharacter == owner && Input.GetKeyDown(KeyCode.LeftShift))
         {
             ToggleAutoScopeMode();
@@ -230,15 +241,44 @@ public class CharacterAI : MonoBehaviour
             FireWeapon(worldTarget, mousePos);
     }
 
+    // ── 진단용 (보스 첫 타게팅 시 1회만 로그) ──
+    private bool _diagBossLogged   = false;
+    private bool _diagNullLogged   = false;
+    private bool _diagEntryLogged  = false;
+
     private void UpdateAIShot()
     {
+        // UpdateAIShot 진입 자체 — 캐릭터별 1회
+        if (!_diagEntryLogged)
+        {
+            _diagEntryLogged = true;
+            int activeCount = waveManager != null && waveManager.ActiveEnemies != null
+                ? waveManager.ActiveEnemies.Count : -1;
+            Debug.Log($"[DIAG-AI-ENTRY] {owner.name} UpdateAIShot 첫 진입 — ActiveEnemies={activeCount}, IsCovering={characterManager.IsCovering}, isAutoScopeMode={isAutoScopeMode}");
+        }
+
         ValidateAndSelectTarget();
 
         if (currentTarget == null)
         {
+            // currentTarget 매번 null 이면 SelectRandomEnemy 가 적 못 잡음 — ActiveEnemies 가 빈 경우
+            if (!_diagNullLogged)
+            {
+                _diagNullLogged = true;
+                int activeCount = waveManager != null && waveManager.ActiveEnemies != null
+                    ? waveManager.ActiveEnemies.Count : -1;
+                Debug.Log($"[DIAG-AI-NULL] {owner.name} currentTarget=null — ActiveEnemies={activeCount}");
+            }
             owner.OnStopFiring();
             owner.TryReload();
             return;
+        }
+
+        // 보스 타겟팅 시 진단 로그 1회
+        if (!_diagBossLogged && currentTarget.EnemyType == EnemyType.Boss)
+        {
+            _diagBossLogged = true;
+            Debug.Log($"[DIAG-AI-BOSS] {owner.name} 보스 타겟팅 — bossPos={currentTarget.transform.position}, IsCovering={characterManager.IsCovering}, isAutoScopeMode={isAutoScopeMode}, _battleStarted={_battleStarted}, CurrentState={owner.CurrentState}, bulletCount={owner.CurrentBulletCount}");
         }
 
         Vector2 targetScreenPos = Camera.main.WorldToScreenPoint(currentTarget.transform.position);

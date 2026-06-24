@@ -29,6 +29,9 @@ public class EnemyData : ScriptableObject
     [Tooltip("적 분류 — Normal / Elite / Boss")]
     public EnemyType enemyType = EnemyType.Normal;
 
+    [Tooltip("공중 적인가? true=공중(낙하/부유), false=지상(바닥 collider 위)")]
+    public bool isAirborne = false;
+
     [Header("── 체력 / 공격 ──────────────────")]
     public float maxHp        = 100f;
     public float attackDamage = 10f;

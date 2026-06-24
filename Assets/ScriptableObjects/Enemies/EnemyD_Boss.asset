@@ -15,6 +15,7 @@ MonoBehaviour:
   enemyId: enemyD_boss
   displayName: Spider
   enemyType: 2
+  isAirborne: 0
   maxHp: 5000
   attackDamage: 12
   attackDelay: 1.5

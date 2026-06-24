@@ -15,6 +15,7 @@ MonoBehaviour:
   enemyId: enemyC
   displayName: C
   enemyType: 1
+  isAirborne: 0
   maxHp: 1000
   attackDamage: 12
   attackDelay: 3

@@ -11,13 +11,38 @@ public class WaveManager : MonoBehaviour
     [Tooltip("EnemyD (보스) 미사일 풀. 보스 스폰 시 자동 주입.")]
     [SerializeField] private ObjectPool enemyMissilePool;
 
-    [Header("Spawn Range")]
-    [Tooltip("스폰 z 범위 (카메라 forward 거리). 카메라 가까운 쪽 / 먼 쪽.")]
-    [SerializeField] private float minZ = 10f;
-    [SerializeField] private float maxZ = 50f;
-    [Tooltip("화면 가장자리에서 안쪽으로 얼마나 들여놓고 스폰할지 (0~0.5). 0.1 = 10% 들여놓음.")]
-    [Range(0f, 0.5f)]
-    [SerializeField] private float viewportMargin = 0.1f;
+    [Header("Spawn Range — 지상 (z=20~100)")]
+    [Tooltip("지상 적 z 최소 — 가까운 쪽")]
+    [SerializeField] private float groundMinZ = 20f;
+    [Tooltip("지상 적 z 최대 — 먼 쪽")]
+    [SerializeField] private float groundMaxZ = 100f;
+    [Tooltip("z=groundMinZ 일 때 x 절대값 한계")]
+    [SerializeField] private float groundXAtMinZ = 17f;
+    [Tooltip("z=groundMaxZ 일 때 x 절대값 한계")]
+    [SerializeField] private float groundXAtMaxZ = 55f;
+    [Tooltip("지상 적의 y 좌표 — 바닥 collider 평면")]
+    [SerializeField] private float groundFloorY = 0f;
+
+    [Header("Spawn Inner Margin")]
+    [Tooltip("한계선 안쪽 비율 (0~1). 0.85 = 한계선의 85% 까지만 스폰 → 가장자리에 안 닿음.")]
+    [Range(0.5f, 1f)]
+    [SerializeField] private float spawnInnerMargin = 0.85f;
+    [Tooltip("그룹(Trio/Lateral/Top/DualSide) 의 멤버 간 인접 거리 (월드 유닛). 한 그룹은 이 범위 안에 모임.")]
+    [SerializeField] private float groupClusterRadius = 2.5f;
+
+    [Header("Spawn Range — 공중 (z=50~100)")]
+    [Tooltip("공중 적 z 최소")]
+    [SerializeField] private float airMinZ = 50f;
+    [Tooltip("공중 적 z 최대")]
+    [SerializeField] private float airMaxZ = 100f;
+    [Tooltip("z=airMinZ 일 때 x 절대값 한계")]
+    [SerializeField] private float airXAtMinZ = 30f;
+    [Tooltip("z=airMaxZ 일 때 x 절대값 한계")]
+    [SerializeField] private float airXAtMaxZ = 55f;
+    [Tooltip("z=airMinZ 일 때 y")]
+    [SerializeField] private float airYAtMinZ = 5f;
+    [Tooltip("z=airMaxZ 일 때 y")]
+    [SerializeField] private float airYAtMaxZ = 12f;
 
     [Header("Overlap Prevention")]
     [SerializeField] private float minEnemyDistance    = 3f;
@@ -111,8 +136,8 @@ public class WaveManager : MonoBehaviour
         // 인트로 중에는 적이 공격 안 함 (초기값 false)
         EnemyBase.BattleStarted = false;
 
-        // 적 거리 구역(Close/Mid/Far) 분류 기준을 EnemyBase 에 전달.
-        EnemyBase.SetSpawnRange(minZ, maxZ);
+        // 적 거리 구역(Close/Mid/Far) 분류 기준 — 지상/공중 통합 범위.
+        EnemyBase.SetSpawnRange(groundMinZ, Mathf.Max(groundMaxZ, airMaxZ));
 
         BattleManager.Instance.InitBulletConsumption(); // 총알 소비 초기화
 
@@ -179,10 +204,12 @@ public class WaveManager : MonoBehaviour
         }
     }
 
-    void SpawnEnemy(GameObject prefab)
+    void SpawnEnemy(GameObject prefab, Vector3? explicitTargetPos = null)
     {
-        Vector3   targetPos   = GetNonOverlappingPosition();
         EnemyBase prefabEnemy = prefab.GetComponent<EnemyBase>();
+        bool      isAirborne  = prefabEnemy != null && prefabEnemy.IsAirborne;
+
+        Vector3   targetPos   = explicitTargetPos ?? GetNonOverlappingPosition(isAirborne);
         Vector3   spawnPos;
 
         if (prefabEnemy is EnemyA)
@@ -219,7 +246,6 @@ public class WaveManager : MonoBehaviour
                     else                          Debug.LogWarning("[WaveManager] enemyMissilePool 미할당 — 보스가 미사일을 발사할 수 없음");
                 }
 
-                Debug.Log($"[DIAG-0] WaveManager: OnBossPhaseStart 발화 — boss={enemy.name}, 구독자 수={(OnBossPhaseStart?.GetInvocationList()?.Length ?? 0)}");
                 OnBossPhaseStart?.Invoke(enemy);
                 enemy.OnDied += () =>
                 {
@@ -238,13 +264,13 @@ public class WaveManager : MonoBehaviour
     }
 
     // ═══════════════════════════════════════════════════════
-    //  위치 계산
+    //  위치 계산 — 지상/공중 분기 + z별 x/y 보간
     // ═══════════════════════════════════════════════════════
-    Vector3 GetNonOverlappingPosition()
+    Vector3 GetNonOverlappingPosition(bool isAirborne)
     {
         for (int attempt = 0; attempt < maxPlacementAttempts; attempt++)
         {
-            Vector3 candidate   = GetRandomSpawnPosition();
+            Vector3 candidate   = GetRandomSpawnPosition(isAirborne);
             bool    overlapping = false;
 
             foreach (var enemy in activeEnemies)
@@ -261,35 +287,38 @@ public class WaveManager : MonoBehaviour
         }
 
         Debug.LogWarning("[WaveManager] 겹치지 않는 위치를 찾지 못해 랜덤 배치");
-        return GetRandomSpawnPosition();
+        return GetRandomSpawnPosition(isAirborne);
     }
 
     /// <summary>
-    /// 카메라 viewport 기반 스폰 좌표 — z 평면에서 화면 안쪽에 들어오는 지점만 선택.
-    /// fov / 카메라 위치가 바뀌어도 자동 대응. viewportMargin 만큼 가장자리에서 안쪽.
+    /// 지상/공중 분기 — z 별 x 한계 및 y 를 명시적 보간으로 결정.
+    ///
+    /// 지상: z=groundMinZ→x=groundXAtMinZ, z=groundMaxZ→x=groundXAtMaxZ, y=groundFloorY (collider 가 받음)
+    /// 공중: z=airMinZ→x=airXAtMinZ + y=airYAtMinZ, z=airMaxZ→x=airXAtMaxZ + y=airYAtMaxZ
     /// </summary>
-    Vector3 GetRandomSpawnPosition()
+    Vector3 GetRandomSpawnPosition(bool isAirborne)
     {
-        float z = Random.Range(minZ, maxZ);
+        float z, maxX, y;
 
-        Camera cam = Camera.main;
-        if (cam == null)
+        if (isAirborne)
         {
-            // 카메라 없으면 원점 (이론상 발생 X)
-            return new Vector3(0f, 0f, z);
+            z = Random.Range(airMinZ, airMaxZ);
+            float t = Mathf.InverseLerp(airMinZ, airMaxZ, z);
+            maxX = Mathf.Lerp(airXAtMinZ, airXAtMaxZ, t);
+            y    = Mathf.Lerp(airYAtMinZ, airYAtMaxZ, t);
+        }
+        else
+        {
+            z = Random.Range(groundMinZ, groundMaxZ);
+            float t = Mathf.InverseLerp(groundMinZ, groundMaxZ, z);
+            maxX = Mathf.Lerp(groundXAtMinZ, groundXAtMaxZ, t);
+            y    = groundFloorY;
         }
 
-        float distFromCam = z - cam.transform.position.z;
+        // 안쪽 마진 — 한계선 자리에 안 닿게
+        maxX *= spawnInnerMargin;
 
-        // 화면 안쪽 네 모서리의 월드 좌표 — viewportMargin 만큼 들여놓음.
-        Vector3 leftBottom = cam.ViewportToWorldPoint(
-            new Vector3(viewportMargin,       viewportMargin,       distFromCam));
-        Vector3 rightTop   = cam.ViewportToWorldPoint(
-            new Vector3(1f - viewportMargin,  1f - viewportMargin,  distFromCam));
-
-        float x = Random.Range(leftBottom.x, rightTop.x);
-        float y = Random.Range(leftBottom.y, rightTop.y);
-
+        float x = Random.Range(-maxX, maxX);
         return new Vector3(x, y, z);
     }
 
@@ -393,6 +422,10 @@ public class WaveManager : MonoBehaviour
         // ── 보스 단계 ──
         if (bossPrefab != null)
         {
+            // EliteWarningUI 표시 — TopUIManager 가 ElitePhaseSequence 실행 (경고 텍스트 페이드/줌인)
+            // 큐 시스템에서 OnElitePhaseStart 가 보스 직전 단 1회 발화. 이름은 Elite 지만 의미는 "보스 경고".
+            OnElitePhaseStart?.Invoke();
+
             yield return new WaitForSeconds(bossSpawnDelay);
             SpawnEnemy(bossPrefab);
             // 보스 처치 대기 — OnEliteDefeated/OnStageClear 는 보스 OnDied 람다에서 발화하므로 추가 처리 불필요.
@@ -408,6 +441,8 @@ public class WaveManager : MonoBehaviour
 
     IEnumerator SpawnGroupRoutine(SpawnGroup group)
     {
+        bool isAirborne = group.EnemyPrefab.GetComponent<EnemyBase>()?.IsAirborne ?? false;
+
         switch (group.Pattern)
         {
             case SpawnPattern.Single:
@@ -415,73 +450,101 @@ public class WaveManager : MonoBehaviour
                 break;
 
             case SpawnPattern.Trio:
+            {
+                // 한 center 주변에 3마리 클러스터링 — 시각적으로 한 무리
+                Vector3 center = GetNonOverlappingPosition(isAirborne);
                 for (int i = 0; i < group.Count; i++)
-                    SpawnEnemy(group.EnemyPrefab);
+                    SpawnEnemy(group.EnemyPrefab, ClusterAround(center));
                 break;
+            }
 
             case SpawnPattern.LateralLeft:
+            {
+                Vector3 center = GetNonOverlappingPosition(isAirborne);
                 for (int i = 0; i < group.Count; i++)
                 {
-                    SpawnEnemyFromSide(group.EnemyPrefab, leftSide: true);
+                    SpawnEnemyFromSide(group.EnemyPrefab, leftSide: true, ClusterAround(center));
                     yield return new WaitForSeconds(group.TrickleDelay);
                 }
                 break;
+            }
 
             case SpawnPattern.LateralRight:
+            {
+                Vector3 center = GetNonOverlappingPosition(isAirborne);
                 for (int i = 0; i < group.Count; i++)
                 {
-                    SpawnEnemyFromSide(group.EnemyPrefab, leftSide: false);
+                    SpawnEnemyFromSide(group.EnemyPrefab, leftSide: false, ClusterAround(center));
                     yield return new WaitForSeconds(group.TrickleDelay);
                 }
                 break;
+            }
 
             case SpawnPattern.DualSide:
+            {
+                // 양쪽 각각 별도 center
                 int half     = group.Count / 2;
                 int rightCnt = group.Count - half;
-                // 양쪽 동시 코루틴 시작
-                StartCoroutine(SpawnSideTrickle(group.EnemyPrefab, true,  half,     group.TrickleDelay));
-                StartCoroutine(SpawnSideTrickle(group.EnemyPrefab, false, rightCnt, group.TrickleDelay));
-                // 둘 중 긴 쪽이 끝날 때까지 대기
+                Vector3 leftCenter  = GetNonOverlappingPosition(isAirborne);
+                Vector3 rightCenter = GetNonOverlappingPosition(isAirborne);
+                StartCoroutine(SpawnSideTrickle(group.EnemyPrefab, true,  half,     group.TrickleDelay, leftCenter));
+                StartCoroutine(SpawnSideTrickle(group.EnemyPrefab, false, rightCnt, group.TrickleDelay, rightCenter));
                 yield return new WaitForSeconds(Mathf.Max(half, rightCnt) * group.TrickleDelay);
                 break;
+            }
 
             case SpawnPattern.TopRandom:
+            {
+                Vector3 center = GetNonOverlappingPosition(isAirborne);
                 for (int i = 0; i < group.Count; i++)
                 {
-                    SpawnEnemyFromTop(group.EnemyPrefab);
+                    SpawnEnemyFromTop(group.EnemyPrefab, ClusterAround(center));
                     yield return new WaitForSeconds(group.TrickleDelay);
                 }
                 break;
+            }
         }
     }
 
-    IEnumerator SpawnSideTrickle(GameObject prefab, bool leftSide, int count, float delay)
+    IEnumerator SpawnSideTrickle(GameObject prefab, bool leftSide, int count, float delay, Vector3? center = null)
     {
         for (int i = 0; i < count; i++)
         {
-            SpawnEnemyFromSide(prefab, leftSide);
+            Vector3? pos = center.HasValue ? (Vector3?)ClusterAround(center.Value) : null;
+            SpawnEnemyFromSide(prefab, leftSide, pos);
             yield return new WaitForSeconds(delay);
         }
     }
 
-    // ─ 측면(좌/우)에서 스폰 ─ EnemyB 의 옆 등장 흐름을 명시적으로 호출
-    void SpawnEnemyFromSide(GameObject prefab, bool leftSide)
+    // ─ 측면(좌/우)에서 스폰 ─ explicitTargetPos 있으면 그 위치로, 없으면 새로 결정
+    void SpawnEnemyFromSide(GameObject prefab, bool leftSide, Vector3? explicitTargetPos = null)
     {
-        Vector3 targetPos  = GetNonOverlappingPosition();
+        bool   isAirborne = prefab.GetComponent<EnemyBase>()?.IsAirborne ?? false;
+        Vector3 targetPos = explicitTargetPos ?? GetNonOverlappingPosition(isAirborne);
         float   offScreenX = GetOffScreenX(targetPos.z);
         Vector3 spawnPos   = new Vector3(offScreenX * (leftSide ? -1f : 1f), targetPos.y, targetPos.z);
         InstantiateEnemyAt(prefab, spawnPos, targetPos);
     }
 
-    // ─ 상단에서 스폰 ─ EnemyA 의 낙하 흐름을 명시적으로 호출
-    void SpawnEnemyFromTop(GameObject prefab)
+    // ─ 상단에서 스폰 ─ explicitTargetPos 있으면 그 위치로, 없으면 새로 결정
+    void SpawnEnemyFromTop(GameObject prefab, Vector3? explicitTargetPos = null)
     {
-        Vector3 targetPos  = GetNonOverlappingPosition();
+        bool   isAirborne = prefab.GetComponent<EnemyBase>()?.IsAirborne ?? false;
+        Vector3 targetPos = explicitTargetPos ?? GetNonOverlappingPosition(isAirborne);
         float   offScreenY = GetOffScreenY(targetPos.z);
-        // X 좌표 살짝 랜덤화 (쪼르르 효과)
-        float   randomX    = targetPos.x + Random.Range(-2f, 2f);
-        Vector3 spawnPos   = new Vector3(randomX, offScreenY, targetPos.z);
+        Vector3 spawnPos   = new Vector3(targetPos.x, offScreenY, targetPos.z);
         InstantiateEnemyAt(prefab, spawnPos, targetPos);
+    }
+
+    /// <summary>
+    /// 그룹의 한 멤버 위치 — center 주변 groupClusterRadius 안에서 무작위.
+    /// 한 그룹의 적들이 시각적으로 모여있도록.
+    /// </summary>
+    Vector3 ClusterAround(Vector3 center)
+    {
+        float dx = Random.Range(-groupClusterRadius, groupClusterRadius);
+        float dz = Random.Range(-groupClusterRadius * 0.5f, groupClusterRadius * 0.5f); // z 변동은 좁게
+        return new Vector3(center.x + dx, center.y, center.z + dz);
     }
 
     // ─ 명시 위치 인스턴스화 + 이벤트 구독 (SpawnEnemy 의 핵심 로직 재사용) ─

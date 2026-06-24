@@ -34,13 +34,11 @@ public class BossCinematicManager : MonoBehaviour
 
     private void HandleBossAppear(EnemyBase boss)
     {
-        Debug.Log($"[DIAG-1] BossCinematic.HandleBossAppear 진입 — boss={boss?.name}, UIManager.Instance={(UIManager.Instance == null ? "NULL" : "OK")}");
         InputManager.SetInputLocked(true);
 
         // 카메라 컷씬은 UIManager facade 를 통해 호출 — 직접 CameraController 호출 금지.
         UIManager.Instance?.TriggerBossAppearCinematic(boss, () =>
         {
-            Debug.Log("[DIAG-4] onComplete 콜백 도달 — 입력 잠금 해제");
             InputManager.SetInputLocked(false);
         });
     }

@@ -4,7 +4,7 @@ public class EnemyBulletBase : MonoBehaviour, IPoolable
 {
     private ObjectPool ownerPool;
     private float damage;
-    private float speed = 1000f;
+    private float speed = 100000f;
     private Vector3 direction;
     private bool isInitialized = false;
 

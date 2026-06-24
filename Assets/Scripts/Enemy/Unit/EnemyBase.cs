@@ -60,6 +60,8 @@ public abstract class EnemyBase : MonoBehaviour
     public Transform MuzzlePoint => muzzlePoint;
     public EnemyType EnemyType => enemyType;
     public float MaxHp => maxHp;
+    /// <summary>공중 적 여부 — WaveManager 스폰 영역 분기에 사용. SO 직접 참조 (Initialize 전에도 접근 가능).</summary>
+    public bool IsAirborne => data != null && data.isAirborne;
 
     // 이벤트
     public event Action OnDied;

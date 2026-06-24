@@ -149,15 +149,23 @@ public class EnemyB : EnemyBase
 
     public override void Attack()
     {
+        // 타게팅
         CharacterBase target = GetTarget();
         if (target == null || !target.IsAlive) return;
 
+        // 발사 위치 확인
         GameObject bullet = bulletPool.Get(MuzzlePoint.position, Quaternion.identity);
         if (bullet == null) return;
 
-        EnemyBulletBase bulletBase = bullet.GetComponent<EnemyBulletBase>();
-        Vector3 direction = (target.transform.position - MuzzlePoint.position).normalized;
-        bulletBase.Init(attackDamage, 15f, direction);
+        // 총알 초기화 및 5발씩 사격
+        for(int i = 0; i < 5; i++)
+        {
+            EnemyBulletBase bulletBase = bullet.GetComponent<EnemyBulletBase>();
+            Vector3 direction = (target.transform.position - MuzzlePoint.position).normalized;
+            bulletBase.Init(attackDamage, 15f, direction);
+            // 각 총알마다 딜레이 0.5초
+            
+        }
     }
 
     public override void Move() { }

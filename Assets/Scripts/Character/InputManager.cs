@@ -56,7 +56,6 @@ public class InputManager : MonoBehaviour
     public static void SetInputLocked(bool locked)
     {
         var instance = FindAnyObjectByType<InputManager>();
-        Debug.Log($"[DIAG-5] InputManager.SetInputLocked({locked}) — instance={(instance == null ? "NULL" : "OK")}, 호출 스택 다음 줄 참고");
         if (instance != null)
         {
             instance._inputLocked = locked;
