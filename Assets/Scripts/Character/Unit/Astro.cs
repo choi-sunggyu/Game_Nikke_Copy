@@ -22,6 +22,7 @@ public class Astro : CharacterBase
     [Header("── Astro 전용 ─────────────────────")]
     [SerializeField] private AudioClip singleShotClip;
     [SerializeField] private AudioClip reloadClip;
+    [Tooltip("3D 태양 프리팹. 예: Assets/Planets of the Solar System 3D/Prefabs/Sun.prefab")]
     [SerializeField] private GameObject supernovaPrefab; // ULTIMATE 이펙트 (옵션)
 
     private AudioSource singleShotSource;
@@ -166,36 +167,59 @@ public class Astro : CharacterBase
     {
         UsedBurstThisCycle = true;
         if (waveManager == null) waveManager = FindAnyObjectByType<WaveManager>();
-        if (waveManager == null) return;
 
-        // 이펙트 (화면 중앙)
-        if (supernovaPrefab != null)
-        {
-            Vector3 centerScreen = new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 25f);
-            Vector3 centerWorld  = Camera.main.ScreenToWorldPoint(centerScreen);
-            Instantiate(supernovaPrefab, centerWorld, Quaternion.identity);
-        }
+        AstroSupernovaEffect supernovaEffect = SpawnSupernovaEffect();
 
-        StartCoroutine(SupernovaRoutine());
+        StartCoroutine(SupernovaRoutine(supernovaEffect));
     }
 
-    private IEnumerator SupernovaRoutine()
+    private IEnumerator SupernovaRoutine(AstroSupernovaEffect supernovaEffect)
     {
         float elapsed = 0f;
         float tickDamage = attackDamage * attackDamageMultiplier * SUPERNOVA_TICK_MULTIPLIER;
 
         while (elapsed < SUPERNOVA_DURATION)
         {
+            supernovaEffect?.PlayTickPulse();
+
             // 매 틱마다 살아있는 적 스냅샷 후 데미지 적용 (열거 중 변경 방지)
-            var snapshot = new List<EnemyBase>(waveManager.ActiveEnemies);
+            var snapshot = new List<EnemyBase>(GetSupernovaTargets());
             foreach (var enemy in snapshot)
             {
                 if (enemy == null || !enemy.IsAlive) continue;
                 enemy.TakeDamage(tickDamage); // 거리 무관 단순 피해 (광역 ULTIMATE)
+                DamagePopupManager.Instance?.Show(
+                    enemy.transform.position,
+                    tickDamage,
+                    isCritical: false);
             }
 
             elapsed += SUPERNOVA_TICK_INTERVAL;
             yield return new WaitForSeconds(SUPERNOVA_TICK_INTERVAL);
         }
+    }
+
+    private AstroSupernovaEffect SpawnSupernovaEffect()
+    {
+        Vector3 centerWorld = new Vector3(0, 5f, 35f);
+
+        GameObject supernova = supernovaPrefab != null
+            ? Instantiate(supernovaPrefab, centerWorld, Quaternion.identity)
+            : new GameObject("Astro_Supernova_Runtime");
+
+        supernova.transform.position = centerWorld;
+
+        AstroSupernovaEffect effect = supernova.GetComponent<AstroSupernovaEffect>();
+        if (effect == null) effect = supernova.AddComponent<AstroSupernovaEffect>();
+        effect.Play(SUPERNOVA_DURATION);
+        return effect;
+    }
+
+    private IReadOnlyList<EnemyBase> GetSupernovaTargets()
+    {
+        if (waveManager != null)
+            return waveManager.ActiveEnemies;
+
+        return FindObjectsByType<EnemyBase>(FindObjectsSortMode.None);
     }
 }

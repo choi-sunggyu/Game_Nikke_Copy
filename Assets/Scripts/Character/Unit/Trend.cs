@@ -23,6 +23,7 @@ public class Trend : CharacterBase
     [SerializeField] private AudioClip singleShotClip;
     [SerializeField] private AudioClip reloadClip;
     [SerializeField] private GameObject trendingStagePrefab; // ULTIMATE 홀로그램 무대 이펙트 (옵션)
+    [SerializeField] private GameObject allyBuffAuraPrefab;  // ULTIMATE 아군 버프 오라 이펙트 (옵션)
 
     private AudioSource singleShotSource;
     private AudioSource reloadSource;
@@ -169,17 +170,11 @@ public class Trend : CharacterBase
     {
         UsedBurstThisCycle = true;
         if (characterManager == null) characterManager = FindAnyObjectByType<CharacterManager>();
-        if (characterManager == null) return;
 
-        // 이펙트 (자기 위치에 홀로그램 무대)
-        if (trendingStagePrefab != null)
-        {
-            GameObject stage = Instantiate(trendingStagePrefab, transform.position, Quaternion.identity);
-            stage.transform.SetParent(transform);
-        }
+        SpawnTrendingStageEffect();
 
         // 아군 전체 버프 — 살아있는 캐릭터에게만
-        foreach (var ally in characterManager.Characters)
+        foreach (var ally in GetBurstAllies())
         {
             if (ally == null || !ally.IsAlive) continue;
 
@@ -192,8 +187,45 @@ public class Trend : CharacterBase
                 BURST_CRIT_RATE_BONUS,
                 BURST_DURATION,
                 TREND_BURST_CRIT_BUFF_ID);
+
+            SpawnAllyBuffEffect(ally);
         }
 
         Debug.Log("[Trend UseBurst] Trending Now! 아군 전체 공격력 ×1.5 + 치명타 +20% (10초)");
+    }
+
+    private void SpawnTrendingStageEffect()
+    {
+        GameObject stage = trendingStagePrefab != null
+            ? Instantiate(trendingStagePrefab, transform.position, Quaternion.identity)
+            : new GameObject("Trend_HologramStage_Runtime");
+
+        stage.transform.position = transform.position;
+        stage.transform.SetParent(transform);
+
+        TrendHologramStageEffect effect = stage.GetComponent<TrendHologramStageEffect>();
+        if (effect == null) effect = stage.AddComponent<TrendHologramStageEffect>();
+        effect.Play(BURST_DURATION);
+    }
+
+    private void SpawnAllyBuffEffect(CharacterBase ally)
+    {
+        GameObject aura = allyBuffAuraPrefab != null
+            ? Instantiate(allyBuffAuraPrefab, ally.transform.position, Quaternion.identity)
+            : new GameObject("Trend_AllyBuffAura_Runtime");
+
+        aura.transform.position = ally.transform.position;
+
+        AllyBuffAuraEffect effect = aura.GetComponent<AllyBuffAuraEffect>();
+        if (effect == null) effect = aura.AddComponent<AllyBuffAuraEffect>();
+        effect.Play(ally.transform, BURST_DURATION);
+    }
+
+    private IReadOnlyList<CharacterBase> GetBurstAllies()
+    {
+        if (characterManager != null)
+            return characterManager.Characters;
+
+        return FindObjectsByType<CharacterBase>(FindObjectsSortMode.None);
     }
 }

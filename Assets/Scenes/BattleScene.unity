@@ -2025,6 +2025,7 @@ GameObject:
   - component: {fileID: 171773174}
   - component: {fileID: 171773173}
   - component: {fileID: 171773180}
+  - component: {fileID: 171773181}
   m_Layer: 7
   m_Name: Trend
   m_TagString: Untagged
@@ -2102,6 +2103,7 @@ MonoBehaviour:
   singleShotClip: {fileID: 8300000, guid: 2efe4440fd3910d41b88e5c499bb2f42, type: 3}
   reloadClip: {fileID: 8300000, guid: d710ce856f8d16b40995b723fab1298a, type: 3}
   trendingStagePrefab: {fileID: 0}
+  allyBuffAuraPrefab: {fileID: 0}
 --- !u!120 &171773174
 LineRenderer:
   serializedVersion: 3
@@ -2360,6 +2362,24 @@ CapsuleCollider:
   m_Height: 3.39
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &171773181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 171773172}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 879e5eef64b7e004f93b119a68766763, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterAimLean
+  character: {fileID: 171773173}
+  axis: 0
+  maxLeanAngle: 15
+  leanSpeed: 6
+  deadZoneRatio: 0.05
+  resetWhenInactive: 1
 --- !u!1 &176857498
 GameObject:
   m_ObjectHideFlags: 0
@@ -15378,6 +15398,7 @@ GameObject:
   - component: {fileID: 1358331642}
   - component: {fileID: 1358331641}
   - component: {fileID: 1358331648}
+  - component: {fileID: 1358331649}
   m_Layer: 7
   m_Name: Astro
   m_TagString: Untagged
@@ -15454,7 +15475,7 @@ MonoBehaviour:
   characterSprite: {fileID: 21300000, guid: 46a055320ba98d6498b370f45b8bd35f, type: 3}
   singleShotClip: {fileID: 8300000, guid: a66463a39609d9c4484ecfa09e819c95, type: 3}
   reloadClip: {fileID: 8300000, guid: aa2cae5e089db654dae4785681aafbd0, type: 3}
-  supernovaPrefab: {fileID: 0}
+  supernovaPrefab: {fileID: 3548356298615962880, guid: 5f776740c447e45afb25edbca842de92, type: 3}
 --- !u!120 &1358331642
 LineRenderer:
   serializedVersion: 3
@@ -15713,6 +15734,24 @@ CapsuleCollider:
   m_Height: 3.0461538
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1358331649
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1358331640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 879e5eef64b7e004f93b119a68766763, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterAimLean
+  character: {fileID: 1358331641}
+  axis: 0
+  maxLeanAngle: 15
+  leanSpeed: 6
+  deadZoneRatio: 0.05
+  resetWhenInactive: 1
 --- !u!1 &1366220129
 GameObject:
   m_ObjectHideFlags: 0
@@ -21150,6 +21189,7 @@ GameObject:
   - component: {fileID: 1820671846}
   - component: {fileID: 1820671847}
   - component: {fileID: 1820671848}
+  - component: {fileID: 1820671849}
   m_Layer: 7
   m_Name: Titan
   m_TagString: Untagged
@@ -21488,6 +21528,24 @@ CapsuleCollider:
   m_Height: 2.92
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1820671849
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1820671839}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 879e5eef64b7e004f93b119a68766763, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterAimLean
+  character: {fileID: 1820671843}
+  axis: 0
+  maxLeanAngle: 15
+  leanSpeed: 6
+  deadZoneRatio: 0.05
+  resetWhenInactive: 1
 --- !u!1 &1832577636
 GameObject:
   m_ObjectHideFlags: 0
@@ -23359,6 +23417,7 @@ GameObject:
   - component: {fileID: 1989108163}
   - component: {fileID: 1989108164}
   - component: {fileID: 1989108165}
+  - component: {fileID: 1989108166}
   m_Layer: 7
   m_Name: Viper
   m_TagString: Untagged
@@ -23696,6 +23755,24 @@ CapsuleCollider:
   m_Height: 3.6155896
   m_Direction: 1
   m_Center: {x: 0, y: -0.3027947, z: 0}
+--- !u!114 &1989108166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1989108157}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 879e5eef64b7e004f93b119a68766763, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterAimLean
+  character: {fileID: 1989108160}
+  axis: 0
+  maxLeanAngle: 15
+  leanSpeed: 6
+  deadZoneRatio: 0.05
+  resetWhenInactive: 1
 --- !u!1 &1995829063
 GameObject:
   m_ObjectHideFlags: 0
@@ -24980,6 +25057,7 @@ GameObject:
   - component: {fileID: 2094593714}
   - component: {fileID: 2094593715}
   - component: {fileID: 2094593716}
+  - component: {fileID: 2094593717}
   m_Layer: 7
   m_Name: Ghost
   m_TagString: Untagged
@@ -25315,6 +25393,24 @@ CapsuleCollider:
   m_Height: 3.19
   m_Direction: 1
   m_Center: {x: 0.43169546, y: 0, z: 0}
+--- !u!114 &2094593717
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2094593707}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 879e5eef64b7e004f93b119a68766763, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterAimLean
+  character: {fileID: 2094593711}
+  axis: 0
+  maxLeanAngle: 15
+  leanSpeed: 6
+  deadZoneRatio: 0.05
+  resetWhenInactive: 1
 --- !u!1 &2099519297
 GameObject:
   m_ObjectHideFlags: 0
