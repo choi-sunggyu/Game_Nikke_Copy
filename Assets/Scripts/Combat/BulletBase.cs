@@ -95,7 +95,7 @@ public class BulletBase : MonoBehaviour, IPoolable
                 ApplyRocketSplash(enemy, finalDamage);
             }
 
-            if (owner == characterManager.CurrentCharacter)
+            if (characterManager != null && owner == characterManager.CurrentCharacter)
             {
                 DamagePopupManager.Instance?.Show(
                     enemy.transform.position,
@@ -106,20 +106,20 @@ public class BulletBase : MonoBehaviour, IPoolable
 
             BurstGaugeManager.Instance?.AddGauge(burstChargeAmount);
             CheckViperLastBulletHit();
-            ownerPool.Return(gameObject);
+            Return();
             return;
         }
 
         if (other.TryGetComponent<CharacterBase>(out CharacterBase character))
         {
             character.TakeDamage(damage);
-            ownerPool.Return(gameObject);
+            Return();
             return;
         }
 
         if (other.CompareTag("Background"))
         {
-            ownerPool.Return(gameObject);
+            Return();
         }
     }
 
@@ -164,7 +164,7 @@ public class BulletBase : MonoBehaviour, IPoolable
             splashEnemy.TakeDamage(splashDamage); // 사거리 보너스 무관 단순 피해
 
             // 스플래시 피해 팝업 (작게 표시)
-            if (owner == characterManager.CurrentCharacter)
+            if (characterManager != null && owner == characterManager.CurrentCharacter)
             {
                 DamagePopupManager.Instance?.Show(
                     splashEnemy.transform.position,
@@ -172,5 +172,11 @@ public class BulletBase : MonoBehaviour, IPoolable
                     isCritical: false);
             }
         }
+    }
+
+    private void Return()
+    {
+        if (ownerPool != null) ownerPool.Return(gameObject);
+        else                   gameObject.SetActive(false);
     }
 }

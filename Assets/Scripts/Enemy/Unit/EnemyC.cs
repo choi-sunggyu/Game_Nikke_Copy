@@ -40,6 +40,8 @@ public class EnemyC : EnemyBase
     {
         isJumping = true;
 
+        BeginManualMovement();
+
         // 1. 현재 Z 기준 화면 밖 Y 계산 후 위로 사라짐
         float currentOffScreenY = GetOffScreenY(transform.position.z);
         Vector3 exitPos = new Vector3(transform.position.x, currentOffScreenY, transform.position.z);
@@ -48,15 +50,15 @@ public class EnemyC : EnemyBase
         // 2. 착지 위치 결정
         Vector3 landPos = GetRandomLandPosition();
 
-        // 3. 착지 Z 기준 화면 밖 Y 계산 후 대기
+        // 3. 착지 Z 기준 화면 밖 Y 위치로 즉시 이동 (대기 없음)
         float landOffScreenY = GetOffScreenY(landPos.z);
         transform.position = new Vector3(landPos.x, landOffScreenY, landPos.z);
-        yield return new WaitForSeconds(0.2f);
 
         // 4. 착지 위치로 떨어짐
         yield return StartCoroutine(MoveToPosition(transform.position, landPos, 0.4f));
 
-        // 5. 착지 완료
+        // 5. 착지 완료 — 물리 복귀 + Z/회전 잠금
+        CompleteManualMovement(landPos);
         isJumping = false;
         nextAttackTime = Time.time + 0.5f;
         ScheduleNextJump();

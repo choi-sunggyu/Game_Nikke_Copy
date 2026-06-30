@@ -69,16 +69,50 @@ public class EnemyD : EnemyBase
     // ═══════════════════════════════════════════════════════
     //  초기화
     // ═══════════════════════════════════════════════════════
+    [Tooltip("보스 자연 낙하 대기 시간 (초). 이 시간 후 안착 — 행동 시작.")]
+    [SerializeField] private float bossFallDuration = 1.5f;
+
     public override void Initialize()
     {
-        // 능력치(hp/maxHp/attackDamage/attackDelay/speed/enemyType)는
-        // EnemyBase.InitBase 의 ApplyEnemyData 가 SO 에서 일괄 주입함.
-        // 여기서는 보스 고유 셋업만 처리.
+        // 보스는 지상 적이므로 y=groundSpawnY 에서 시작 — 자연 낙하 후 행동 시작
+        isSpawning = true;
+        StartCoroutine(BossSpawnRoutine());
+    }
 
+    IEnumerator BossSpawnRoutine()
+    {
+        // ─ 1단계: Gravity 자연 낙하 (X/Z 잠금) ─
+        // Rigidbody 미할당 안전망 — 프리팹 인스펙터에 안 붙어있어도 동적 추가
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb == null)
+        {
+            rb = gameObject.AddComponent<Rigidbody>();
+            rb.useGravity = true;
+            rb.mass       = 5f;
+            Debug.LogWarning("[EnemyD] Rigidbody 미할당 — 동적 추가. 프리팹에 명시 추가 권장.");
+        }
+        else if (!rb.useGravity)
+        {
+            // Use Gravity off 상태였다면 강제 on (지상 적의 전제)
+            rb.useGravity = true;
+        }
+
+        rb.isKinematic     = false;
+        rb.linearVelocity  = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.constraints = RigidbodyConstraints.FreezePositionX
+                       | RigidbodyConstraints.FreezePositionZ
+                       | RigidbodyConstraints.FreezeRotation;
+
+        yield return new WaitForSeconds(bossFallDuration);
+
+        // 안착 후 X freeze 해제 (이후 점프 워프 / 옆 이동 자유)
+        rb.constraints = RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotation;
+
+        // ─ 2단계: 보스 행동 초기화 ─
         nextBulletTime  = Time.time + attackDelay;
         nextMissileTime = Time.time + (data != null ? data.missileDelay : 5f);
 
-        // 시작 위치를 중심으로 좌우 waypoint 설정
         Vector3 center = transform.position;
         waypointA = center + Vector3.left  * lateralRange;
         waypointB = center + Vector3.right * lateralRange;
@@ -86,6 +120,8 @@ public class EnemyD : EnemyBase
 
         ScheduleNextJump();
         ScheduleNextLateral();
+
+        isSpawning = false;
     }
 
     // ═══════════════════════════════════════════════════════
@@ -94,6 +130,7 @@ public class EnemyD : EnemyBase
     protected override void OnUpdate()
     {
         if (!IsAlive) return;
+        if (IsSpawning) return;   // 자연 낙하 중에는 행동 금지
 
         // 점프 중에는 다른 행동 금지
         if (isJumping) return;
@@ -240,6 +277,8 @@ public class EnemyD : EnemyBase
     {
         isJumping = true;
 
+        BeginManualMovement();
+
         // 1. 현재 Z 기준 화면 밖 Y 계산 후 위로 사라짐
         float currentOffScreenY = GetOffScreenY(transform.position.z);
         Vector3 exitPos = new Vector3(transform.position.x, currentOffScreenY, transform.position.z);
@@ -248,10 +287,9 @@ public class EnemyD : EnemyBase
         // 2. 착지 위치 결정
         Vector3 landPos = GetRandomLandPosition();
 
-        // 3. 착지 Z 기준 화면 밖 Y 계산 후 대기
+        // 3. 착지 Z 기준 화면 밖 Y 위치로 즉시 이동 (대기 없음)
         float landOffScreenY = GetOffScreenY(landPos.z);
         transform.position = new Vector3(landPos.x, landOffScreenY, landPos.z);
-        yield return new WaitForSeconds(0.2f);
 
         // 4. 착지 위치로 떨어짐
         yield return StartCoroutine(MoveToPosition(transform.position, landPos, 0.4f));
@@ -262,9 +300,11 @@ public class EnemyD : EnemyBase
         waypointB = center + Vector3.right * lateralRange;
         currentLateralTarget = waypointB;
 
+        // 물리 복귀 + Z/회전 잠금
+        CompleteManualMovement(landPos);
         isJumping        = false;
         nextBulletTime   = Time.time + 0.5f;
-        nextMissileTime  = Time.time + 1.0f; // 착지 후 잠시 후 미사일
+        nextMissileTime  = Time.time + 1.0f;
         ScheduleNextJump();
         ScheduleNextLateral();
     }

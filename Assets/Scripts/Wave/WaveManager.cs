@@ -20,8 +20,8 @@ public class WaveManager : MonoBehaviour
     [SerializeField] private float groundXAtMinZ = 17f;
     [Tooltip("z=groundMaxZ 일 때 x 절대값 한계")]
     [SerializeField] private float groundXAtMaxZ = 55f;
-    [Tooltip("지상 적의 y 좌표 — 바닥 collider 평면")]
-    [SerializeField] private float groundFloorY = 0f;
+    [Tooltip("지상 적의 스폰 시작 y — 이 높이에서 Gravity 자연 낙하. BattleGround Y 보다 충분히 위.")]
+    [SerializeField] private float groundSpawnY = 50f;
 
     [Header("Spawn Inner Margin")]
     [Tooltip("한계선 안쪽 비율 (0~1). 0.85 = 한계선의 85% 까지만 스폰 → 가장자리에 안 닿음.")]
@@ -88,6 +88,8 @@ public class WaveManager : MonoBehaviour
     // 시간 기반 progress (일정 속도)
     private float _stageElapsed = 0f;
     private bool  _stageProgressRunning = false;
+    private bool  _bossPhaseStarted = false;
+    private bool  _bossDefeated = false;
 
     public IReadOnlyList<EnemyBase> ActiveEnemies => activeEnemies;
 
@@ -107,11 +109,29 @@ public class WaveManager : MonoBehaviour
     void OnEnable()
     {
         BattleIntroManager.OnBattleIntroComplete += OnIntroComplete;
+        // 시간 오버 시 잔존 적 정리
+        GameTimerManager.OnTimeUp += ClearAllEnemies;
     }
 
     void OnDisable()
     {
         BattleIntroManager.OnBattleIntroComplete -= OnIntroComplete;
+        GameTimerManager.OnTimeUp -= ClearAllEnemies;
+    }
+
+    /// <summary>
+    /// 활성 적 모두 즉시 파괴 — 게임 종료(시간 오버 / 보스 처치) 시 정리용.
+    /// 죽는 연출(이펙트+사운드+0.3초 destroy) 거치지 않고 즉시 destroy.
+    /// </summary>
+    public void ClearAllEnemies()
+    {
+        for (int i = activeEnemies.Count - 1; i >= 0; i--)
+        {
+            var enemy = activeEnemies[i];
+            if (enemy != null && enemy.gameObject != null)
+                Destroy(enemy.gameObject);
+        }
+        activeEnemies.Clear();
     }
 
     /// <summary>
@@ -169,6 +189,8 @@ public class WaveManager : MonoBehaviour
         IsWaveBlocked         = false;
         _stageElapsed         = 0f;
         _stageProgressRunning = true;  // ← Update 가 progress 갱신 시작
+        _bossPhaseStarted     = false;
+        _bossDefeated         = false;
 
         StartCoroutine(RunWaveQueue());
     }
@@ -183,6 +205,11 @@ public class WaveManager : MonoBehaviour
 
         _stageElapsed += Time.deltaTime;
         WaveProgress   = Mathf.Clamp01(_stageElapsed / stageDuration);
+
+        if (WaveProgress >= 1f && !_bossPhaseStarted)
+        {
+            StartBossPhase();
+        }
     }
 
     // 잔여 적 처치 대기 — 큐 시스템 그룹 사이 / 보스 단계에서 사용
@@ -214,14 +241,17 @@ public class WaveManager : MonoBehaviour
 
         if (prefabEnemy is EnemyA)
         {
-            float offScreenY = GetOffScreenY(targetPos.z);
-            spawnPos = new Vector3(targetPos.x, offScreenY, targetPos.z);
+            // 위 등장 — y=groundSpawnY (50) 에서 시작 → Gravity 자연 낙하 (EnemyA.SpawnFallRoutine 처리)
+            spawnPos = new Vector3(targetPos.x, groundSpawnY, targetPos.z);
         }
         else if (prefabEnemy is EnemyB)
         {
+            // 화면 밖 X 위치(좌/우 랜덤) + 화면 밖 Y 위치에서 시작
+            // → SpawnSlideRoutine Phase 1: 수직 낙하, Phase 2: 수평 슬라이드
             float offScreenX = GetOffScreenX(targetPos.z);
+            float offScreenY = GetOffScreenY(targetPos.z);
             float side       = Random.value > 0.5f ? 1f : -1f;
-            spawnPos         = new Vector3(offScreenX * side, targetPos.y, targetPos.z);
+            spawnPos         = new Vector3(offScreenX * side, offScreenY, targetPos.z);
         }
         else
         {
@@ -250,8 +280,14 @@ public class WaveManager : MonoBehaviour
                 enemy.OnDied += () =>
                 {
                     activeEnemies.Remove(enemy);
-                    // 보스 사망 → 즉시 클리어
+                    if (_bossDefeated) return;
+
+                    _bossDefeated = true;
+                    // 보스 사망 → 잔존 적 모두 정리 + 클리어 이벤트
+                    ClearAllEnemies();
                     OnEliteDefeated?.Invoke();
+                    OnBossDefeated?.Invoke();
+                    OnStageClear?.Invoke();
                 };
             }
             else
@@ -306,20 +342,23 @@ public class WaveManager : MonoBehaviour
             float t = Mathf.InverseLerp(airMinZ, airMaxZ, z);
             maxX = Mathf.Lerp(airXAtMinZ, airXAtMaxZ, t);
             y    = Mathf.Lerp(airYAtMinZ, airYAtMaxZ, t);
-        }
-        else
-        {
-            z = Random.Range(groundMinZ, groundMaxZ);
-            float t = Mathf.InverseLerp(groundMinZ, groundMaxZ, z);
-            maxX = Mathf.Lerp(groundXAtMinZ, groundXAtMaxZ, t);
-            y    = groundFloorY;
+
+            // 안쪽 마진 — 한계선 자리에 안 닿게
+            maxX *= spawnInnerMargin;
+            float xAir = Random.Range(-maxX, maxX);
+            return new Vector3(xAir, y, z);
         }
 
-        // 안쪽 마진 — 한계선 자리에 안 닿게
-        maxX *= spawnInnerMargin;
-
+        // ── 지상 ──
+        // y = groundSpawnY (예: 10) 에서 떨어뜨림 → CompleteManualMovement 가 isKinematic=false 로 풀면
+        // 중력이 자연 낙하 → BattleGround Plane Collider 가 받아 정착.
+        // pivot 보정 / Plane Y 변경에 자동 적응.
+        z = Random.Range(groundMinZ, groundMaxZ);
+        float tg = Mathf.InverseLerp(groundMinZ, groundMaxZ, z);
+        maxX = Mathf.Lerp(groundXAtMinZ, groundXAtMaxZ, tg) * spawnInnerMargin;
         float x = Random.Range(-maxX, maxX);
-        return new Vector3(x, y, z);
+
+        return new Vector3(x, groundSpawnY, z);
     }
 
     float GetOffScreenY(float z)
@@ -394,7 +433,7 @@ public class WaveManager : MonoBehaviour
         int totalGroups = _spawnQueue.Count;
         int processedGroups = 0;
 
-        while (_spawnQueue.Count > 0)
+        while (_spawnQueue.Count > 0 && !_bossDefeated)
         {
             SpawnGroup group = _spawnQueue.Dequeue();
             yield return StartCoroutine(SpawnGroupRoutine(group));
@@ -412,31 +451,38 @@ public class WaveManager : MonoBehaviour
             }
         }
 
-        // 마지막 그룹 후 잔여 적 처치 대기
-        yield return StartCoroutine(WaitForWaveClearWithBlock());
+        while (!_bossPhaseStarted && !_bossDefeated)
+            yield return null;
+    }
 
-        // 시간 기반 progress 종료 → 1f 로 고정 (이후 Update 가 손대지 않음)
+    private void StartBossPhase()
+    {
+        if (_bossPhaseStarted) return;
+
+        _bossPhaseStarted = true;
         _stageProgressRunning = false;
-        WaveProgress          = 1f;
+        WaveProgress = 1f;
 
-        // ── 보스 단계 ──
-        if (bossPrefab != null)
-        {
-            // EliteWarningUI 표시 — TopUIManager 가 ElitePhaseSequence 실행 (경고 텍스트 페이드/줌인)
-            // 큐 시스템에서 OnElitePhaseStart 가 보스 직전 단 1회 발화. 이름은 Elite 지만 의미는 "보스 경고".
-            OnElitePhaseStart?.Invoke();
+        StartCoroutine(BossPhaseRoutine());
+    }
 
-            yield return new WaitForSeconds(bossSpawnDelay);
-            SpawnEnemy(bossPrefab);
-            // 보스 처치 대기 — OnEliteDefeated/OnStageClear 는 보스 OnDied 람다에서 발화하므로 추가 처리 불필요.
-            yield return StartCoroutine(WaitForWaveClearWithBlock());
-        }
-        else
+    private IEnumerator BossPhaseRoutine()
+    {
+        if (bossPrefab == null)
         {
             Debug.LogWarning("[WaveManager] bossPrefab 미할당 — 보스 단계 건너뜀");
+            OnStageClear?.Invoke();
+            yield break;
         }
 
-        OnStageClear?.Invoke();
+        if (bossSpawnDelay > 0f)
+        {
+            OnElitePhaseStart?.Invoke();
+            yield return new WaitForSeconds(bossSpawnDelay);
+        }
+
+        if (_bossDefeated) yield break;
+        SpawnEnemy(bossPrefab);
     }
 
     IEnumerator SpawnGroupRoutine(SpawnGroup group)
@@ -516,13 +562,18 @@ public class WaveManager : MonoBehaviour
         }
     }
 
-    // ─ 측면(좌/우)에서 스폰 ─ explicitTargetPos 있으면 그 위치로, 없으면 새로 결정
+    // ─ 측면(좌/우)에서 스폰 ─
+    //   지상: 화면 밖 x + y=groundSpawnY 에서 시작 → Gravity 자연 낙하 → 안착 후 옆 이동
+    //   공중: 화면 밖 x + 명시 y 에서 시작 → Lerp 옆 이동 (Y 유지)
     void SpawnEnemyFromSide(GameObject prefab, bool leftSide, Vector3? explicitTargetPos = null)
     {
         bool   isAirborne = prefab.GetComponent<EnemyBase>()?.IsAirborne ?? false;
         Vector3 targetPos = explicitTargetPos ?? GetNonOverlappingPosition(isAirborne);
         float   offScreenX = GetOffScreenX(targetPos.z);
-        Vector3 spawnPos   = new Vector3(offScreenX * (leftSide ? -1f : 1f), targetPos.y, targetPos.z);
+
+        // 지상은 위에서 떨어뜨림 (y=groundSpawnY), 공중은 명시 y 유지
+        float startY       = isAirborne ? targetPos.y : groundSpawnY;
+        Vector3 spawnPos   = new Vector3(offScreenX * (leftSide ? -1f : 1f), startY, targetPos.z);
         InstantiateEnemyAt(prefab, spawnPos, targetPos);
     }
 

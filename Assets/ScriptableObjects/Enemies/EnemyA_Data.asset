@@ -20,7 +20,7 @@ MonoBehaviour:
   attackDamage: 30
   attackDelay: 4
   speed: 2
-  bulletSpeed: 15
+  bulletSpeed: 1000
   missileDelay: 5
   missileDamage: 15
   missileSpeed: 10

@@ -32,6 +32,10 @@ public class EnemyMissileBase : MonoBehaviour, IPoolable
     [SerializeField] private GameObject explosionEffect; // 명중/만료 시 인스턴스화
     [Tooltip("회전 보간 속도 — 클수록 즉시 타겟 향함")]
     [SerializeField] private float rotateSpeed = 8f;
+    [Tooltip("타겟 거리로 계산한 도달 시간보다 길게 보장되는 기본 수명 (초)")]
+    [SerializeField] private float defaultLifeTime = 10f;
+    [Tooltip("타겟 도달 예상 시간에 더하는 여유 시간 (초)")]
+    [SerializeField] private float lifeTimeBuffer = 2f;
 
     void OnEnable()
     {
@@ -58,14 +62,14 @@ public class EnemyMissileBase : MonoBehaviour, IPoolable
     /// <param name="target">호밍 대상 (null 이면 직진)</param>
     /// <param name="homingStrength">0=직진, 1=즉시 정렬</param>
     /// <param name="lifeTime">자동 회수 시간 (초)</param>
-    public void Init(float damage, float speed, Transform target, float homingStrength, float lifeTime = 5f)
+    public void Init(float damage, float speed, Transform target, float homingStrength, float lifeTime = -1f)
     {
         isInitialized       = true;
         this.damage         = damage;
         this.speed          = speed;
         this.target         = target;
         this.homingStrength = Mathf.Clamp01(homingStrength);
-        this.lifeTime       = lifeTime;
+        this.lifeTime       = lifeTime > 0f ? lifeTime : defaultLifeTime;
         elapsed             = 0f;
 
         // 초기 방향: 타겟 있으면 그쪽, 없으면 forward 유지
@@ -74,6 +78,12 @@ public class EnemyMissileBase : MonoBehaviour, IPoolable
             Vector3 dir = (target.position - transform.position).normalized;
             transform.rotation = Quaternion.LookRotation(dir);
             fallbackDirection  = dir;
+
+            if (speed > 0f)
+            {
+                float estimatedArrivalTime = Vector3.Distance(transform.position, target.position) / speed;
+                this.lifeTime = Mathf.Max(this.lifeTime, estimatedArrivalTime + lifeTimeBuffer);
+            }
         }
         else
         {

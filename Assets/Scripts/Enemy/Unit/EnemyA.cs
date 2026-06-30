@@ -5,9 +5,10 @@ public class EnemyA : EnemyBase
 {
 
     [Header("Spawn Animation")]
-    [SerializeField] private float fallDuration = 0.8f;
-    [SerializeField] private float landBounceHeight = 0.5f;
-    [SerializeField] private float bounceDuration = 0.2f;
+    [Tooltip("Gravity 자연 낙하 대기 시간 (초). 이 시간 후 안착으로 간주.")]
+    [SerializeField] private float fallDuration = 1.5f;
+    [Tooltip("옆 등장 시 안착 후 X 이동에 걸리는 시간 (초)")]
+    [SerializeField] private float sideMoveDuration = 0.5f;
 
     [Header("Laser Attack")]
     [SerializeField] private float warningDuration = 1.5f; // 경고 지속 시간
@@ -65,31 +66,58 @@ public class EnemyA : EnemyBase
 
     IEnumerator SpawnFallRoutine()
     {
-        Vector3 startPos = transform.position;
-        Vector3 endPos = targetPosition;
+        Vector3 spawnStart  = transform.position;
+        bool    isFromSide  = Mathf.Abs(spawnStart.x - targetPosition.x) > 1f;
 
-        float elapsed = 0f;
-        while (elapsed < fallDuration)
+        // ─ 1단계: Gravity 자연 낙하 (X/Z 잠금, Y 만 떨어짐) ─
+        // Rigidbody 안전망 — 미할당 / useGravity off 모두 강제 보정
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb == null)
         {
-            float t = elapsed / fallDuration;
-            float easeT = t * t;
-            transform.position = Vector3.Lerp(startPos, endPos, easeT);
-            elapsed += Time.deltaTime;
-            yield return null;
+            rb = gameObject.AddComponent<Rigidbody>();
+            rb.useGravity = true;
+            rb.mass       = 1f;
+            Debug.LogWarning("[EnemyA] Rigidbody 미할당 — 동적 추가. 프리팹에 명시 추가 권장.");
         }
-        transform.position = endPos;
+        else if (!rb.useGravity)
+        {
+            rb.useGravity = true;
+        }
 
-        Vector3 bounceUp = endPos + Vector3.up * landBounceHeight;
-        elapsed = 0f;
-        while (elapsed < bounceDuration)
+        rb.isKinematic     = false;
+        rb.linearVelocity  = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        // X 도 함께 잠금 — "먼저 떨어진 후" 옆 이동 순서 보장
+        rb.constraints = RigidbodyConstraints.FreezePositionX
+                       | RigidbodyConstraints.FreezePositionZ
+                       | RigidbodyConstraints.FreezeRotation;
+
+        // 자연 낙하 시간 — BattleGround Collider 가 받아 안착
+        yield return new WaitForSeconds(fallDuration);
+
+        // ─ 2단계: 옆 등장이면 안착 위치에서 X 만 안쪽으로 이동 ─
+        if (isFromSide)
         {
-            float t = elapsed / bounceDuration;
-            float bounceT = Mathf.Sin(t * Mathf.PI);
-            transform.position = Vector3.Lerp(endPos, bounceUp, bounceT);
-            elapsed += Time.deltaTime;
-            yield return null;
+            // X 잠금 해제하기 전에 Lerp 로 직접 이동 (수동 제어)
+            BeginManualMovement();
+            Vector3 currentPos = transform.position;
+            Vector3 sideTarget = new Vector3(targetPosition.x, currentPos.y, currentPos.z);
+
+            float elapsed = 0f;
+            while (elapsed < sideMoveDuration)
+            {
+                float t = elapsed / sideMoveDuration;
+                transform.position = Vector3.Lerp(currentPos, sideTarget, Mathf.SmoothStep(0f, 1f, t));
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+            CompleteManualMovement(sideTarget);
         }
-        transform.position = endPos;
+        else if (rb != null)
+        {
+            // 위 등장: X freeze 해제 — 이후 물리/AI 자유 이동
+            rb.constraints = RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotation;
+        }
 
         isSpawning = false;
         nextAttackTime = Time.time + attackDelay;

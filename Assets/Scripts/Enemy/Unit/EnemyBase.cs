@@ -25,7 +25,7 @@ public abstract class EnemyBase : MonoBehaviour
     protected float maxHp;
     protected float attackDamage;
     protected float speed;
-    protected bool  survive;
+    protected bool survive = true;
     protected float attackDelay;
     protected int   currentLayer;
     protected ObjectPool bulletPool;
@@ -50,6 +50,8 @@ public abstract class EnemyBase : MonoBehaviour
     // 출현 연출 관련
     protected Vector3 targetPosition;
     protected bool isSpawning = true; // 출현 연출 중 여부
+    private bool lockZPosition;
+    private float lockedZPosition;
 
     //프로퍼티
     public float Hp => hp;
@@ -58,7 +60,7 @@ public abstract class EnemyBase : MonoBehaviour
     public bool IsSpawning => isSpawning;
     public bool IsStunned => isStunned;
     public Transform MuzzlePoint => muzzlePoint;
-    public EnemyType EnemyType => enemyType;
+    public EnemyType EnemyType => data != null ? data.enemyType : enemyType;
     public float MaxHp => maxHp;
     /// <summary>공중 적 여부 — WaveManager 스폰 영역 분기에 사용. SO 직접 참조 (Initialize 전에도 접근 가능).</summary>
     public bool IsAirborne => data != null && data.isAirborne;
@@ -178,6 +180,15 @@ public abstract class EnemyBase : MonoBehaviour
         Collider col3D = GetComponent<Collider>();
         if (col3D != null) col3D.enabled = false;
 
+        // ─ Rigidbody 정지 — 사망 후 중력으로 떨어지지 않도록 그 자리에 고정 ─
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.linearVelocity  = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.isKinematic     = true;   // 물리 시뮬 비활성 → 위치 변경 X
+        }
+
         dieSoundSource = gameObject.AddComponent<AudioSource>();
         dieSoundSource.PlayOneShot(dieSoundClip);
 
@@ -226,12 +237,32 @@ public abstract class EnemyBase : MonoBehaviour
         OnUpdate();
     }
 
+    void LateUpdate()
+    {
+        if (!lockZPosition) return;
+
+        Vector3 position = transform.position;
+        if (!Mathf.Approximately(position.z, lockedZPosition))
+        {
+            position.z = lockedZPosition;
+            transform.position = position;
+
+            Rigidbody rb = GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.position = position;
+                rb.linearVelocity = new Vector3(rb.linearVelocity.x, rb.linearVelocity.y, 0f);
+            }
+        }
+    }
+
     protected virtual void OnUpdate() { }
 
     public void TryAttack()
     {
         if (!survive) return;
         if (isStunned) return;
+        if (isSpawning) return;
         Attack();
     }
 
@@ -265,6 +296,51 @@ public abstract class EnemyBase : MonoBehaviour
     public void SetTargetPosition(Vector3 pos)
     {
         targetPosition = pos;
+    }
+
+    protected void BeginManualMovement()
+    {
+        lockZPosition = false;
+
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.isKinematic = true;
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+    }
+
+    protected void CompleteManualMovement(Vector3 finalPosition)
+    {
+        transform.position = finalPosition;
+        lockedZPosition = finalPosition.z;
+        lockZPosition = true;
+
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb == null) return;
+
+        rb.position = finalPosition;
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+
+        if (IsAirborne)
+        {
+            // 공중: Y 도 고정 → 명시 좌표 유지 (예: EnemyB 옆 이동 시 부유)
+            rb.constraints = RigidbodyConstraints.FreezePositionY
+                           | RigidbodyConstraints.FreezePositionZ
+                           | RigidbodyConstraints.FreezeRotation;
+            rb.isKinematic = false;
+            rb.Sleep();
+        }
+        else
+        {
+            // 지상: Y 자유 → 중력이 BattleGround Collider 까지 자연 낙하 시킴
+            // Sleep 호출 X — 중력 계속 작용
+            rb.constraints = RigidbodyConstraints.FreezePositionZ
+                           | RigidbodyConstraints.FreezeRotation;
+            rb.isKinematic = false;
+        }
     }
 
     private void InitBase()

@@ -164,7 +164,6 @@ public class Trend : CharacterBase
     /// 홀로그램 무대 생성. 아군 전체에게 10초간:
     ///   • 공격력 ×1.5 (ApplyDamageBuff)
     ///   • 치명타 확률 +20% (ApplyCriticalRateBuff)
-    /// (이동속도 증가는 향후 이동 시스템 도입 시 추가)
     /// </summary>
     public override void UseBurst()
     {

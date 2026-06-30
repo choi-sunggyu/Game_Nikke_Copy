@@ -21,7 +21,7 @@ public class TopUIManager : MonoBehaviour
     [Header("── 카메라 줌 설정 ──────────────")]
     // CameraController 직접 참조 제거 — UIManager.Instance facade 만 사용
     [SerializeField] private float           eliteZoomFOV      = 40f;  // 줌인 시 FOV
-    [SerializeField] private float           normalFOV         = 60f;  // 기본 FOV
+    [SerializeField] private float           normalFOV         = 34f;  // 기본 FOV
     [SerializeField] private float           eliteZoomDuration = 1.0f; // 줌인 지속 시간
     [SerializeField] private float           zoomReturnDuration = 0.5f; // 원상복귀 시간
 

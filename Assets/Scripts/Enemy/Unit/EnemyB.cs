@@ -33,38 +33,56 @@ public class EnemyB : EnemyBase
 
     IEnumerator SpawnSlideRoutine()
     {
-        Vector3 startPos = transform.position; // 화면 밖 (WaveManager가 설정)
-        Vector3 endPos = targetPosition;        // 목표 위치
+        BeginManualMovement();
 
-        // EaseOut 슬라이드 (감속하며 진입)
-        float elapsed = 0f;
+        Vector3 endPos = targetPosition;
+
+        // ── Phase 1: 화면 위에서 목표 Y 높이로 수직 낙하 ──
+        // WaveManager가 spawnPos = (offScreenX * side, offScreenY, z) 로 설정
+        Vector3 fallStart = transform.position;
+        Vector3 fallEnd   = new Vector3(fallStart.x, endPos.y, fallStart.z);
+
+        float elapsed     = 0f;
+        float fallDuration = 0.5f;
+        while (elapsed < fallDuration)
+        {
+            float t     = elapsed / fallDuration;
+            float easeT = t * t; // 가속 낙하
+            transform.position = Vector3.Lerp(fallStart, fallEnd, easeT);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        transform.position = fallEnd;
+
+        // ── Phase 2: 목표 위치로 수평 슬라이드 ──
+        float dirX      = endPos.x - fallEnd.x;
+        float tiltAngle = dirX > 0 ? -moveTilt : moveTilt;
+
+        elapsed = 0f;
         while (elapsed < slideDuration)
         {
-            float t = elapsed / slideDuration;
-            float easeT = 1f - (1f - t) * (1f - t); // EaseOut 커브
-            transform.position = Vector3.Lerp(startPos, endPos, easeT);
-
-            // 진입 방향으로 기울기 적용
-            float dirX = endPos.x - startPos.x;
-            float tiltAngle = dirX > 0 ? -moveTilt : moveTilt;
-            float tiltFade = 1f - t; // 도착할수록 기울기 감소
-            transform.rotation = Quaternion.Euler(0f, 0f, tiltAngle * tiltFade);
-
+            float t     = elapsed / slideDuration;
+            float easeT = 1f - (1f - t) * (1f - t); // EaseOut
+            transform.position = Vector3.Lerp(fallEnd, endPos, easeT);
+            transform.rotation = Quaternion.Euler(0f, 0f, tiltAngle * (1f - t));
             elapsed += Time.deltaTime;
             yield return null;
         }
         transform.position = endPos;
         transform.rotation = Quaternion.identity;
 
+        // 물리 복귀 + Z/회전 잠금
+        CompleteManualMovement(endPos);
+
         // Waypoint를 목표 위치 기준으로 설정
-        waypointA = endPos + Vector3.left * moveRange;
+        waypointA = endPos + Vector3.left  * moveRange;
         waypointB = endPos + Vector3.right * moveRange;
         currentTarget = waypointB;
 
         // 출현 완료
-        isSpawning = false;
+        isSpawning     = false;
         nextAttackTime = Time.time + attackDelay;
-        nextMoveTime = Time.time + moveInterval;
+        nextMoveTime   = Time.time + moveInterval;
     }
 
     protected override void OnUpdate()

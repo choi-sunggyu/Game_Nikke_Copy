@@ -128,7 +128,7 @@ public class CharacterAI : MonoBehaviour
             lineRenderer.endColor = lineColor;
             lineRenderer.startWidth = 0.08f;
             lineRenderer.endWidth = 0.02f;
-            lineRenderer.sortingOrder = 100;
+            lineRenderer.sortingOrder = 1; // 캐릭터 스프라이트(0) 뒤에 렌더링
         }
 
         lineEndScreenPos = centerPos;

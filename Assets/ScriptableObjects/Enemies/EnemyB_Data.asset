@@ -15,12 +15,12 @@ MonoBehaviour:
   enemyId: enemyB
   displayName: B
   enemyType: 0
-  isAirborne: 0
+  isAirborne: 1
   maxHp: 150
   attackDamage: 8
   attackDelay: 2
   speed: 2
-  bulletSpeed: 15
+  bulletSpeed: 1000
   missileDelay: 5
   missileDamage: 15
   missileSpeed: 10

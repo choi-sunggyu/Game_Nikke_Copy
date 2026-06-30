@@ -101,6 +101,14 @@ public class CameraController : MonoBehaviour
         Vector3 charPos = characters[mid].transform.position;
         _targetPosition = ComputeCameraPositionFor(charPos);
         transform.position = _targetPosition;
+
+        // 2.5D Sprite 렌더링 순서: Z축 기준 정렬 (Camera Depth 방향 투명도 정렬)
+        // 같은 SortingLayer/Order 내에서 Z가 큰 오브젝트(적 방향)를 뒤, Z가 작은 것을 앞에 렌더링
+        if (cam != null)
+        {
+            cam.transparencySortMode = TransparencySortMode.CustomAxis;
+            cam.transparencySortAxis = Vector3.forward; // (0,0,1) — Z 클수록 뒤
+        }
     }
 
     void OnEnable()

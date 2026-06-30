@@ -40,12 +40,18 @@ public class EnemyBulletBase : MonoBehaviour, IPoolable
         {
             //Debug.Log("Bullet hit character: " + character.name);
             character.TakeDamage(damage);
-            ownerPool.Return(gameObject);
+            Return();
         }
     }
 
     void Update()
     {
         transform.Translate(direction * speed * Time.deltaTime, Space.World);
+    }
+
+    private void Return()
+    {
+        if (ownerPool != null) ownerPool.Return(gameObject);
+        else                   gameObject.SetActive(false);
     }
 }

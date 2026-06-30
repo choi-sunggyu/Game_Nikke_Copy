@@ -1,0 +1,533 @@
+fileFormatVersion: 2
+guid: 488ba73215c33e54b9f4e74c727a383e
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 7683405843361151489
+    second: Nameliss_ani_0
+  - first:
+      213: 854812167813755653
+    second: Nameliss_ani_1
+  - first:
+      213: -9110588751441050381
+    second: Nameliss_ani_2
+  - first:
+      213: 4360076050784496684
+    second: Nameliss_ani_3
+  - first:
+      213: -1231931815490033579
+    second: Nameliss_ani_4
+  - first:
+      213: 8787239982897669731
+    second: Nameliss_ani_5
+  - first:
+      213: 8640363293260165165
+    second: Nameliss_ani_6
+  - first:
+      213: 5150136787097417636
+    second: Nameliss_ani_7
+  - first:
+      213: 7587607721710534273
+    second: Nameliss_ani_8
+  - first:
+      213: 382574213075190074
+    second: Nameliss_ani_9
+  - first:
+      213: 5916590941371079252
+    second: Nameliss_ani_10
+  - first:
+      213: -8358130649529422979
+    second: Nameliss_ani_11
+  - first:
+      213: 5015849015227221461
+    second: Nameliss_ani_12
+  - first:
+      213: 1728597265190752886
+    second: Nameliss_ani_13
+  - first:
+      213: -2988270887673448350
+    second: Nameliss_ani_14
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Nameliss_ani_0
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 750
+        width: 350
+        height: 269
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 10ab3b6f7e0f0aa60800000000000000
+      internalID: 7683405843361151489
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nameliss_ani_1
+      rect:
+        serializedVersion: 2
+        x: 399
+        y: 749
+        width: 350
+        height: 269
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 503783c3327ecdb00800000000000000
+      internalID: 854812167813755653
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nameliss_ani_2
+      rect:
+        serializedVersion: 2
+        x: 787
+        y: 758
+        width: 352
+        height: 260
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3f4cfafeccfa09180800000000000000
+      internalID: -9110588751441050381
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nameliss_ani_3
+      rect:
+        serializedVersion: 2
+        x: 1180
+        y: 755
+        width: 349
+        height: 260
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c2ca2b8411a128c30800000000000000
+      internalID: 4360076050784496684
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nameliss_ani_4
+      rect:
+        serializedVersion: 2
+        x: 1566
+        y: 754
+        width: 348
+        height: 264
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 558e6367a8c47eee0800000000000000
+      internalID: -1231931815490033579
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nameliss_ani_5
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 411
+        width: 341
+        height: 257
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 366a9b8253c82f970800000000000000
+      internalID: 8787239982897669731
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nameliss_ani_6
+      rect:
+        serializedVersion: 2
+        x: 393
+        y: 414
+        width: 345
+        height: 255
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d20b819f2acb8e770800000000000000
+      internalID: 8640363293260165165
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nameliss_ani_7
+      rect:
+        serializedVersion: 2
+        x: 782
+        y: 408
+        width: 344
+        height: 261
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a7fc9b0f16f87740800000000000000
+      internalID: 5150136787097417636
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nameliss_ani_8
+      rect:
+        serializedVersion: 2
+        x: 1168
+        y: 404
+        width: 349
+        height: 266
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 18e3193a5099c4960800000000000000
+      internalID: 7587607721710534273
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nameliss_ani_9
+      rect:
+        serializedVersion: 2
+        x: 1558
+        y: 404
+        width: 341
+        height: 266
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a314296483d2f4500800000000000000
+      internalID: 382574213075190074
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nameliss_ani_10
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 60
+        width: 344
+        height: 262
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 45a97bd1d14fb1250800000000000000
+      internalID: 5916590941371079252
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nameliss_ani_11
+      rect:
+        serializedVersion: 2
+        x: 392
+        y: 58
+        width: 342
+        height: 264
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d7b6e702574f10c80800000000000000
+      internalID: -8358130649529422979
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nameliss_ani_12
+      rect:
+        serializedVersion: 2
+        x: 783
+        y: 58
+        width: 339
+        height: 263
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5d58c9faa10eb9540800000000000000
+      internalID: 5015849015227221461
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nameliss_ani_13
+      rect:
+        serializedVersion: 2
+        x: 1173
+        y: 57
+        width: 339
+        height: 265
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 672186fdd063df710800000000000000
+      internalID: 1728597265190752886
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nameliss_ani_14
+      rect:
+        serializedVersion: 2
+        x: 1564
+        y: 57
+        width: 340
+        height: 265
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 268359fc5778786d0800000000000000
+      internalID: -2988270887673448350
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Nameliss_ani_0: 7683405843361151489
+      Nameliss_ani_1: 854812167813755653
+      Nameliss_ani_10: 5916590941371079252
+      Nameliss_ani_11: -8358130649529422979
+      Nameliss_ani_12: 5015849015227221461
+      Nameliss_ani_13: 1728597265190752886
+      Nameliss_ani_14: -2988270887673448350
+      Nameliss_ani_2: -9110588751441050381
+      Nameliss_ani_3: 4360076050784496684
+      Nameliss_ani_4: -1231931815490033579
+      Nameliss_ani_5: 8787239982897669731
+      Nameliss_ani_6: 8640363293260165165
+      Nameliss_ani_7: 5150136787097417636
+      Nameliss_ani_8: 7587607721710534273
+      Nameliss_ani_9: 382574213075190074
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

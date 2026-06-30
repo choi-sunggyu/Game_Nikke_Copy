@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterData
   characterId: 2
   displayName: Viper
-  burstNumber: 1
+  burstNumber: 3
   weaponType: 4
   maxHp: 800
   maxShield: 500

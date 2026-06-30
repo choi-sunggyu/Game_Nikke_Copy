@@ -94,7 +94,6 @@ public class GameOverUI : MonoBehaviour
     private IEnumerator ShowSequence(TMP_Text target)
     {
         yield return StartCoroutine(FadeIn());
-        yield return StartCoroutine(PunchText(target));
 
         rootGroup.interactable   = true;
         rootGroup.blocksRaycasts = true;
@@ -113,31 +112,6 @@ public class GameOverUI : MonoBehaviour
         }
 
         rootGroup.alpha = 1f;
-    }
-
-    private IEnumerator PunchText(TMP_Text target)
-    {
-        Transform t       = target.transform;
-        float     elapsed = 0f;
-        float     half    = textPunchDuration * 0.5f;
-
-        while (elapsed < half)
-        {
-            elapsed      += Time.deltaTime;
-            t.localScale  = Vector3.one * Mathf.Lerp(1f, textPunchScale, elapsed / half);
-            yield return null;
-        }
-
-        elapsed = 0f;
-
-        while (elapsed < half)
-        {
-            elapsed      += Time.deltaTime;
-            t.localScale  = Vector3.one * Mathf.Lerp(textPunchScale, 1f, elapsed / half);
-            yield return null;
-        }
-
-        t.localScale = Vector3.one;
     }
 
     // ─────────────────────────────────────────
