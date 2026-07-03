@@ -183,8 +183,7 @@ public class EnemyD : EnemyBase
 
         EnemyBulletBase bulletBase = bullet.GetComponent<EnemyBulletBase>();
         Vector3 direction = (target.transform.position - MuzzlePoint.position).normalized;
-        float bulletSpeed = data != null ? data.bulletSpeed : 15f;
-        bulletBase.Init(attackDamage, bulletSpeed, direction);
+        bulletBase.Init(attackDamage, bulletSpeed, direction);   // base.bulletSpeed (SO 주입)
     }
 
     // ═══════════════════════════════════════════════════════

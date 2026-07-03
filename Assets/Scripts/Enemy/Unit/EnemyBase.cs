@@ -25,6 +25,7 @@ public abstract class EnemyBase : MonoBehaviour
     protected float maxHp;
     protected float attackDamage;
     protected float speed;
+    protected float bulletSpeed = 15f;   // ApplyEnemyData 가 SO 에서 채움. 폴백 15.
     protected bool survive = true;
     protected float attackDelay;
     protected int   currentLayer;
@@ -291,6 +292,7 @@ public abstract class EnemyBase : MonoBehaviour
         attackDamage = data.attackDamage;
         attackDelay  = data.attackDelay;
         speed        = data.speed;
+        bulletSpeed  = data.bulletSpeed;   // ← SO 값이 여기서 흐름
     }
 
     public void SetTargetPosition(Vector3 pos)

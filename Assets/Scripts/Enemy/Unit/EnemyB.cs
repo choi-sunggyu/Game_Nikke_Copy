@@ -180,7 +180,7 @@ public class EnemyB : EnemyBase
         {
             EnemyBulletBase bulletBase = bullet.GetComponent<EnemyBulletBase>();
             Vector3 direction = (target.transform.position - MuzzlePoint.position).normalized;
-            bulletBase.Init(attackDamage, 15f, direction);
+            bulletBase.Init(attackDamage, bulletSpeed, direction);
             // 각 총알마다 딜레이 0.5초
             
         }

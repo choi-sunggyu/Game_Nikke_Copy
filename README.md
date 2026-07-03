@@ -48,6 +48,11 @@
 | 차지샷 (런처/스나이퍼 계열) | `Viper.HandleFireRelease` — `chargeRatio` 로 데미지 1.5배 스케일 | ★★★★★ |
 | 캐릭터 자동 리로딩 / 강제 풀 리로딩 | `TryReload` + `ForceCoverReload` + `coverReloadLocked` 잠금 | ★★★★★ |
 | 적의 텔레그래프 공격 (경고 → 발사) | `EnemyA.LaserAttackRoutine` — 경고원(좁아짐) → 레이저 | ★★★★☆ |
+| 엘리트 적 등장 (일반 대비 낮은 확률) | 가중치 풀(`BuildPrefabKindPool`) — 60마리 중 약 10% Elite 결정적 배치 | ★★★★★ |
+| 보스 등장 경고 UI + 카메라 컷씬 | `EliteWarningUI` 1.5초 + `CameraController.BossAppearCinematic` (줌인→줌아웃) | ★★★★★ |
+| 보스 미사일 텔레그래프 (조준 후 발사) | `EnemyD.MissileWithWarning` — 1초 경고 + `BottomUI` 캐릭터 박스 알림 → 4발 호밍 | ★★★★★ |
+| 보스 사망 컷씬 + 슬로우 모션 | `BossCinematicManager.SlowMotionThenResult` — timeScale=0.2 → GameOverUI | ★★★★☆ |
+| 사거리 보너스 (무기와 적 거리 매칭) | `WeaponSpecs.GetDamageMultiplier` — Close/Mid/Far × 무기 타입 → 1.5× 배율 | ★★★★★ |
 
 > ★★★★★ : 거동·UX·내부 로직까지 원작과 거의 동일
 > ★★★★☆ : 동작은 같으나 일부 디테일(애니메이션·이펙트) 보강 여지
@@ -71,18 +76,34 @@
 
 ---
 
-## 4. 캐릭터 스펙 (코드 기준 실측치)
+## 4. 캐릭터 스펙 (`CharacterData` SO 기준)
 
-| 캐릭터 | 버스트 | 무기 컨셉 | HP | 탄창 | 리로드 | 발사 데미지 | 버스트 충전량 | Bullet Speed | 특수 거동 |
+Character 데이터는 **ScriptableObject 로 완전 분리**되어 있습니다 (`Assets/ScriptableObjects/Characters/`). 코드 하드코딩 대신 인스펙터에서 밸런싱.
+
+| 캐릭터 | 버스트 | 무기 | HP | 탄창 | 리로드 | 데미지 | 버스트 충전량 | Bullet Speed | 특수 거동 |
 |---|---|---|---|---|---|---|---|---|---|
-| **Ghost** | 1버스트 | Assault Rifle | 100 | 120 | 1.0s | 20 | +5/발 | 500 | 단발 사격, 안정적 DPS |
-| **Titan** | 2버스트 | Minigun | 200 | 400 | 1.5s | 10 | +10/발 | 500 | 스핀업 (5발 동안 발사속도 3→70 RPM 가속) |
-| **Viper** | 3버스트 | Charged Shot | 100 | 5 | 1.0s | 50 | +20/발 | 800 | 차지 1.13초까지 1.5배 데미지 스케일 |
+| **Astro** | 3버스트 | SG (샷건) | 1300 | 8 | 2.0s | 150 | +? | 600 | 산탄 5펠릿 / 근거리 광폭 |
+| **Ghost** | 1버스트 | AR (Assault Rifle) | 100 | 120 | 1.0s | 20 | +5 | 500 | 단발 사격, 안정적 DPS |
+| **Titan** | 2버스트 | MG (Minigun) | 200 | 400 | 1.5s | 10 | +10 | 500 | 스핀업 (3→70 RPM 가속) |
+| **Trend** | ? | SMG | ? | ? | ? | ? | ? | ? | 고연사 근거리 |
+| **Viper** | 3버스트 | Charged Shot (SR) | 100 | 5 | 1.0s | 50 | +20 | 800 | 차지 1.13s → 1.5배 데미지 |
 
-### 버스트 효과 (`UseBurst` 오버라이드)
+### 사거리 보너스 (`WeaponSpecs`)
+
+무기와 적 거리 구역이 일치할 때 **1.5× 배율** — NIKKE 의 "적정 사거리" 이식.
+
+| 무기 | 적정 구역 | 다른 구역 |
+|---|---|---|
+| SG / SMG | Close (1.5×) | 1× |
+| AR / MG | Mid (1.5×) | 1× |
+| SR | Far (1.5×) | 1× |
+| RL | 거리 무관 (항상 1×) | 1× |
+
+### 버스트 효과 (`UseBurst` 오버라이드 중 구현 완료된 것)
 - **Ghost (1버스트)** : 전체 적 2초 스턴 + 팀 HP 20% 회복 + FlashEffect
-- **Titan (2버스트)** : 팀 전체 공격력 1.2배 (10초) + 별 이펙트 10초간 연속 자동 공격
-- **Viper (3버스트)** : 현재 HP 최고 적에게 단발 20배 데미지 빔
+- **Titan (2버스트)** : 팀 공격력 1.2× (10초) + 별 이펙트 10초간 자동 공격
+- **Viper (3버스트)** : 현재 HP 최고 적에게 단발 20× 데미지 빔
+- Astro/Trend 버스트는 `SKILLS_TODO.md` 참고 (미구현)
 
 ---
 
@@ -91,24 +112,48 @@
 ### 5-1. 디렉터리 구조
 ```
 Assets/Scripts/
-├── Core/                ← State 열거형 (전역 참조용 분리)
-│   ├── CharacterState.cs
-│   └── EnemyState.cs
-├── Character/           ← CharacterBase 추상 + Ghost/Titan/Viper 구현
-│   ├── CharacterBase.cs
+├── Core/                       ← 전역 enum + 인터페이스
+│   ├── CharacterState.cs       (Idle/Fire/Reload)
+│   ├── EnemyType.cs            (Normal/Elite/Boss)
+│   ├── DistanceZone.cs         (Close/Mid/Far)
+│   ├── WeaponType.cs           (SG/SMG/AR/MG/SR/RL)
+│   └── ITargetable.cs          (Strategy 계약)
+├── Character/                  ← 캐릭터 5명
+│   ├── Unit/                   (CharacterBase + Astro/Ghost/Titan/Trend/Viper)
+│   ├── Data/                   (CharacterData SO)
+│   ├── CharacterAI.cs
+│   ├── CharacterAimLean.cs     (마우스 X→lean / Y→ camera pitch tilt)
 │   ├── CharacterManager.cs
-│   ├── CharacterAI.cs   ← 비활성 팀원 + 오토 스코프 통합 AI
 │   ├── InputManager.cs
-│   └── CrossHair/       ← 무기별 크로스헤어
-├── Burst/               ← 3단계 버스트 시스템
+│   └── CrossHair/
+├── Battle/                     ← 3단계 버스트
 │   └── BurstGaugeManager.cs
-├── Combat/              ← BulletBase / EnemyBulletBase
-├── Enemy/               ← EnemyBase 추상 + EnemyA/B/C + DamagePopup
-├── Camera/              ← 캐릭터 스위칭 연동 카메라
-├── Wave/                ← WaveManager + WaveData (난이도별 ScriptableObject)
-├── UI/                  ← BurstSlot, ReloadProgress, GameOver 등
-├── Utility/             ← ObjectPool, IPoolable, PoolObject
-└── Scene/               ← LoadingSceneManager
+├── Combat/                     ← 총알/미사일 시스템
+│   ├── BulletBase.cs
+│   ├── EnemyBulletBase.cs
+│   ├── EnemyMissileBase.cs     (3D 호밍 미사일)
+│   └── WeaponSpecs.cs          (사거리 보너스)
+├── Enemy/                      ← 적 4종
+│   ├── Unit/                   (EnemyBase + EnemyA/B/C/D)
+│   ├── Data/                   (EnemyData SO)
+│   ├── RandomTargetStrategy.cs (Strategy 구현)
+│   ├── EnemyHPBar.cs
+│   ├── BossHPBar.cs
+│   └── BossCinematicManager.cs
+├── Camera/                     ← State Machine 기반
+│   └── CameraController.cs     (FollowCharacter/FocusTransform/Cinematic/Frozen + Pitch Tilt)
+├── Wave/                       ← 큐 기반 스폰
+│   ├── WaveManager.cs
+│   ├── SpawnQueueGenerator.cs  (가중치 풀 + Fisher-Yates, EditMode 테스트 대상)
+│   └── SpawnGroup.cs
+├── UI/                         ← UIManager (Facade) + Top/Bottom UI
+├── Utility/                    ← ObjectPool, IPoolable, PoolObject
+└── Scene/                      ← LoadingSceneManager
+
+Assets/Tests/                   ← EditMode 66 케이스 (NUnit)
+├── WeaponSpecsTests.cs         (33 케이스)
+├── RandomTargetStrategyTests.cs (5 케이스)
+└── SpawnQueueGeneratorTests.cs  (28 케이스)
 ```
 
 ### 5-2. 한 사이클 데이터 흐름
@@ -201,6 +246,13 @@ graph LR
 > **읽는 법:** 화살표는 "이벤트 발행 → 구독" 방향입니다. 예: `InputManager — OnFire →  CharacterManager` 는 InputManager 가 OnFire 를 발행하고 CharacterManager 가 구독한다는 의미.
 >
 > **고해상도 SVG 버전:** [`Assets/Docs/event-topology.svg`](Assets/Docs/event-topology.svg)
+>
+> **최근 추가된 이벤트/Facade** (다이어그램 미반영):
+> - `WaveManager.OnBossPhaseStart` → `BossCinematicManager`, `TopUIManager` (BossHPBar)
+> - `WaveManager.OnElitePhaseStart` → `TopUIManager` (EliteWarningUI)
+> - `EnemyBase.OnBossDefeated` → `UIManager.OnBossDefeatedHandler`
+> - `EnemyBase.OnHighDamageTargeting` (정적) → `BottomUI` 캐릭터 박스 경고 애니메이션
+> - `CharacterAimLean` → `UIManager.TriggerCameraTilt` → `CameraController.SetTargetPitch` (마우스 Y → pitch ±4°)
 
 ---
 
@@ -271,31 +323,103 @@ transform.Translate(direction * moveDistance, Space.World);
 ```
 **왜 중요한가:** Viper 의 `bulletSpeed = 800f` 처럼 빠른 탄환이 단순 Translate 시 콜라이더를 건너뛰는 문제(tunneling)를 방지. 이번 프레임에 이동할 거리만큼 Raycast 로 미리 충돌을 탐지.
 
-### 6-5. Strategy 패턴 적 타겟팅 — `ITargetStrategy`
+### 6-5. Strategy 패턴 + ITargetable — DIP 적용
 ```csharp
-public interface ITargetStrategy {
-    CharacterBase GetTarget();
+// "타겟이 될 자격" 만 담은 작은 인터페이스 (Interface Segregation)
+public interface ITargetable {
+    bool IsAlive { get; }
+    Transform transform { get; }
 }
-// 현재 구현: RandomTargetStrategy
-// 확장 예정: LowestHpStrategy, NearestStrategy, ThreatBasedStrategy
+
+// CharacterBase 는 MonoBehaviour + ITargetable
+public class CharacterBase : MonoBehaviour, ITargetable { ... }
+
+// Strategy 는 구체 클래스 대신 인터페이스에 의존 (DIP)
+public class RandomTargetStrategy : ITargetStrategy {
+    private List<ITargetable> targets;
+    public ITargetable GetTarget() { ... }
+}
 ```
-**왜 중요한가:** 적 종류가 늘어도 `EnemyBase` 본체는 손대지 않고 전략만 갈아끼우면 됨.
+**왜 중요한가:** EditMode 테스트에서 Fake ITargetable 을 주입 가능. MonoBehaviour 인스턴스 없이도 알고리즘 검증. 미래 확장 (Pet, Turret 등 새 타겟) 시 CharacterBase 상속 없이 인터페이스만 구현.
+
+### 6-6. 가중치 풀 (Pseudo-Random) — 큰 수의 법칙 함정 회피
+```csharp
+public static List<SpawnPattern> BuildPatternPool(int poolSize) {
+    // 1. 가중치 → floor 카운트 분배
+    for (int i = 0; i < patterns.Length; i++)
+        counts[i] = weights[i] * poolSize / 100;
+
+    // 2. 부족분을 가중치 큰 순으로 +1
+    int shortage = poolSize - sum;
+    for (int i = 0; i < shortage; i++)
+        counts[i % patterns.Length]++;
+
+    // 3. Fisher-Yates 셔플로 순서 무작위화
+    Shuffle(pool);
+    return pool;
+}
+```
+**왜 중요한가:** 매번 `Random.value < weight` 로 뽑는 방식은 60 시행에서 표준편차가 커서 한 판에 특정 패턴이 8번 연속 나오는 사고 가능. 판 시작 시 가중치 풀을 결정적으로 구성하면 **분포가 매 판마다 정확**. Tetris 7-bag / Hearthstone pity timer 와 동일한 게임 디자인 패턴.
+
+### 6-7. 카메라 State Machine + Facade — 권한 통일
+```csharp
+public enum CameraMode { FollowCharacter, FocusTransform, Cinematic, Frozen }
+
+// 외부는 반드시 UIManager facade 를 통해서만 카메라 접근
+UIManager.Instance.TriggerBossAppearCinematic(boss, () => { ... });
+UIManager.Instance.TriggerCameraTilt(pitchOffset);  // 마우스 Y → 카메라 ±4도
+```
+**왜 중요한가:** 카메라 조작이 여러 시스템에서 갈래로 뻗으면 충돌/누락 감지가 어려움. Facade 하나로 모아 IDE 의 `Find Usages` 로 즉시 추적 가능. 이 프로젝트에서 발생했던 "보스 컷씬 중 캐릭터 추적이 개입해 카메라가 튀는 사고" 를 이 원칙 도입 후 원천 차단.
+
+### 6-8. EditMode 테스트로 회귀 방지 (66 케이스)
+```csharp
+[TestCase(WeaponType.SG,  DistanceZone.Close)]  // 매개변수화 테스트
+[TestCase(WeaponType.SMG, DistanceZone.Close)]
+public void GetDamageMultiplier_적정사거리_보너스배율(WeaponType w, DistanceZone z) {
+    float multiplier = WeaponSpecs.GetDamageMultiplier(w, z);
+    Assert.AreEqual(WeaponSpecs.OPTIMAL_RANGE_BONUS, multiplier, 0.0001f);
+}
+```
+**왜 중요한가:** 밸런스 상수 (SG 펠릿 수 5, 적정 사거리 배율 1.5 등) 를 코드로 못박음. 누가 무심코 상수를 바꿔도 0.1 초 안에 잡힘. `SpawnQueueGenerator.BuildPatternPool` 의 정수 분배 정확성 (poolSize=13 반올림 케이스 등) 도 테스트 대상.
 
 ---
 
 ## 7. 적 시스템
 
-| 적 타입 | 행동 패턴 | 공격 메커닉 |
-|---|---|---|
-| **EnemyA** | 낙하 출현 → 고정 위치 → 일정 주기 공격 | 경고원(1.5초, 점점 좁아짐) → 레이저(0.5초) → 데미지 적용 |
-| **EnemyB** | 화면 측면에서 진입 → 이동 후 공격 | 일반 사격 (구현 진행 중) |
-| **EnemyC** | 근접 돌진형 | 플레이어 추적 |
+Enemy 데이터도 캐릭터와 동일하게 `EnemyData` SO 로 완전 분리 (`Assets/ScriptableObjects/Enemies/`).
 
-공통 베이스 `EnemyBase`:
+| 적 타입 | 분류 | 행동 패턴 | 공격 메커닉 |
+|---|---|---|---|
+| **EnemyA** | Normal | 낙하 출현 → 고정 위치 → 일정 주기 공격 | 경고원 1.5초 → 레이저 0.5초 (텔레그래프형) |
+| **EnemyB** | Normal (공중) | 측면 슬라이드 진입 → 좌우 waypoint 왕복 | 일반 총알 (플레이어 향해) |
+| **EnemyC** | Elite | 점프 워프로 랜덤 위치 순간이동 | 일반 총알 (지상 이동) |
+| **EnemyD** | Boss | 옆 이동 + 점프 워프 조합 | 일반 총알 + 미사일 4발 일제 사격 (호밍) |
+
+### 큐 기반 웨이브 (60마리 + 보스 1)
+
+```
+BuildPatternPool(60)  → Single 15 / Trio 12 / LL 9 / LR 9 / DS 7 / TR 7 (셔플)
+BuildPrefabKindPool(60, 0.1) → Regular 54 / Elite 6 (셔플)
+       ↓
+동시 인덱스 순회 → (SpawnPattern, PrefabKind) 튜플 60개
+       ↓
+그룹 등장 → 2초 대기 or 전멸 시 즉시 다음
+       ↓
+큐 종료 → EliteWarningUI 1.5초 → 보스 등장 → OnStageClear
+```
+
+### 공통 베이스 `EnemyBase`
+
 - 추상 메서드: `Initialize / Attack / Move / Jump`
-- 공통 처리: `TakeDamage` (피격 플래시 + DamagePopup), `ApplyStun`, `Die` (콜라이더 비활성화 + 0.3초 지연 삭제)
-- 출현 연출 보호: `isSpawning` 플래그로 출현 중에는 공격 불가
-- 인트로 가드: `BattleStarted = false` 동안 전체 적 공격 차단
+- 공통 처리:
+  - `TakeDamage(damage, weaponType)` — 사거리 보너스 자동 적용 (`WeaponSpecs`)
+  - `HitFlash` + `DamagePopup`
+  - `ApplyStun(duration)` — 스턴 상태에서 OnUpdate 스킵
+  - `Die` — Rigidbody 정지 + 이펙트 + 0.3초 지연 삭제
+- SO 통합: `ApplyEnemyData` 가 SO 값을 필드에 주입 (하드코딩 X)
+- 난이도 스케일링: `HpMultiplier` (static) × maxHp
+- 인트로 가드: `BattleStarted` 정적 플래그로 전체 적 공격 차단
+- 게임 종료 시 잔존 적 즉시 정리: `WaveManager.ClearAllEnemies`
 
 ---
 
@@ -304,9 +428,10 @@ public interface ITargetStrategy {
 ### 8-1. 입력 (현재 PC 빌드 기준)
 | 입력 | 동작 |
 |---|---|
+| Mouse Move | 크로스헤어 조준 (마우스 X→lean, Y→ camera pitch ±4°) |
 | Mouse Left (Press/Hold/Release) | 사격 / Viper 차지샷 |
 | Space | 강제 엄폐 리로드 (Cover Toggle) |
-| 1 / 2 / 3 | 캐릭터 스위칭 |
+| Z / X / C / V / B | 5명 캐릭터 스위칭 |
 | Tab | Auto Burst 토글 |
 | LeftShift | Auto Scope (자동 조준) 토글 |
 
@@ -346,18 +471,27 @@ BattleIntroUI       ← BattleIntroManager.OnBattleIntroComplete → WaveManager
 |---|---|---|
 | Phase 1 | 코어 전투 (사격/리로드/피격/스위칭) | ✅ 완료 |
 | Phase 2 | 3단계 버스트 + 강제 엄폐 + 오토 시스템 | ✅ 완료 |
-| Phase 3 | UI 연동 + 사운드 + 적 AI 패턴 다양화 | 🔄 진행 중 |
-| Phase 4 | 보스 패턴 / Wave 밸런싱 / 모바일 빌드 | ⏳ 예정 |
+| Phase 3 | UI 연동 + 사운드 + 적 AI 패턴 다양화 | ✅ 완료 |
+| Phase 4 | 보스 패턴 (미사일) + Wave 큐 재설계 (가중치 풀) | ✅ 완료 |
+| Phase 5 | 카메라 State Machine + Facade + Pitch Tilt | ✅ 완료 |
+| Phase 6 | EnemyData SO 분리 + 사거리 보너스 시스템 | ✅ 완료 |
+| Phase 7 | EditMode 테스트 66 케이스 + TDD 리팩토링 | ✅ 완료 |
+| Phase 8 | Skill 시스템 전개 (SKILLS_TODO 13개) | ⏳ 예정 |
+| Phase 9 | PlayMode 통합 테스트 + Profiler 측정 | ⏳ 예정 |
+| Phase 10 | Mobile 빌드 + 터치 입력 활성화 | ⏳ 예정 |
 
 ---
 
 ## 11. 향후 개선 항목
 
-- 보스 패턴 AI (다단계 페이즈 전환)
-- StatusEffect 통합 구조 (`BuffEffect` / `DebuffEffect` / `DotEffect` 상속) — 현재는 `ApplyDamageBuff` 단독 구현, 일반화 예정
-- ScriptableObject 기반 캐릭터/무기 데이터 외부화 (현재는 Initialize 하드코딩)
-- Addressables 적용
-- Mobile UI / 터치 입력 풀 활성화
+- **Skill 시스템 전개** — 캐릭터 5명 각 3개 스킬, 총 15 스킬 중 대부분 미구현 (`Assets/Docs/SKILLS_TODO.md`)
+- **PlayMode 통합 테스트** — ObjectPool 생명주기, Damage 흐름, Collider 충돌
+- **Profiler 측정** — Pool 도입 전후 GC alloc 비교, Wave 스폰 시 Draw Call 측정
+- **Cinemachine 마이그레이션** — CameraController 를 Cinemachine 기반으로 재설계
+- **New Input System** 활성화 — 현재는 레거시 `Input.GetKey` 사용
+- **Addressables** — 캐릭터/적 프리팹 지연 로드
+- **Mobile UI** / 터치 입력 풀 활성화
+- **Locomotion Blend** — 캐릭터 이동/회전에 부드러운 애니메이션 블렌드 (spine 대체)
 
 ---
 
@@ -365,11 +499,19 @@ BattleIntroUI       ← BattleIntroManager.OnBattleIntroComplete → WaveManager
 
 본 프로젝트의 진짜 목표는 **"NIKKE 만큼의 게임을 만드는 것"이 아니라, NIKKE 의 전투 로직을 분해해서 다시 조립할 수 있는가**였습니다.
 
-특히 다음 세 가지에 집중했습니다:
+특히 다음 다섯 가지에 집중했습니다:
 
-1. **시스템 간 의존성 최소화** — 입력/캐릭터/버스트/UI 가 정적 이벤트로만 통신하도록 분리
-2. **상태에 따른 동작 분기를 한 곳에 모으기** — `CharacterState` / `BurstPhase` 가 모든 거동의 진입점
-3. **확장 가능한 추상화** — 적 1종이 늘 때 `EnemyBase` 본체를 수정하지 않아도 되는 구조
+1. **시스템 간 의존성 최소화** — 입력/캐릭터/버스트/UI/카메라가 정적 이벤트 + Facade 로만 통신하도록 분리
+2. **상태에 따른 동작 분기를 한 곳에 모으기** — `CharacterState` / `BurstPhase` / `CameraMode` 가 모든 거동의 진입점
+3. **확장 가능한 추상화** — 적 1종이 늘 때 `EnemyBase` 본체를 수정하지 않고 SO + 파생 클래스만 추가
+4. **테스트 가능성이 코드 품질을 견인함** — `WaveManager` 의 private 메서드가 테스트하기 어렵다는 사실이 `SpawnQueueGenerator` 정적 클래스 추출로 이어졌고, 자연스럽게 SRP 도 개선됨. **66 케이스로 밸런스 상수 회귀 방지**
+5. **게임 디자인 상 함정도 코드 문제** — Random 매번 뽑는 방식이 60 마리 스케일에서 통계 편향이 큰 문제 → 가중치 풀 + Fisher-Yates 로 결정적 분포 보장. NIKKE 같은 라이브 게임이 왜 이런 패턴을 쓰는지 실감
+
+### 특별히 어려웠던 결정 3 가지
+
+- **`ITargetable` 인터페이스 추출** — CharacterBase 에 인터페이스를 붙이는 게 처음엔 과해 보였지만, 테스트에서 Fake 를 주입 가능해지고, 미래 확장 (Pet, Turret) 도 열려있음. DIP 의 실전 효용을 몸으로 이해
+- **카메라 권한 통일** — CameraController 조작을 UIManager Facade 하나로 강제. 처음엔 "왜 이렇게 우회하나" 싶었지만, 보스 컷씬 도중 캐릭터 추적이 개입해 카메라가 튀는 사고를 겪은 뒤 이 원칙의 무게를 이해
+- **`WaveData` SO → 큐 시스템으로 리팩토링** — 웨이브를 인스펙터에서 손으로 짜던 방식에서 코드에서 자동 분배로 전환. 인스펙터 의존성 감소 + 밸런싱 유연성 확보
 
 ---
 

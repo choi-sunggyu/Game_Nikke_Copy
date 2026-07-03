@@ -123,6 +123,16 @@ public class UIManager : MonoBehaviour
         cameraController.ResetFov();
     }
 
+    /// <summary>
+    /// 카메라 pitch (rotation.x) offset 지정. 마우스 Y 위치 기반 사격 중 시선 상하.
+    /// pitchOffset=+4 → 아래 시선, -4 → 위 시선. 사격 벗어나면 0 호출로 복귀.
+    /// </summary>
+    public void TriggerCameraTilt(float pitchOffset)
+    {
+        if (!ValidateCameraController()) return;
+        cameraController.SetTargetPitch(pitchOffset);
+    }
+
     /// <summary>임의 Transform 에 포커스 (엘리트 적 따라가기 등). 타겟 null 되면 자동으로 캐릭터 복귀.</summary>
     public void FocusCameraOn(Transform target, float fov)
     {

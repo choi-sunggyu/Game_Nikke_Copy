@@ -44,6 +44,16 @@ public class CharacterAimLean : MonoBehaviour
     [Tooltip("비활성 캐릭터일 때도 마지막 자세 유지(false) 또는 정면 복귀(true)")]
     [SerializeField] private bool resetWhenInactive = true;
 
+    [Header("── Tilt (카메라 pitch) 설정 ───")]
+    [Tooltip("카메라 pitch tilt 활성화. off 면 캐릭터 lean 만 동작.")]
+    [SerializeField] private bool  enableCameraTilt = true;
+    [Tooltip("최대 pitch offset (도). 크로스헤어가 화면 끝일 때. 사용자 명시 4.")]
+    [Range(0f, 15f)]
+    [SerializeField] private float maxTiltAngle = 4f;
+    [Tooltip("크로스헤어 Y 정중앙 데드존 비율 (0.05 = 화면 가운데 5% 는 tilt 0)")]
+    [Range(0f, 0.3f)]
+    [SerializeField] private float tiltDeadZone = 0.05f;
+
     private float currentLeanAngle = 0f;
     private Quaternion baseRotation;
 
@@ -59,6 +69,7 @@ public class CharacterAimLean : MonoBehaviour
         if (character == null || character.CrossHair == null)
         {
             ApplyAngle(0f);
+            RequestTilt(0f);
             return;
         }
 
@@ -68,37 +79,71 @@ public class CharacterAimLean : MonoBehaviour
             if (resetWhenInactive)
                 currentLeanAngle = Mathf.Lerp(currentLeanAngle, 0f, leanSpeed * Time.deltaTime);
             ApplyAngle(currentLeanAngle);
+            // tilt 는 활성 캐릭터의 몫 — 비활성이면 요청 안 함 (다른 캐릭터가 처리 중일 수 있음)
             return;
         }
 
-        // 사망/리로드 중에는 정면 복귀 (선택적 — 자연스러움 위해)
+        // 사망 중에는 정면 복귀
         if (!character.IsAlive)
         {
             currentLeanAngle = Mathf.Lerp(currentLeanAngle, 0f, leanSpeed * Time.deltaTime);
             ApplyAngle(currentLeanAngle);
+            RequestTilt(0f);
             return;
         }
 
-        // ── 크로스헤어 X 위치를 [-1, +1] 로 정규화 ──
-        Vector2 crossPos = character.CrossHair.CrossHairPosition;
-        float screenHalf = Screen.width * 0.5f;
-        float normX = (crossPos.x - screenHalf) / screenHalf;
-        normX = Mathf.Clamp(normX, -1f, 1f);
+        // ★ 사격 상태 가드 — Fire 가 아니면 lean & tilt 모두 원상복귀
+        //   사격 시작 → Fire 상태 → 매 프레임 lean/tilt 갱신
+        //   사격 종료 → Idle/Reload 등 → 부드럽게 0 으로 복귀
+        if (character.CurrentState != CharacterState.Fire)
+        {
+            currentLeanAngle = Mathf.Lerp(currentLeanAngle, 0f, leanSpeed * Time.deltaTime);
+            ApplyAngle(currentLeanAngle);
+            RequestTilt(0f);
+            return;
+        }
 
-        // 가운데 dead zone 처리
+        // ── 크로스헤어 X 위치를 [-1, +1] 로 정규화 (lean) ──
+        Vector2 crossPos = character.CrossHair.CrossHairPosition;
+        float screenHalfW = Screen.width  * 0.5f;
+        float screenHalfH = Screen.height * 0.5f;
+        float normX = Mathf.Clamp((crossPos.x - screenHalfW) / screenHalfW, -1f, 1f);
+
+        // X 가운데 dead zone 처리
         if (Mathf.Abs(normX) < deadZoneRatio)
             normX = 0f;
         else
             normX = Mathf.Sign(normX) * (Mathf.Abs(normX) - deadZoneRatio) / (1f - deadZoneRatio);
 
-        // ── 목표 각도 계산 ──
-        // Y축은 부호 반대 (크로스헤어가 오른쪽 → 캐릭터가 오른쪽으로 어깨 틀기 → +Y 회전)
-        // Z축은 부호 그대로 (크로스헤어가 오른쪽 → 오른쪽으로 기울임 → +Z 회전)
-        float targetAngle = (axis == LeanAxis.Y ? +1f : +1f) * normX * maxLeanAngle;
-
-        // ── Lerp 보간 ──
-        currentLeanAngle = Mathf.Lerp(currentLeanAngle, targetAngle, leanSpeed * Time.deltaTime);
+        // ── lean 목표 각도 (기존 로직) ──
+        float targetLean = normX * maxLeanAngle;
+        currentLeanAngle = Mathf.Lerp(currentLeanAngle, targetLean, leanSpeed * Time.deltaTime);
         ApplyAngle(currentLeanAngle);
+
+        // ── Y 정규화 + 카메라 pitch tilt ──
+        if (enableCameraTilt)
+        {
+            float normY = Mathf.Clamp((crossPos.y - screenHalfH) / screenHalfH, -1f, 1f);
+
+            // Y 가운데 dead zone 처리
+            if (Mathf.Abs(normY) < tiltDeadZone)
+                normY = 0f;
+            else
+                normY = Mathf.Sign(normY) * (Mathf.Abs(normY) - tiltDeadZone) / (1f - tiltDeadZone);
+
+            // Unity 관례: rotation.x + = 아래 시선 / - = 위 시선
+            // 크로스헤어가 위 (normY=+1) → 위 시선 → pitch = -maxTiltAngle
+            float pitchOffset = -normY * maxTiltAngle;
+            RequestTilt(pitchOffset);
+        }
+    }
+
+    /// <summary>UIManager facade 를 통해 카메라 pitch offset 요청.</summary>
+    private void RequestTilt(float pitchOffset)
+    {
+        if (!enableCameraTilt) return;
+        if (UIManager.Instance == null) return;
+        UIManager.Instance.TriggerCameraTilt(pitchOffset);
     }
 
     private void ApplyAngle(float angle)

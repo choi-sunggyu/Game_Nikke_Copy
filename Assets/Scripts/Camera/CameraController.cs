@@ -39,6 +39,10 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float defaultFov = 34f;
     [SerializeField] private float zoomSpeed = 5f;
 
+    [Header("── Pitch (마우스 Y 로 시선 상하) ─")]
+    [Tooltip("pitch 보간 속도 — lean 과 동일 6 권장")]
+    [SerializeField] private float tiltSpeed = 6f;
+
     [Header("── 엄폐물 회전 ───────────────")]
     [SerializeField] private Transform blockPivot;
     [SerializeField] private float blockAnimDuration = 0.3f;
@@ -51,6 +55,8 @@ public class CameraController : MonoBehaviour
     private float   _cachedCameraZOffset;
     private float   _cachedDefaultFov;
     private float   _cachedZoomSpeed;
+    private float   _cachedTiltSpeed;
+    private float   _defaultPitch;      // 초기 rotation.x (씬 설정값 기억)
 
     // ═══════════════════════════════════════════════════════
     //  내부 상태
@@ -60,6 +66,7 @@ public class CameraController : MonoBehaviour
     private Transform  _focusTarget;
     private float      _targetFov;
     private Vector3    _targetPosition;
+    private float      _targetPitch;    // rotation.x 목표값 (default + tilt offset)
 
     private Coroutine _blockCoroutine;
     private bool      _blocksVisible = true;
@@ -81,7 +88,13 @@ public class CameraController : MonoBehaviour
         _cachedCameraZOffset = cameraZOffset;
         _cachedDefaultFov    = defaultFov;
         _cachedZoomSpeed     = zoomSpeed;
+        _cachedTiltSpeed     = tiltSpeed;
         _targetFov           = _cachedDefaultFov;
+
+        // 씬 인스펙터에서 설정한 초기 rotation.x 를 기본값으로 기억
+        // → tilt=0 요청 시 이 값으로 복귀
+        _defaultPitch        = transform.eulerAngles.x;
+        _targetPitch         = _defaultPitch;
     }
 
     void Start()
@@ -142,6 +155,11 @@ public class CameraController : MonoBehaviour
         if (_mode != CameraMode.Cinematic && _mode != CameraMode.Frozen)
         {
             cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, _targetFov, _cachedZoomSpeed * Time.deltaTime);
+
+            // Pitch 보간 (rotation.x). Cinematic / Frozen 은 외부가 rotation 을 직접 제어할 수 있으므로 제외.
+            Vector3 euler = transform.eulerAngles;
+            euler.x = Mathf.LerpAngle(euler.x, _targetPitch, _cachedTiltSpeed * Time.deltaTime);
+            transform.eulerAngles = euler;
         }
     }
 
@@ -218,6 +236,16 @@ public class CameraController : MonoBehaviour
 
     /// <summary>FOV 를 default 로 복귀.</summary>
     public void ResetFov() => _targetFov = _cachedDefaultFov;
+
+    /// <summary>
+    /// 카메라 pitch (rotation.x) 목표값 오프셋 지정. 기본 pitch + 인자만큼 조정.
+    /// 예: pitchOffset=+4 → 카메라가 아래로 4도, pitchOffset=-4 → 위로 4도.
+    /// 사격 중 CharacterAimLean 이 마우스 Y 위치 기반으로 매 프레임 호출.
+    /// </summary>
+    public void SetTargetPitch(float pitchOffset) => _targetPitch = _defaultPitch + pitchOffset;
+
+    /// <summary>pitch 를 씬 초기값으로 복귀.</summary>
+    public void ResetPitch() => _targetPitch = _defaultPitch;
 
     /// <summary>Cinematic 진입 — 외부 코루틴이 위치/FOV 단독 제어. Update 는 정지.</summary>
     public void EnterCinematic() => _mode = CameraMode.Cinematic;
