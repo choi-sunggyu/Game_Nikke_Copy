@@ -2,7 +2,7 @@
 
 > 시프트업의 건슈팅 RPG **Goddess of Victory: NIKKE** 의 전투 구조를 분석하고,
 > 핵심 시스템을 직접 재설계·재구현한 1인 개발 포트폴리오 프로젝트.
-
+> https://youtu.be/f4BiMIVg_xg (참고 영상)
 ---
 
 ## 1. 프로젝트 개요
